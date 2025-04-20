@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 
+import TRPCProvider from '@/components/provider/trpc-provider';
+import AuthProvider from '@/components/provider/auth-provider';
+
 import './globals.css';
 
 // const geistSans = Geist({
@@ -29,7 +32,13 @@ export default function RootLayout({
   return (
     <ClerkProvider afterSignOutUrl='/'>
       <html lang='en'>
-        <body className={inter.className}>{children}</body>
+        <body className={inter.className}>
+          <TRPCProvider>
+            {/* <AuthProvider> */}
+            {children}
+            {/* </AuthProvider> */}
+          </TRPCProvider>
+        </body>
       </html>
     </ClerkProvider>
   );
