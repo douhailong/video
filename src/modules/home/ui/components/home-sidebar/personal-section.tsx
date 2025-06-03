@@ -13,8 +13,6 @@ import {
   SidebarMenuItem
 } from '@/components/ui/sidebar';
 
-type PersonalSectionProps = {};
-
 const items = [
   {
     title: 'History',
@@ -35,7 +33,7 @@ const items = [
   }
 ];
 
-const MainSection: React.FC<PersonalSectionProps> = ({}) => {
+const MainSection = () => {
   const clerk = useClerk();
   const { isSignedIn } = useAuth();
 

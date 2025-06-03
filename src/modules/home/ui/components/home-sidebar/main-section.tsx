@@ -12,8 +12,6 @@ import {
   SidebarMenuItem
 } from '@/components/ui/sidebar';
 
-type MainSectionProps = {};
-
 const items = [
   {
     title: 'Home',
@@ -33,7 +31,7 @@ const items = [
   }
 ];
 
-const MainSection: React.FC<MainSectionProps> = ({}) => {
+const MainSection = () => {
   const clerk = useClerk();
   const { isSignedIn } = useAuth();
 

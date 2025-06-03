@@ -1,13 +1,13 @@
 import { SidebarProvider } from '@/components/ui/sidebar';
 
-import HomeNavbar from '@/modules/home/ui/components/home-navbar';
-import HomeSidebar from '@/modules/home/ui/components/home-sidebar';
+import HomeNavbar from '../components/home-navbar';
+import HomeSidebar from '../components/home-sidebar';
 
 type HomeLayoutProps = {
   children: React.ReactNode;
 };
 
-const HomeLayout: React.FC<HomeLayoutProps> = ({ children }) => {
+const HomeLayout = ({ children }: HomeLayoutProps) => {
   return (
     <SidebarProvider>
       <HomeNavbar />

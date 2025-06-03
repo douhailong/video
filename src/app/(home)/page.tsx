@@ -1,11 +1,21 @@
-import { trpc } from '@/trpc/server';
+import { trpc, HydrateClient } from '@/trpc/server';
 
-type PageProps = {};
+import HomeView from '@/modules/home/ui/views/home-view';
 
-const Page: React.FC<PageProps> = async ({}) => {
-  const data = await trpc.hello({ text: 'jjjjj' });
+type PageProps = {
+  searchParams: Promise<{ categoryId?: string }>;
+};
 
-  return <div>111Page111{data?.greeting}</div>;
+const Page = async ({ searchParams }: PageProps) => {
+  const { categoryId } = await searchParams;
+
+  void trpc.categories.getMany.prefetch();
+
+  return (
+    <HydrateClient>
+      <HomeView categoryId={categoryId} />
+    </HydrateClient>
+  );
 };
 
 export default Page;

@@ -1,21 +1,15 @@
 import { z } from 'zod';
-import { protectedProcedure, createTRPCRouter } from '../init';
 import { auth } from '@clerk/nextjs/server';
-export const appRouter = createTRPCRouter({
-  hello: protectedProcedure
-    .input(
-      z.object({
-        text: z.string()
-      })
-    )
-    .query(async (opts) => {
-      const { userId } = await auth();
 
-      console.log(opts.ctx.user, '//////');
-      return {
-        greeting: `hello ${opts.input.text}`
-      };
-    })
+import { protectedProcedure, createTRPCRouter } from '../init';
+import { categoriesRouter } from '@/modules/categories/server/procedures';
+import { studioRouter } from '@/modules/studio/server/procedures';
+import { videosRouter } from '@/modules/videos/server/procedures';
+
+export const appRouter = createTRPCRouter({
+  categories: categoriesRouter,
+  studio: studioRouter,
+  videos: videosRouter
 });
-// export type definition of API
+
 export type AppRouter = typeof appRouter;

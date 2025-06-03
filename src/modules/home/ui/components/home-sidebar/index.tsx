@@ -4,7 +4,7 @@ import { Separator } from '@/components/ui/separator';
 import MainSection from './main-section';
 import PersonalSection from './personal-section';
 
-const HomeSidebar: React.FC = ({}) => {
+const HomeSidebar = () => {
   return (
     <Sidebar className='pt-16 z-40 border-nones' collapsible='icon'>
       <SidebarContent className='bg-background'>

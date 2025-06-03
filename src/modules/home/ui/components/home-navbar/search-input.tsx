@@ -1,8 +1,6 @@
 import { SearchIcon } from 'lucide-react';
 
-type SearchInputProps = {};
-
-const SearchInput: React.FC<SearchInputProps> = ({}) => {
+const SearchInput = () => {
   return (
     <form className='w-full flex'>
       <div className='relative w-full'>
