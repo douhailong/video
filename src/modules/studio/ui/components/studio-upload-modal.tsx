@@ -25,12 +25,22 @@ const StudioUploadModal = ({}: StudioUploadModalProps) => {
         onOpenChange={() => create.reset()}
       >
         {create.data?.url ? (
-          <StudioUploader endpoint={create.data.url} onSuccess={() => {}} />
+          <StudioUploader
+            endpoint={create.data.url}
+            onSuccess={() => {
+              if (!create.data?.video.id) return;
+              create.reset();
+            }}
+          />
         ) : (
           <Loader2 className='animate-spin' />
         )}
       </AdapteModal>
-      <Button variant='secondary' disabled={create.isPending} onClick={() => create.mutate()}>
+      <Button
+        variant='secondary'
+        disabled={create.isPending}
+        onClick={() => create.mutate()}
+      >
         {create.isPending ? <Loader2 className='animate-spin' /> : <Plus />}
         Create
       </Button>

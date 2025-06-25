@@ -14,7 +14,7 @@ module.exports = {
   singleQuote: true,
   jsxSingleQuote: true,
   endOfLine: 'lf',
-  printWidth: 80,
+  printWidth: 100,
   bracketSpacing: true,
   arrowParens: 'always',
   useTabs: false,

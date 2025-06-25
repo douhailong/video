@@ -35,5 +35,6 @@ async function main() {
 main();
 
 export const GET = () => {
+  main();
   return new Response('??????');
 };

@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import { formatDuration } from '@/lib/utils';
 import Image from 'next/image';
 
@@ -8,12 +9,7 @@ type VideoThumbnailProps = {
   duration: number;
 };
 
-const VideoThumbnail = ({
-  thumbnailUrl,
-  previewUrl,
-  title,
-  duration
-}: VideoThumbnailProps) => {
+const VideoThumbnail = ({ thumbnailUrl, previewUrl, title, duration }: VideoThumbnailProps) => {
   return (
     <div className='relative group'>
       <div className='relative overflow-hidden aspect-video w-full rounded-xl'>
@@ -26,6 +22,7 @@ const VideoThumbnail = ({
               className='size-full object-cover group-hover:opacity-0 transition-all'
             />
             <Image
+              unoptimized={!!previewUrl}
               src={previewUrl ?? '/placeholder.svg'}
               alt={title}
               fill
@@ -47,5 +44,15 @@ const VideoThumbnail = ({
     </div>
   );
 };
+
+const VideoThumbnailSkeleton = () => {
+  return (
+    <div className='relative w-full overflow-hidden transition-all rounded-xl aspect-video'>
+      <Skeleton className='size-full' />
+    </div>
+  );
+};
+
+VideoThumbnail.Skeleton = VideoThumbnailSkeleton;
 
 export default VideoThumbnail;

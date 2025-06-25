@@ -10,7 +10,9 @@ export async function POST(req: Request) {
   const SIGNING_SECRET = process.env.CLERK_SIGNING_SECRET;
 
   if (!SIGNING_SECRET) {
-    throw new Error('Error: Please add SIGNING_SECRET from Clerk Dashboard to .env or .env');
+    throw new Error(
+      'Error: Please add SIGNING_SECRET from Clerk Dashboard to .env or .env'
+    );
   }
 
   // Create new Svix instance with secret
@@ -53,7 +55,7 @@ export async function POST(req: Request) {
   // For this guide, log payload to console
   const eventType = evt.type;
 
-  console.log('---------------');
+  console.log('clerk webhook---------------');
 
   if (eventType === 'user.created') {
     const { data } = evt;
@@ -80,7 +82,10 @@ export async function POST(req: Request) {
 
     await db
       .update(users)
-      .set({ name: `${data.first_name} ${data.last_name}`, imageUrl: data.image_url })
+      .set({
+        name: `${data.first_name} ${data.last_name}`,
+        imageUrl: data.image_url
+      })
       .where(eq(users.clerkId, data.id));
   }
 

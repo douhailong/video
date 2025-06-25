@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
+import { Toaster } from 'sonner';
 
 import TRPCProvider from '@/components/provider/trpc-provider';
 import AuthProvider from '@/components/provider/auth-provider';
@@ -36,6 +37,7 @@ const RootLayout = ({ children }: RootLayoutProps) => {
             {children}
             {/* </AuthProvider> */}
           </TRPCProvider>
+          <Toaster />
         </body>
       </html>
     </ClerkProvider>

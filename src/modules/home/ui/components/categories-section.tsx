@@ -9,19 +9,19 @@ import CategoriesCarousel from '@/components/categories-carousel';
 
 type CategoriesSectionProps = { categoryId?: string };
 
-const CategoriesSection = ({ categoryId }: CategoriesSectionProps) => {
+const CategoriesSectionSuspense = ({ categoryId }: CategoriesSectionProps) => {
   return (
     <Suspense fallback={<CategoriesCarousel.Skeleton />}>
       <ErrorBoundary fallback={<p>Error...</p>}>
-        <CategoriesSectionSuspense categoryId={categoryId} />
+        <CategoriesSection categoryId={categoryId} />
       </ErrorBoundary>
     </Suspense>
   );
 };
 
-export default CategoriesSection;
+export default CategoriesSectionSuspense;
 
-const CategoriesSectionSuspense = ({ categoryId }: CategoriesSectionProps) => {
+const CategoriesSection = ({ categoryId }: CategoriesSectionProps) => {
   const router = useRouter();
 
   const [categories] = trpc.categories.getMany.useSuspenseQuery();
@@ -34,10 +34,14 @@ const CategoriesSectionSuspense = ({ categoryId }: CategoriesSectionProps) => {
   const onSelect = (value?: string) => {
     const url = new URL(window.location.href);
 
-    value ? url.searchParams.set('categoryId', value) : url.searchParams.delete('categoryId');
+    value
+      ? url.searchParams.set('categoryId', value)
+      : url.searchParams.delete('categoryId');
 
     router.push(url.toString());
   };
 
-  return <CategoriesCarousel value={categoryId} data={data} onSelect={onSelect} />;
+  return (
+    <CategoriesCarousel value={categoryId} data={data} onSelect={onSelect} />
+  );
 };

@@ -4,15 +4,30 @@ import { z } from 'zod';
 
 import { db } from '@/db';
 import { videos } from '@/db/schema';
-import { procedure, protectedProcedure, createTRPCRouter } from '@/trpc/init';
+import { protectedProcedure, createTRPCRouter } from '@/trpc/init';
 
 export const studioRouter = createTRPCRouter({
+  getOne: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const { id: userId } = ctx.user;
+      const { id } = input;
+
+      const [video] = await db
+        .select()
+        .from(videos)
+        .where(and(eq(videos.id, id), eq(videos.authorId, userId)));
+
+      if (!video) {
+        throw new TRPCError({ code: 'NOT_FOUND' });
+      }
+
+      return video;
+    }),
   getMany: protectedProcedure
     .input(
       z.object({
-        cursor: z
-          .object({ id: z.string().uuid(), updateAt: z.date() })
-          .nullish(),
+        cursor: z.object({ id: z.string().uuid(), updateAt: z.date() }).nullish(),
         limit: z.number()
       })
     )
@@ -29,10 +44,7 @@ export const studioRouter = createTRPCRouter({
             cursor
               ? or(
                   lt(videos.updatedAt, cursor.updateAt),
-                  and(
-                    eq(videos.updatedAt, cursor.updateAt),
-                    lt(videos.id, cursor.id)
-                  )
+                  and(eq(videos.updatedAt, cursor.updateAt), lt(videos.id, cursor.id))
                 )
               : undefined
           )
@@ -43,9 +55,7 @@ export const studioRouter = createTRPCRouter({
       const hasMore = data.length > limit;
       const items = hasMore ? data.slice(0, -1) : data;
       const lastItem = items[items.length - 1];
-      const nextCursor = hasMore
-        ? { id: lastItem.id, updateAt: lastItem.updatedAt }
-        : null;
+      const nextCursor = hasMore ? { id: lastItem.id, updateAt: lastItem.updatedAt } : null;
 
       return { items, nextCursor };
     })
