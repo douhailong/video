@@ -4,21 +4,21 @@ import { TRPCError } from '@trpc/server';
 
 import { db } from '@/db';
 import { videoReactions } from '@/db/schema';
-import { procedure, protectedProcedure, createTRPCRouter } from '@/trpc/init';
+import { protectedProcedure, createTRPCRouter } from '@/trpc/init';
 
 export const videoReactionsRouter = createTRPCRouter({
   like: protectedProcedure
-    .input(z.object({ videoId: z.string().uuid() }))
+    .input(z.object({ videoId: z.uuid() }))
     .mutation(async ({ ctx, input }) => {
       const { videoId } = input;
-      const { id: userId } = ctx.user;
+      const { userId } = ctx;
 
       const [existingReaction] = await db
         .select()
         .from(videoReactions)
         .where(
           and(
-            eq(videoReactions.authorId, userId),
+            eq(videoReactions.viewerId, userId),
             eq(videoReactions.videoId, videoId),
             eq(videoReactions.status, 'like')
           )
@@ -27,7 +27,7 @@ export const videoReactionsRouter = createTRPCRouter({
       if (existingReaction) {
         const [deletedReaction] = await db
           .delete(videoReactions)
-          .where(and(eq(videoReactions.videoId, videoId), eq(videoReactions.authorId, userId)))
+          .where(and(eq(videoReactions.videoId, videoId), eq(videoReactions.viewerId, userId)))
           .returning();
 
         return deletedReaction;
@@ -36,13 +36,13 @@ export const videoReactionsRouter = createTRPCRouter({
       const [createdReaction] = await db
         .insert(videoReactions)
         .values({
-          authorId: userId,
+          viewerId: userId,
           videoId,
           status: 'like'
         })
         // 冲突时更新 (创建时已经存在一条id相同的数据 如status === 'dislike')
         .onConflictDoUpdate({
-          target: [videoReactions.authorId, videoReactions.videoId],
+          target: [videoReactions.viewerId, videoReactions.videoId],
           set: { status: 'like' }
         })
         .returning();
@@ -53,14 +53,14 @@ export const videoReactionsRouter = createTRPCRouter({
     .input(z.object({ videoId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       const { videoId } = input;
-      const { id: userId } = ctx.user;
+      const { userId } = ctx;
 
       const [existingReaction] = await db
         .select()
         .from(videoReactions)
         .where(
           and(
-            eq(videoReactions.authorId, userId),
+            eq(videoReactions.viewerId, userId),
             eq(videoReactions.videoId, videoId),
             eq(videoReactions.status, 'dislike')
           )
@@ -69,7 +69,7 @@ export const videoReactionsRouter = createTRPCRouter({
       if (existingReaction) {
         const [deletedReaction] = await db
           .delete(videoReactions)
-          .where(and(eq(videoReactions.videoId, videoId), eq(videoReactions.authorId, userId)))
+          .where(and(eq(videoReactions.videoId, videoId), eq(videoReactions.viewerId, userId)))
           .returning();
 
         return deletedReaction;
@@ -78,12 +78,12 @@ export const videoReactionsRouter = createTRPCRouter({
       const [createdReaction] = await db
         .insert(videoReactions)
         .values({
-          authorId: userId,
+          viewerId: userId,
           videoId,
           status: 'dislike'
         })
         .onConflictDoUpdate({
-          target: [videoReactions.authorId, videoReactions.videoId],
+          target: [videoReactions.viewerId, videoReactions.videoId],
           set: { status: 'dislike' }
         })
         .returning();

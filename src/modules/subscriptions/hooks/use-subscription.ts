@@ -1,5 +1,3 @@
-import { useClerk } from '@clerk/nextjs';
-
 import { trpc } from '@/trpc/client';
 import { toast } from 'sonner';
 
@@ -10,7 +8,6 @@ type UseSubscriptionProps = {
 };
 
 export const useSubscription = ({ userId, fromVideoId, isSubscribed }: UseSubscriptionProps) => {
-  const clerk = useClerk();
   const utils = trpc.useUtils();
 
   const subscribe = trpc.subscriptions.subscribe.useMutation({
@@ -22,7 +19,6 @@ export const useSubscription = ({ userId, fromVideoId, isSubscribed }: UseSubscr
     },
     onError: (err) => {
       if (err.data?.code === 'UNAUTHORIZED') {
-        clerk.openSignIn();
       }
     }
   });
@@ -35,7 +31,6 @@ export const useSubscription = ({ userId, fromVideoId, isSubscribed }: UseSubscr
     },
     onError: (err) => {
       if (err.data?.code === 'UNAUTHORIZED') {
-        clerk.openSignIn();
       }
     }
   });

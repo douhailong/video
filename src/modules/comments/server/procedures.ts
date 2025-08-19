@@ -16,7 +16,7 @@ export const commentsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const { videoId, value } = input;
-      const { id: userId } = ctx.user;
+      const { userId } = ctx;
 
       const [createdComment] = await db
         .insert(comments)
@@ -40,20 +40,20 @@ export const commentsRouter = createTRPCRouter({
     )
     .query(async ({ input, ctx }) => {
       const { videoId, cursor, limit } = input;
-      const { clerkUserId } = ctx;
+      const { authUserId } = ctx;
 
       const [user] = await db
         .select()
         .from(users)
-        .where(inArray(users.clerkId, clerkUserId ? [clerkUserId] : []));
+        .where(inArray(users.id, authUserId ? [authUserId] : []));
 
       const userId = user ? user.id : undefined;
 
-      const viewerReactions = db.$with('viewer_reactions').as(
+      const viewerReactions = db.$with('viewer_reaction').as(
         db
           .select({ commentId: commentReactions.commentId, status: commentReactions.status })
           .from(commentReactions)
-          .where(inArray(commentReactions.authorId, userId ? [userId] : []))
+          .where(inArray(commentReactions.viewerId, userId ? [userId] : []))
       );
 
       const [total, data] = await Promise.all([
@@ -105,7 +105,7 @@ export const commentsRouter = createTRPCRouter({
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       const { id } = input;
-      const { id: userId } = ctx.user;
+      const { userId } = ctx;
 
       const [removedComment] = await db
         .delete(comments)

@@ -1,4 +1,4 @@
-import StudioLayout from "@/modules/studio/ui/layout/studio-layout";
+import StudioLayout from '@/modules/studio/ui/layout/studio-layout';
 
 type LayoutProps = {
   children: React.ReactNode;

@@ -28,7 +28,7 @@ const InfiniteScroll = ({
   }, [isIntersecting, hasNextPage, isFetchingNextPage, isManual]);
 
   return (
-    <div className='flex flex-col items-center gpa-4 p-4'>
+    <div className='gpa-4 flex flex-col items-center p-4'>
       <div ref={targetRef} className='h-1' />
       {hasNextPage ? (
         <Button
@@ -36,10 +36,10 @@ const InfiniteScroll = ({
           disabled={isFetchingNextPage || !hasNextPage}
           onClick={fetchNextPage}
         >
-          {isFetchingNextPage ? 'Loading...' : 'Load more'}
+          {isFetchingNextPage ? '加载中...' : '加载更多'}
         </Button>
       ) : (
-        <p className='text-xs text-muted-foreground'>You have reached the end of the list</p>
+        <p className='text-muted-foreground text-xs'>已经到底了</p>
       )}
     </div>
   );

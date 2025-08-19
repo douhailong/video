@@ -21,11 +21,7 @@ type CategoriesCarouselProps = {
   onSelect: (value?: string) => void;
 };
 
-const CategoriesCarousel = ({
-  value,
-  data,
-  onSelect
-}: CategoriesCarouselProps) => {
+const CategoriesCarousel = ({ value, data, onSelect }: CategoriesCarouselProps) => {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
@@ -43,20 +39,16 @@ const CategoriesCarousel = ({
     <div className='relative w-full'>
       <div
         className={cn(
-          'absolute left-12 top-0 bottom-0 w-12 z-10 bg-gradient-to-r from-white to-transparent pointer-events-none',
+          'pointer-events-none absolute bottom-0 left-12 top-0 z-10 w-12 bg-gradient-to-r from-white to-transparent',
           current === 1 && 'hidden'
         )}
       />
-      <Carousel
-        setApi={setApi}
-        opts={{ align: 'start', dragFree: true }}
-        className='w-full px-12'
-      >
+      <Carousel setApi={setApi} opts={{ align: 'start', dragFree: true }} className='w-full px-12'>
         <CarouselContent className='-ml-3'>
-          <CarouselItem className='pl-3 basis-auto' onClick={() => onSelect()}>
+          <CarouselItem className='basis-auto pl-3' onClick={() => onSelect()}>
             <Badge
               variant={!value ? 'default' : 'secondary'}
-              className='rounded-lg px-3 py-1 cursor-pointer whitespace-nowrap text-sm'
+              className='cursor-pointer whitespace-nowrap rounded-lg px-3 py-1 text-sm'
             >
               All
             </Badge>
@@ -64,12 +56,12 @@ const CategoriesCarousel = ({
           {data.map((item) => (
             <CarouselItem
               key={item.value}
-              className='pl-3 basis-auto'
+              className='basis-auto pl-3'
               onClick={() => onSelect(item.value)}
             >
               <Badge
                 variant={value === item.value ? 'default' : 'secondary'}
-                className='rounded-lg px-3 py-1 cursor-pointer whitespace-nowrap text-sm'
+                className='cursor-pointer whitespace-nowrap rounded-lg px-3 py-1 text-sm'
               >
                 {item.label}
               </Badge>
@@ -82,7 +74,7 @@ const CategoriesCarousel = ({
 
       <div
         className={cn(
-          'absolute right-12 top-0 bottom-0 w-12 z-10 bg-gradient-to-l from-white to-transparent pointer-events-none',
+          'pointer-events-none absolute bottom-0 right-12 top-0 z-10 w-12 bg-gradient-to-l from-white to-transparent',
           current === count && 'hidden'
         )}
       />
@@ -95,17 +87,14 @@ const CategoriesCarouselSkeleton = () => {
     <div className='relative w-full'>
       <div
         className={cn(
-          'absolute left-12 top-0 bottom-0 w-12 z-10 bg-gradient-to-r from-white to-transparent pointer-events-none'
+          'pointer-events-none absolute bottom-0 left-12 top-0 z-10 w-12 bg-gradient-to-r from-white to-transparent'
         )}
       />
-      <Carousel
-        opts={{ align: 'start', dragFree: true }}
-        className='w-full px-12'
-      >
+      <Carousel opts={{ align: 'start', dragFree: true }} className='w-full px-12'>
         <CarouselContent className='-ml-3'>
           {Array.from({ length: 14 }).map((_, index) => (
-            <CarouselItem key={index} className='pl-3 basis-auto'>
-              <Skeleton className='rounded-lg px-3 py-1 h-full text-sm w-[100px] font-semibold'>
+            <CarouselItem key={index} className='basis-auto pl-3'>
+              <Skeleton className='h-full w-[100px] rounded-lg px-3 py-1 text-sm font-semibold'>
                 &nbsp;
               </Skeleton>
             </CarouselItem>
@@ -114,7 +103,7 @@ const CategoriesCarouselSkeleton = () => {
       </Carousel>
       <div
         className={cn(
-          'absolute right-12 top-0 bottom-0 w-12 z-10 bg-gradient-to-l from-white to-transparent pointer-events-none'
+          'pointer-events-none absolute bottom-0 right-12 top-0 z-10 w-12 bg-gradient-to-l from-white to-transparent'
         )}
       />
     </div>

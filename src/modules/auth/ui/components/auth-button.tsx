@@ -1,54 +1,37 @@
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  SignOutButton,
-  UserButton
-} from '@clerk/nextjs';
-import { Clapperboard, UserCircle } from 'lucide-react';
+import { UserCircle } from 'lucide-react';
 
+import { auth } from '@/auth';
 import { Button } from '@/components/ui/button';
+import UserAvatar from '@/components/user-avatar';
 
-import { signIn, useSession } from 'next-auth/react';
+import AuthDialog from './auth-dialog';
+import AuthDropdown from './auth-dropdown';
 
-const AuthButton = () => {
-  // const session = useSession();
+type AuthButtonProps = {};
 
-  // console.log(session, '-----');
+const AuthButton = async ({}: AuthButtonProps) => {
+  const session = await auth();
+
+  const user = session?.user;
+
+  if (user) {
+    return (
+      <AuthDropdown userName={user.name} imageUrl={user.image} email={user.email}>
+        <UserAvatar className='cursor-pointer' name={user.name} imageUrl={user.image} />
+      </AuthDropdown>
+    );
+  }
+
   return (
-    <>
-      {/* <Button
+    <AuthDialog>
+      <Button
         variant='outline'
-        className='px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-500 rounded-full shadow-none border-blue-500/20'
-        onClick={() => signIn('google')}
+        className='rounded-full border-blue-500/20 px-4 py-2 text-sm font-medium text-blue-600 shadow-none hover:text-blue-500'
       >
         <UserCircle />
         Sign in
-      </Button> */}
-      <SignedIn>
-        <UserButton>
-          {/* <UserButton.MenuItems>
-            <UserButton.Link
-              label='Studio'
-              href='/studio'
-              labelIcon={<Clapperboard className='size-4' />}
-            />
-            <UserButton.Action label='manageAccount' />
-          </UserButton.MenuItems> */}
-        </UserButton>
-      </SignedIn>
-      <SignedOut>
-        <SignInButton mode='modal'>
-          <Button
-            variant='outline'
-            className='px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-500 rounded-full shadow-none border-blue-500/20'
-          >
-            <UserCircle />
-            Sign in
-          </Button>
-        </SignInButton>
-      </SignedOut>
-    </>
+      </Button>
+    </AuthDialog>
   );
 };
 

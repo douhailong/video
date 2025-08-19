@@ -7,7 +7,6 @@ import {
   ThumbsUpIcon,
   Trash2Icon
 } from 'lucide-react';
-import { useAuth, useClerk } from '@clerk/nextjs';
 
 import { trpc } from '@/trpc/client';
 import { cn } from '@/lib/utils';
@@ -28,8 +27,6 @@ type CommentItemProps = {
 };
 
 const CommentItem = ({ comment }: CommentItemProps) => {
-  const clerk = useClerk();
-  const { userId } = useAuth();
   const utils = trpc.useUtils();
 
   const remove = trpc.comments.remove.useMutation({
@@ -45,7 +42,6 @@ const CommentItem = ({ comment }: CommentItemProps) => {
     },
     onError: (err) => {
       if (err.data?.code === 'UNAUTHORIZED') {
-        clerk.openSignIn();
       }
     }
   });
@@ -56,7 +52,6 @@ const CommentItem = ({ comment }: CommentItemProps) => {
     },
     onError: (err) => {
       if (err.data?.code === 'UNAUTHORIZED') {
-        clerk.openSignIn();
       }
     }
   });
@@ -65,17 +60,17 @@ const CommentItem = ({ comment }: CommentItemProps) => {
     <div>
       <div className='flex gap-4'>
         <Link href={`/users/${comment.authorId}`}>
-          <UserAvatar size='lg' imageUrl={comment.user.imageUrl} name={comment.user.name} />
+          <UserAvatar size='lg' imageUrl={comment.user.image} name={comment.user.name} />
         </Link>
         <div className='flex-1'>
-          <div className='flex items-center gap-2 mb-0.5'>
-            <span className='text-sm font-medium pb-0.5'>{comment.user.name}</span>
-            <span className='text-xs text-muted-foreground'>
+          <div className='mb-0.5 flex items-center gap-2'>
+            <span className='pb-0.5 text-sm font-medium'>{comment.user.name}</span>
+            <span className='text-muted-foreground text-xs'>
               {formatDistanceToNow(comment.createdAt, { addSuffix: true })}
             </span>
           </div>
           <p className='text-sm'>{comment.value}</p>
-          <div className='flex items-center gap-2 mt-1'>
+          <div className='mt-1 flex items-center gap-2'>
             <div className='flex items-center'>
               <Button
                 onClick={() => like.mutate({ commentId: comment.id })}
@@ -86,7 +81,7 @@ const CommentItem = ({ comment }: CommentItemProps) => {
               >
                 <ThumbsUpIcon className={cn(comment.viewerReaction === 'like' && 'fill-black')} />
               </Button>
-              <span className='text-xs text-muted-foreground'>{comment.likeCount}</span>
+              <span className='text-muted-foreground text-xs'>{comment.likeCount}</span>
               <Button
                 onClick={() => dislike.mutate({ commentId: comment.id })}
                 disabled={like.isPending || dislike.isPending}
@@ -98,7 +93,7 @@ const CommentItem = ({ comment }: CommentItemProps) => {
                   className={cn(comment.viewerReaction === 'dislike' && 'fill-black')}
                 />
               </Button>
-              <span className='text-xs text-muted-foreground'>{comment.dislikeCount}</span>
+              <span className='text-muted-foreground text-xs'>{comment.dislikeCount}</span>
             </div>
           </div>
         </div>
@@ -113,7 +108,7 @@ const CommentItem = ({ comment }: CommentItemProps) => {
               <MessageSquare className='size-4' />
               Reply
             </DropdownMenuItem>
-            {comment.user.clerkId === userId && (
+            {true && (
               <DropdownMenuItem onClick={() => remove.mutate({ id: comment.id })}>
                 <Trash2Icon className='size-4' />
                 Delete

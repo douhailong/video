@@ -13,7 +13,19 @@ export function formatDuration(duration: number) {
 }
 
 export function titleToSnakeCase(title: string) {
-  return title
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase());
+  return title.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+export class FormDataTransformer {
+  serialize(object: any) {
+    if (!(object instanceof FormData)) {
+      throw new Error('Expected FormData');
+    }
+
+    return object;
+  }
+
+  deserialize(object: any) {
+    return object.json as JSON;
+  }
 }

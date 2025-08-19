@@ -1,6 +1,6 @@
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from './ui/drawer';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from './ui/drawer';
 
 type AdapteModalProps = {
   open: boolean;
@@ -20,6 +20,7 @@ const AdapteModal = ({ open, title, onOpenChange, children }: AdapteModalProps) 
             <DrawerTitle>{title}</DrawerTitle>
           </DrawerHeader>
           {children}
+          <DrawerFooter></DrawerFooter>
         </DrawerContent>
       </Drawer>
     );
@@ -32,6 +33,7 @@ const AdapteModal = ({ open, title, onOpenChange, children }: AdapteModalProps) 
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         {children}
+        <DialogFooter></DialogFooter>
       </DialogContent>
     </Dialog>
   );

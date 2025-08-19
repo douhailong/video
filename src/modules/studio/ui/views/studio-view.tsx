@@ -1,15 +1,10 @@
 import VideosSection from '../components/videos-section';
 
-type StudioViewProps = {};
-
-const StudioView = ({}: StudioViewProps) => {
+const StudioView = () => {
   return (
-    <div className='flex flex-col gap-y-6 pt-2.5'>
+    <div className='flex flex-col gap-y-5 pt-2.5'>
       <div className='px-4'>
-        <h1 className='text-2xl font-bold'>Channel content</h1>
-        <p className='text-xs text-muted-foreground'>
-          Manage your channel content and videos
-        </p>
+        <h1 className='text-xl font-bold'>作品管理</h1>
       </div>
       <VideosSection />
     </div>

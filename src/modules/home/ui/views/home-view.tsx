@@ -1,11 +1,13 @@
-import CategoriesSection from "../components/categories-section";
+import CategoriesSection from '@/modules/categories/ui/components/categories-section';
+import VideosSection from '../components/videos-section';
 
 type HomeViewProps = { categoryId?: string };
 
 const HomeView = ({ categoryId }: HomeViewProps) => {
   return (
-    <div className="max-w-[2400px] mx-auto mb-10 px-4 pt-2.5 flex flex-col gap-y-6">
+    <div className='mx-auto mb-10 flex max-w-[2400px] flex-col gap-y-6 px-4 pt-2.5'>
       <CategoriesSection categoryId={categoryId} />
+      <VideosSection />
     </div>
   );
 };

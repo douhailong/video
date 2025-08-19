@@ -23,7 +23,7 @@ const VideoGridCard = ({ data, onRemove }: VideoGridCardProps) => {
   }, [data.createdAt]);
 
   return (
-    <div className='flex flex-col gap-2 w-full group'>
+    <div className='group flex w-full flex-col gap-2'>
       <Link href={`/videos/${data.id}`}>
         <VideoThumbnail
           thumbnailUrl={data.thumbnailUrl}
@@ -38,7 +38,7 @@ const VideoGridCard = ({ data, onRemove }: VideoGridCardProps) => {
         </Link>
         <div className='flex-1'>
           <Link href={`/videos/${data.id}`}>
-            <h3 className='font-medium line-clamp-1 lg:line-clamp-2 text-base break-words'>
+            <h3 className='line-clamp-1 break-words text-base font-medium lg:line-clamp-2'>
               {data.title}
             </h3>
           </Link>
@@ -46,13 +46,13 @@ const VideoGridCard = ({ data, onRemove }: VideoGridCardProps) => {
             <UserInfo name={data.user.name} />
           </Link>
           <Link href={`/videos/${data.id}`}>
-            <p className='text-sm text-gray-600 line-clamp-1'>
+            <p className='line-clamp-1 text-sm text-gray-600'>
               {compactViews} views ● {compactDate}
             </p>
           </Link>
         </div>
         <div className='flex-shrink-0'>
-          <VideoMenu videoId={data.id} onRemove={onRemove} />
+          *{/* <VideoMenu videoId={data.id} onRemove={onRemove} /> */}
         </div>
       </div>
     </div>

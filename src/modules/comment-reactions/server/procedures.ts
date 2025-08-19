@@ -11,14 +11,14 @@ export const commentReactionsRouter = createTRPCRouter({
     .input(z.object({ commentId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       const { commentId } = input;
-      const { id: userId } = ctx.user;
+      const { userId } = ctx;
 
       const [existingReaction] = await db
         .select()
         .from(commentReactions)
         .where(
           and(
-            eq(commentReactions.authorId, userId),
+            eq(commentReactions.viewerId, userId),
             eq(commentReactions.commentId, commentId),
             eq(commentReactions.status, 'like')
           )
@@ -28,7 +28,7 @@ export const commentReactionsRouter = createTRPCRouter({
         const [deletedReaction] = await db
           .delete(commentReactions)
           .where(
-            and(eq(commentReactions.commentId, commentId), eq(commentReactions.authorId, userId))
+            and(eq(commentReactions.commentId, commentId), eq(commentReactions.viewerId, userId))
           )
           .returning();
 
@@ -38,13 +38,13 @@ export const commentReactionsRouter = createTRPCRouter({
       const [createdReaction] = await db
         .insert(commentReactions)
         .values({
-          authorId: userId,
+          viewerId: userId,
           commentId,
           status: 'like'
         })
         // 冲突时更新 (创建时已经存在一条id相同的数据 如status === 'dislike')
         .onConflictDoUpdate({
-          target: [commentReactions.authorId, commentReactions.commentId],
+          target: [commentReactions.viewerId, commentReactions.commentId],
           set: { status: 'like' }
         })
         .returning();
@@ -55,14 +55,14 @@ export const commentReactionsRouter = createTRPCRouter({
     .input(z.object({ commentId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       const { commentId } = input;
-      const { id: userId } = ctx.user;
+      const { userId } = ctx;
 
       const [existingReaction] = await db
         .select()
         .from(commentReactions)
         .where(
           and(
-            eq(commentReactions.authorId, userId),
+            eq(commentReactions.viewerId, userId),
             eq(commentReactions.commentId, commentId),
             eq(commentReactions.status, 'dislike')
           )
@@ -72,7 +72,7 @@ export const commentReactionsRouter = createTRPCRouter({
         const [deletedReaction] = await db
           .delete(commentReactions)
           .where(
-            and(eq(commentReactions.commentId, commentId), eq(commentReactions.authorId, userId))
+            and(eq(commentReactions.commentId, commentId), eq(commentReactions.viewerId, userId))
           )
           .returning();
 
@@ -82,12 +82,12 @@ export const commentReactionsRouter = createTRPCRouter({
       const [createdReaction] = await db
         .insert(commentReactions)
         .values({
-          authorId: userId,
+          viewerId: userId,
           commentId,
           status: 'dislike'
         })
         .onConflictDoUpdate({
-          target: [commentReactions.authorId, commentReactions.commentId],
+          target: [commentReactions.viewerId, commentReactions.commentId],
           set: { status: 'dislike' }
         })
         .returning();

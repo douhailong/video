@@ -4,30 +4,29 @@ import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import { trpc } from '@/trpc/client';
+import InfiniteScroll from '@/components/infinite-scroll';
+import Error from '@/components/error';
 
+import { DEFAULT_LIMIT } from '@/lib/constants';
 import VideoRowCard from './video-row-card';
 import VideoGridCard from './video-grid-card';
-import { DEFAULT_LIMIT } from '@/lib/constants';
-import InfiniteScroll from '@/components/infinite-scroll';
 
 type SuggestionsSectionProps = {
   videoId: string;
   isManual?: boolean;
 };
 
-const SuggestionsSectionSuspense = ({ videoId, isManual }: SuggestionsSectionProps) => {
+const SuggestionsSection = ({ videoId, isManual }: SuggestionsSectionProps) => {
   return (
-    <Suspense fallback={<p>...Loading</p>}>
-      <ErrorBoundary fallback={<p>Error</p>}>
-        <SuggestionsSection videoId={videoId} isManual={isManual} />
-      </ErrorBoundary>
-    </Suspense>
+    <ErrorBoundary fallback={<Error />}>
+      <Suspense fallback={<SuggestionsSectionSkeleton />}>
+        <SuggestionsSectionSuspense videoId={videoId} isManual={isManual} />
+      </Suspense>
+    </ErrorBoundary>
   );
 };
 
-export default SuggestionsSectionSuspense;
-
-const SuggestionsSection = ({ videoId, isManual }: SuggestionsSectionProps) => {
+const SuggestionsSectionSuspense = ({ videoId, isManual }: SuggestionsSectionProps) => {
   const [suggestions, query] = trpc.suggestions.getMany.useSuspenseInfiniteQuery(
     {
       videoId,
@@ -38,14 +37,14 @@ const SuggestionsSection = ({ videoId, isManual }: SuggestionsSectionProps) => {
 
   return (
     <>
-      <div className='hidden sm:block space-y-3'>
+      <div className='hidden space-y-3 sm:block'>
         {suggestions.pages
           .flatMap((page) => page.items)
           .map((video) => (
             <VideoRowCard key={video.id} size='compact' data={video} />
           ))}
       </div>
-      <div className='block sm:hidden space-y-10'>
+      <div className='block space-y-10 sm:hidden'>
         {suggestions.pages
           .flatMap((page) => page.items)
           .map((video) => (
@@ -63,5 +62,7 @@ const SuggestionsSection = ({ videoId, isManual }: SuggestionsSectionProps) => {
 };
 
 const SuggestionsSectionSkeleton = () => {
-  return <div></div>;
+  return <div>Loading...</div>;
 };
+
+export default SuggestionsSection;

@@ -1,44 +1,43 @@
-import Link from "next/link";
-import { useUser } from "@clerk/nextjs";
+'use client';
+
+import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 import {
   SidebarHeader,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar";
-import UserAvatar from "@/components/user-avatar";
-import { Skeleton } from "@/components/ui/skeleton";
+  useSidebar
+} from '@/components/ui/sidebar';
+import UserAvatar from '@/components/user-avatar';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type StudioSidebarHeaderProps = {};
 
 const StudioSidebarHeader = ({}: StudioSidebarHeaderProps) => {
   const { state } = useSidebar();
-  const { user } = useUser();
+  const { data } = useSession();
+
+  const user = data?.user;
 
   if (!user) {
     return (
-      <SidebarHeader className="flex items-center justify-center pb-4">
-        <Skeleton className="size-[112px] rounded-full" />
-        <div className="mt-2 flex items-center justify-center flex-col gap-y-2">
-          <Skeleton className="h-4 w-[80px]" />
-          <Skeleton className="h-4 w-[100px]" />
+      <SidebarHeader className='flex items-center justify-center pb-4'>
+        <Skeleton className='size-[112px] rounded-full' />
+        <div className='mt-2 flex flex-col items-center justify-center gap-y-2'>
+          <Skeleton className='h-4 w-[80px]' />
+          <Skeleton className='h-4 w-[100px]' />
         </div>
       </SidebarHeader>
     );
   }
 
-  if (state === "collapsed") {
+  if (state === 'collapsed') {
     return (
       <SidebarMenuItem>
-        <SidebarMenuButton tooltip="Your profile" asChild>
-          <Link href="/user/current">
-            <UserAvatar
-              imageUrl={user.imageUrl}
-              name={user.fullName ?? "User"}
-              size="xs"
-            />
-            <span className="text-sm">Your profile</span>
+        <SidebarMenuButton tooltip='个人信息' asChild>
+          <Link href='/user/current'>
+            <UserAvatar imageUrl={user.image} name={user.name} size='xs' />
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
@@ -46,17 +45,17 @@ const StudioSidebarHeader = ({}: StudioSidebarHeaderProps) => {
   }
 
   return (
-    <SidebarHeader className="flex items-center justify-center pb-4">
-      <Link href="/user/current">
+    <SidebarHeader className='flex items-center justify-center pb-4'>
+      <Link href='/user/current'>
         <UserAvatar
-          imageUrl={user.imageUrl}
-          name={user.fullName ?? "User"}
-          className="size-[112px] hover:opacity-80 transition-opacity"
+          imageUrl={user.image}
+          name={user.name}
+          className='size-[112px] transition-opacity hover:opacity-80'
         />
       </Link>
-      <div className="flex items-center justify-center flex-col mt-2 gap-y-1">
-        <p className="text-sm font-medium">Your profile</p>
-        <p className="text-xs text-muted-foreground">{user.fullName}</p>
+      <div className='mt-2 flex flex-col items-center justify-center gap-y-1'>
+        <p className='text-sm font-medium'>个人信息</p>
+        <p className='text-muted-foreground text-xs'>{user.name}</p>
       </div>
     </SidebarHeader>
   );

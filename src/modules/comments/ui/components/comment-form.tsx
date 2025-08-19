@@ -4,7 +4,6 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { useUser, useClerk } from '@clerk/nextjs';
 
 import { trpc } from '@/trpc/client';
 import { commentInsertSchema, comments } from '@/db/schema';
@@ -19,8 +18,6 @@ type CommentFormProps = {
 };
 
 const CommentForm = ({ videoId, onSuccess }: CommentFormProps) => {
-  const { user } = useUser();
-  const clerk = useClerk();
   const utils = trpc.useUtils();
 
   const form = useForm<z.infer<typeof commentInsertSchema>>({
@@ -40,7 +37,6 @@ const CommentForm = ({ videoId, onSuccess }: CommentFormProps) => {
     },
     onError: (err) => {
       if (err.data?.code === 'UNAUTHORIZED') {
-        clerk.openSignIn();
       }
     }
   });
@@ -51,11 +47,11 @@ const CommentForm = ({ videoId, onSuccess }: CommentFormProps) => {
 
   return (
     <Form {...form}>
-      <form className='flex gap-4 group' onSubmit={form.handleSubmit(onSubmit)}>
+      <form className='group flex gap-4' onSubmit={form.handleSubmit(onSubmit)}>
         <UserAvatar
           size='lg'
-          imageUrl={user?.imageUrl || '/user-placeholder.svg'}
-          name={user?.username || 'User'}
+          // imageUrl={user?.image || '/user-placeholder.svg'}
+          // name={user?.name || 'User'}
         />
         <div className='flex-1'>
           <FormField
@@ -74,7 +70,7 @@ const CommentForm = ({ videoId, onSuccess }: CommentFormProps) => {
               </FormItem>
             )}
           />
-          <div className='flex justify-end gap-2 mt-2'>
+          <div className='mt-2 flex justify-end gap-2'>
             <Button type='submit' disabled={create.isPending}>
               Comment
             </Button>

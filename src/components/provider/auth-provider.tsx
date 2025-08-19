@@ -6,7 +6,7 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+const AuthProvider = ({ children }: AuthProviderProps) => {
   return <SessionProvider>{children}</SessionProvider>;
 };
 

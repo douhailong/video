@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { httpBatchLink } from '@trpc/client';
+import { httpBatchLink, httpLink, splitLink, isNonJsonSerializable } from '@trpc/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import superjson from 'superjson';
 
 import { trpc } from '@/trpc/client';
 import { makeQueryClient } from '@/trpc/query-client';
+import { FormDataTransformer } from '@/lib/utils';
 
 interface TRPCProviderProps {
   children: React.ReactNode;
@@ -23,21 +24,43 @@ function getQueryClient() {
   return (clientQueryClientSingleton ??= makeQueryClient());
 }
 
-const TRPCProvider: React.FC<TRPCProviderProps> = ({ children }) => {
+const TRPCProvider = ({ children }: TRPCProviderProps) => {
   const queryClient = getQueryClient();
   const [trpcClient] = useState(() =>
     trpc.createClient({
       links: [
-        httpBatchLink({
-          transformer: superjson,
-          url: `${process.env.NEXT_PUBLIC_SERVER_URL}/api/trpc`,
-          // 增强日志
-          async headers() {
-            const headers = new Headers();
-            headers.set('x-trpc-source', 'nextjs-react');
-            return headers;
-          }
+        // FormData格式参数 https://discord-questions.trpc.io/m/1343947836143960066
+        splitLink({
+          condition: (opt) => isNonJsonSerializable(opt.input),
+          true: httpLink({
+            transformer: new FormDataTransformer(),
+            url: `${process.env.NEXT_PUBLIC_SERVER_URL}/api/trpc`,
+            async headers() {
+              const headers = new Headers();
+              headers.set('x-trpc-source', 'nextjs-react');
+              return headers;
+            }
+          }),
+          false: httpBatchLink({
+            transformer: superjson,
+            url: `${process.env.NEXT_PUBLIC_SERVER_URL}/api/trpc`,
+            async headers() {
+              const headers = new Headers();
+              headers.set('x-trpc-source', 'nextjs-react');
+              return headers;
+            }
+          })
         })
+        // httpBatchLink({
+        //   transformer: superjson,
+        //   url: `${process.env.NEXT_PUBLIC_SERVER_URL}/api/trpc`,
+        //   // 增强日志
+        //   async headers() {
+        //     const headers = new Headers();
+        //     headers.set('x-trpc-source', 'nextjs-react');
+        //     return headers;
+        //   }
+        // })
       ]
     })
   );

@@ -1,4 +1,5 @@
 import {
+  type AnyPgColumn,
   integer,
   pgTable,
   pgEnum,
@@ -6,60 +7,83 @@ import {
   uuid,
   varchar,
   uniqueIndex,
-  primaryKey,
-  AnyPgColumn
+  primaryKey
 } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
-import { createInsertSchema, createSelectSchema, createUpdateSchema } from 'drizzle-zod';
+import type { AdapterAccountType } from 'next-auth/adapters';
 
+const uuidtamps = uuid().primaryKey().defaultRandom();
 const timestamps = {
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow().notNull()
 };
 
-export const users = pgTable(
-  'users',
+export const reactionStatus = pgEnum('reaction_status', ['like', 'dislike']);
+
+export const users = pgTable('user', {
+  id: uuidtamps,
+  name: varchar().notNull(),
+  email: varchar().unique().notNull(),
+  emailVerified: timestamp('emailVerified'),
+  image: varchar().notNull(),
+  ...timestamps
+});
+
+export const accounts = pgTable(
+  'account',
   {
-    id: uuid().primaryKey().defaultRandom(),
-    clerkId: varchar().unique().notNull(),
-    name: varchar().notNull(),
-    imageUrl: varchar().notNull(),
-    ...timestamps
+    userId: uuid('userId')
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    type: varchar().$type<AdapterAccountType>().notNull(),
+    providerAccountId: varchar('providerAccountId').notNull(),
+    provider: varchar().notNull(),
+    refresh_token: varchar(),
+    access_token: varchar(),
+    expires_at: integer(),
+    token_type: varchar(),
+    scope: varchar(),
+    id_token: varchar(),
+    session_state: varchar()
   },
-  (t) => [uniqueIndex('clerk_id_idx').on(t.clerkId)]
+  (t) => [primaryKey({ name: 'account_pk', columns: [t.provider, t.providerAccountId] })]
 );
 
 export const categories = pgTable(
-  'categories',
+  'categorie',
   {
-    id: uuid().primaryKey().defaultRandom(),
-    name: varchar().notNull(),
-    description: varchar().notNull(),
+    id: uuidtamps,
+    name: varchar().unique().notNull(),
+    description: varchar({ length: 1000 }).notNull(),
     ...timestamps
   },
   (t) => [uniqueIndex('name_idx').on(t.name)]
 );
 
-export const videoVisibilityEnum = pgEnum('video_visibility', ['public', 'private']);
-export const muxStatusEnum = pgEnum('video_status', ['waiting', 'preparing', 'ready', 'errored']);
+export const tags = pgTable(
+  'tag',
+  {
+    id: uuidtamps,
+    name: varchar().unique().notNull(),
+    ...timestamps
+  },
+  (t) => [uniqueIndex('name_idx').on(t.name)]
+);
 
-export const videos = pgTable('videos', {
-  id: uuid().primaryKey().defaultRandom(),
+export const videos = pgTable('video', {
+  id: uuidtamps,
   title: varchar().notNull(),
-  description: varchar(),
-  muxStatus: muxStatusEnum().default('waiting').notNull(),
-  muxAssetId: varchar().unique(),
-  muxUploadId: varchar().unique(),
-  muxPlaybackId: varchar().unique(),
-  muxTrackId: varchar().unique(),
-  muxTrackStatus: varchar(),
+  description: varchar({ length: 1000 }),
+  playbackUrl: varchar(),
   thumbnailUrl: varchar(),
-  thumbnailKey: varchar(),
-  previewUrl: varchar(),
-  previewKey: varchar(),
   duration: integer().default(0).notNull(),
+  status: varchar({ enum: ['waiting', 'uploading', 'preparing', 'ready', 'errored'] })
+    .default('waiting')
+    .notNull(),
+  visibility: varchar({ enum: ['public', 'private'] }).notNull(),
   categoryId: uuid().references(() => categories.id, { onDelete: 'set null' }),
-  visibility: videoVisibilityEnum().default('private').notNull(),
+  // tagsId: uuid()
+  //   .array()
+  //   .references(() => tags.id, { onDelete: 'set null' }),
   authorId: uuid()
     .references(() => users.id, {
       onDelete: 'cascade'
@@ -68,14 +92,10 @@ export const videos = pgTable('videos', {
   ...timestamps
 });
 
-export const videoSelectSchema = createSelectSchema(videos);
-export const videoInsertSchema = createInsertSchema(videos);
-export const videoUpdateSchema = createUpdateSchema(videos);
-
 export const videoViews = pgTable(
-  'video_views',
+  'video_view',
   {
-    authorId: uuid()
+    viewerId: uuid()
       .references(() => users.id, { onDelete: 'cascade' })
       .notNull(),
     videoId: uuid()
@@ -83,28 +103,26 @@ export const videoViews = pgTable(
       .notNull(),
     ...timestamps
   },
-  (t) => [primaryKey({ name: 'video_views_pk', columns: [t.authorId, t.videoId] })]
+  (t) => [primaryKey({ name: 'video_view_pk', columns: [t.viewerId, t.videoId] })]
 );
 
-export const videoReactionEnum = pgEnum('video_reaction', ['like', 'dislike']);
-
 export const videoReactions = pgTable(
-  'video_reactions',
+  'video_reaction',
   {
-    authorId: uuid()
+    viewerId: uuid()
       .references(() => users.id, { onDelete: 'cascade' })
       .notNull(),
     videoId: uuid()
       .references(() => videos.id, { onDelete: 'cascade' })
       .notNull(),
-    status: videoReactionEnum().notNull(),
+    status: reactionStatus().notNull(),
     ...timestamps
   },
-  (t) => [primaryKey({ name: 'video_reactions_pk', columns: [t.authorId, t.videoId] })]
+  (t) => [primaryKey({ name: 'video_reaction_pk', columns: [t.viewerId, t.videoId] })]
 );
 
 export const subscriptions = pgTable(
-  'subscriptions',
+  'subscription',
   {
     subscriberId: uuid()
       .references(() => users.id, { onDelete: 'cascade' })
@@ -114,39 +132,33 @@ export const subscriptions = pgTable(
       .notNull(),
     ...timestamps
   },
-  (t) => [primaryKey({ name: 'subscriptions_pk', columns: [t.subscriberId, t.publisherId] })]
+  (t) => [primaryKey({ name: 'subscription_pk', columns: [t.subscriberId, t.publisherId] })]
 );
 
-export const comments = pgTable('comments', {
-  id: uuid().primaryKey().defaultRandom(),
-  parentId: uuid().references((): AnyPgColumn => comments.id, { onDelete: 'cascade' }),
+export const comments = pgTable('comment', {
+  id: uuidtamps,
+  value: varchar({ length: 1000 }).notNull(),
   authorId: uuid()
     .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
   videoId: uuid()
     .references(() => videos.id, { onDelete: 'cascade' })
     .notNull(),
-  value: varchar({ length: 512 }).notNull(),
+  parentId: uuid().references((): AnyPgColumn => comments.id, { onDelete: 'cascade' }),
   ...timestamps
 });
 
-export const commentReactionEnum = pgEnum('comment_reaction', ['like', 'dislike']);
-
 export const commentReactions = pgTable(
-  'comment_reactions',
+  'comment_reaction',
   {
-    authorId: uuid()
+    viewerId: uuid()
       .references(() => users.id, { onDelete: 'cascade' })
       .notNull(),
     commentId: uuid()
       .references(() => comments.id, { onDelete: 'cascade' })
       .notNull(),
-    status: commentReactionEnum().notNull(),
+    status: reactionStatus().notNull(),
     ...timestamps
   },
-  (t) => [primaryKey({ name: 'comment_reactions_pk', columns: [t.authorId, t.commentId] })]
+  (t) => [primaryKey({ name: 'comment_reaction_pk', columns: [t.viewerId, t.commentId] })]
 );
-
-export const commentSelectSchema = createSelectSchema(comments);
-export const commentInsertSchema = createInsertSchema(comments);
-export const commentUpdateSchema = createUpdateSchema(comments);
