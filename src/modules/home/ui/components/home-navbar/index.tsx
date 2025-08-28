@@ -23,7 +23,7 @@ const HomeNavbar = () => {
         </div>
         <div className='flex flex-shrink-0 items-center gap-4'>
           <PublishButton />
-          <AuthButton />
+          <AuthButton type='complete' />
         </div>
       </div>
     </header>

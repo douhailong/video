@@ -2,7 +2,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 import { SidebarTrigger } from '@/components/ui/sidebar';
-
 import AuthButton from '@/modules/auth/ui/components/auth-button';
 
 const StudioNavbar = () => {
@@ -17,7 +16,7 @@ const StudioNavbar = () => {
           </Link>
         </div>
         <div className='flex flex-shrink-0 items-center gap-4'>
-          <AuthButton />
+          <AuthButton type='simple' />
         </div>
       </div>
     </header>

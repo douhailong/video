@@ -2,8 +2,8 @@
 
 import { trpc } from '@/trpc/client';
 import { useIsMobile } from '@/hooks/use-mobile';
-import VideoGridCard from '@/modules/videos/ui/components/video-grid-card';
-import VideoRowCard from '@/modules/videos/ui/components/video-row-card';
+import VideoGridCard from '@/modules/posts/ui/components/video-grid-card';
+import VideoRowCard from '@/modules/posts/ui/components/video-row-card';
 import { DEFAULT_LIMIT } from '@/lib/constants';
 import InfiniteScroll from '@/components/infinite-scroll';
 

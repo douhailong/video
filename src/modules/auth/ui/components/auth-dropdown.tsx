@@ -1,6 +1,5 @@
 'use client';
 
-import { signOut } from 'next-auth/react';
 import {
   HelpCircle,
   LanguagesIcon,
@@ -12,6 +11,7 @@ import {
   UserPenIcon
 } from 'lucide-react';
 
+import { signOut } from 'next-auth/react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,13 +29,37 @@ import {
 import UserAvatar from '@/components/user-avatar';
 
 type AuthDropdownProps = {
+  type: 'simple' | 'complete';
   userName?: string | null;
   imageUrl?: string | null;
   email?: string | null;
   children: React.ReactNode;
 };
 
-const AuthDropdown = ({ userName, imageUrl, email, children }: AuthDropdownProps) => {
+const AuthDropdown = ({ type, userName, imageUrl, email, children }: AuthDropdownProps) => {
+  if (type === 'simple') {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger>{children}</DropdownMenuTrigger>
+        <DropdownMenuContent className='w-56' align='start' side='left'>
+          <DropdownMenuItem>
+            <UserPenIcon className='mr-2 size-4' />
+            切换账号
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.preventDefault();
+              signOut();
+            }}
+          >
+            <LogOutIcon className='mr-2 size-4' />
+            退出登录
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>{children}</DropdownMenuTrigger>
@@ -50,12 +74,7 @@ const AuthDropdown = ({ userName, imageUrl, email, children }: AuthDropdownProps
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-        // onClick={(e) => {
-        //   // 点击不会关闭menu
-        //   e.preventDefault();
-        // }}
-        >
+        <DropdownMenuItem>
           <UserPenIcon className='mr-2 size-4' />
           切换账号
         </DropdownMenuItem>

@@ -1,54 +1,50 @@
 import Image from 'next/image';
+import { Heart } from 'lucide-react';
 
-import { Skeleton } from '@/components/ui/skeleton';
-
+import { cn, intlNumber } from '@/lib/utils';
 import { formatDuration } from '@/lib/utils';
 
 type VideoThumbnailProps = {
-  thumbnailUrl?: string;
-  title: string;
+  thumbUrl: string | null;
   duration: number;
+  likes: number;
+  liked: boolean;
+  className?: string;
 };
 
-const VideoThumbnail = ({ thumbnailUrl, title, duration }: VideoThumbnailProps) => {
+const VideoThumbnail = ({
+  thumbUrl,
+  likes,
+  duration,
+  liked,
+  className
+}: VideoThumbnailProps) => {
+  const likeCompact = intlNumber({ notation: 'compact', number: likes });
+
   return (
-    <div className='group relative'>
+    <div className={cn('group relative', className)}>
       <div className='relative aspect-video w-full overflow-hidden rounded-xl'>
         <Image
-          src={thumbnailUrl ?? '/placeholder.svg'}
-          alt={title}
-          fill
           className='size-full object-cover transition-all '
-        />
-        {/* <Image
-          src={thumbnailUrl ?? '/placeholder.svg'}
-          alt={title}
+          src={thumbUrl ?? '/placeholder.svg'}
+          alt={thumbUrl ?? '/placeholder.svg'}
           fill
-          className='size-full object-cover transition-all group-hover:opacity-0'
         />
-        <Image
-          unoptimized={!!previewUrl}
-          src={previewUrl ?? '/placeholder.svg'}
-          alt={title}
-          fill
-          className='size-full object-cover opacity-0 transition-all group-hover:opacity-100'
-        /> */}
       </div>
-      <div className='absolute bottom-2 right-2 rounded bg-black/80 px-1 py-0.5 text-xs font-medium text-white'>
+      <div className='absolute bottom-3 left-3 flex items-center gap-1 text-xs text-white'>
+        <Heart
+          className={cn(
+            'size-3.5 hover:animate-spin',
+            liked && 'fill-red-500 text-red-500'
+          )}
+        />
+        <span>{likeCompact}</span>
+      </div>
+      <div className='absolute bottom-3 right-3 rounded bg-black/80 px-1 py-0.5 text-xs font-medium text-white'>
         {formatDuration(duration)}
       </div>
     </div>
   );
 };
-
-const VideoThumbnailSkeleton = () => {
-  return (
-    <div className='relative aspect-video w-full overflow-hidden rounded-xl transition-all'>
-      <Skeleton className='size-full' />
-    </div>
-  );
-};
-
-VideoThumbnail.Skeleton = VideoThumbnailSkeleton;
 
 export default VideoThumbnail;

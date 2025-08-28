@@ -1,4 +1,4 @@
 import type { inferProcedureOutput } from '@trpc/server';
 import type { AppRouter } from '@/trpc/routers';
 
-export type MixCommentTypes = inferProcedureOutput<AppRouter['comments']['getMany']>;
+export type ManyCommentTypes = inferProcedureOutput<AppRouter['comments']['getMany']>;

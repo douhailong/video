@@ -3,22 +3,22 @@ import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
 import { db } from '@/db';
-import { users, videoReactions, videos, videoViews } from '@/db/schema';
+import { users, postReactions, posts, postViews } from '@/db/schema';
 import { procedure, protectedProcedure, createTRPCRouter } from '@/trpc/init';
 
 export const suggestionsRouter = createTRPCRouter({
   getMany: procedure
     .input(
       z.object({
-        videoId: z.uuid(),
+        postId: z.uuid(),
         cursor: z.object({ id: z.uuid(), updateAt: z.date() }).nullish(),
         limit: z.number()
       })
     )
     .query(async ({ ctx, input }) => {
-      const { cursor, limit, videoId } = input;
+      const { cursor, limit, postId } = input;
 
-      const [exitingVideo] = await db.select().from(videos).where(eq(videos.id, videoId));
+      const [exitingVideo] = await db.select().from(posts).where(eq(posts.id, postId));
 
       if (!exitingVideo) {
         throw new TRPCError({ code: 'NOT_FOUND' });
@@ -26,36 +26,40 @@ export const suggestionsRouter = createTRPCRouter({
 
       const data = await db
         .select({
-          ...getTableColumns(videos),
+          ...getTableColumns(posts),
           user: users,
-          viewCount: db.$count(videoViews, eq(videoViews.videoId, videos.id)),
+          viewCount: db.$count(postViews, eq(postViews.postId, posts.id)),
           likeCount: db.$count(
-            videoReactions,
-            and(eq(videoReactions.videoId, videos.id), eq(videoReactions.status, 'like'))
+            postReactions,
+            and(eq(postReactions.postId, posts.id), eq(postReactions.status, 'like'))
           )
         })
-        .from(videos)
+        .from(posts)
         .where(
           and(
-            not(eq(videos.id, exitingVideo.id)),
-            eq(videos.visibility, 'public'),
-            exitingVideo.categoryId ? eq(videos.categoryId, exitingVideo.categoryId) : undefined,
+            not(eq(posts.id, exitingVideo.id)),
+            eq(posts.visible, 'public'),
+            exitingVideo.categoryId
+              ? eq(posts.categoryId, exitingVideo.categoryId)
+              : undefined,
             cursor
               ? or(
-                  lt(videos.updatedAt, cursor.updateAt),
-                  and(eq(videos.updatedAt, cursor.updateAt), lt(videos.id, cursor.id))
+                  lt(posts.updatedAt, cursor.updateAt),
+                  and(eq(posts.updatedAt, cursor.updateAt), lt(posts.id, cursor.id))
                 )
               : undefined
           )
         )
-        .innerJoin(users, eq(videos.authorId, users.id))
-        .orderBy(desc(videos.updatedAt), desc(videos.id))
+        .innerJoin(users, eq(posts.authorId, users.id))
+        .orderBy(desc(posts.updatedAt), desc(posts.id))
         .limit(limit + 1);
 
       const hasMore = data.length > limit;
       const items = hasMore ? data.slice(0, -1) : data;
       const lastItem = items[items.length - 1];
-      const nextCursor = hasMore ? { id: lastItem.id, updateAt: lastItem.updatedAt } : null;
+      const nextCursor = hasMore
+        ? { id: lastItem.id, updateAt: lastItem.updatedAt }
+        : null;
 
       return { items, nextCursor };
     })

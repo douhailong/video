@@ -7,7 +7,6 @@ import superjson from 'superjson';
 
 import { trpc } from '@/trpc/client';
 import { makeQueryClient } from '@/trpc/query-client';
-import { FormDataTransformer } from '@/lib/utils';
 
 interface TRPCProviderProps {
   children: React.ReactNode;
@@ -33,7 +32,10 @@ const TRPCProvider = ({ children }: TRPCProviderProps) => {
         splitLink({
           condition: (opt) => isNonJsonSerializable(opt.input),
           true: httpLink({
-            transformer: new FormDataTransformer(),
+            transformer: {
+              serialize: (object) => object,
+              deserialize: (object) => object.json as JSON
+            },
             url: `${process.env.NEXT_PUBLIC_SERVER_URL}/api/trpc`,
             async headers() {
               const headers = new Headers();
@@ -51,16 +53,6 @@ const TRPCProvider = ({ children }: TRPCProviderProps) => {
             }
           })
         })
-        // httpBatchLink({
-        //   transformer: superjson,
-        //   url: `${process.env.NEXT_PUBLIC_SERVER_URL}/api/trpc`,
-        //   // 增强日志
-        //   async headers() {
-        //     const headers = new Headers();
-        //     headers.set('x-trpc-source', 'nextjs-react');
-        //     return headers;
-        //   }
-        // })
       ]
     })
   );

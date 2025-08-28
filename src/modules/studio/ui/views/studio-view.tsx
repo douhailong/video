@@ -1,4 +1,4 @@
-import VideosSection from '../components/videos-section';
+import PostsSection from '../components/posts-section';
 
 const StudioView = () => {
   return (
@@ -6,7 +6,7 @@ const StudioView = () => {
       <div className='px-4'>
         <h1 className='text-xl font-bold'>作品管理</h1>
       </div>
-      <VideosSection />
+      <PostsSection />
     </div>
   );
 };

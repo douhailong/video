@@ -1,5 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { formatDistanceToNow, format } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -16,16 +18,22 @@ export function titleToSnakeCase(title: string) {
   return title.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-export class FormDataTransformer {
-  serialize(object: any) {
-    if (!(object instanceof FormData)) {
-      throw new Error('Expected FormData');
-    }
+export function formatTimeDistance(date: Date) {
+  return formatDistanceToNow(date, { addSuffix: true, locale: zhCN });
+}
 
-    return object;
-  }
+export function formatTime(date: Date, addSuffix?: boolean) {
+  return format(date, `yyyy年MM月dd日${addSuffix ? ' HH:mm' : ''}`, { locale: zhCN });
+}
 
-  deserialize(object: any) {
-    return object.json as JSON;
-  }
+export function intlNumber({
+  intl = 'cn',
+  number,
+  notation
+}: {
+  intl?: string;
+  number: number;
+  notation: 'compact' | 'standard';
+}) {
+  return Intl.NumberFormat(intl, { notation }).format(number);
 }

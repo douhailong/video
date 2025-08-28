@@ -30,9 +30,13 @@ export const suspenseProcedure = t.procedure.use(async function isAuthed({ ctx, 
     .from(users)
     .where(inArray(users.id, authUserId ? [authUserId] : []));
 
-  const userId = user ? user.id : undefined;
-
-  return next({ ctx: { ...ctx, userId } });
+  return next({
+    ctx: {
+      ...ctx,
+      userId: user?.id
+      // role: user.role
+    }
+  });
 });
 
 export const protectedProcedure = t.procedure.use(async function isAuthed({ ctx, next }) {
@@ -40,7 +44,7 @@ export const protectedProcedure = t.procedure.use(async function isAuthed({ ctx,
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
 
-  const [user] = await db.select({ id: users.id }).from(users).where(eq(users.id, ctx.authUserId));
+  const [user] = await db.select().from(users).where(eq(users.id, ctx.authUserId));
 
   if (!user) {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
@@ -52,5 +56,11 @@ export const protectedProcedure = t.procedure.use(async function isAuthed({ ctx,
   //   throw new TRPCError({ code: 'TOO_MANY_REQUESTS' });
   // }
 
-  return next({ ctx: { ...ctx, userId: user.id } });
+  return next({
+    ctx: {
+      ...ctx,
+      userId: user.id
+      // role: user.role
+    }
+  });
 });

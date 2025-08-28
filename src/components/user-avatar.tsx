@@ -10,7 +10,7 @@ const avatarVariants = cva('', {
       xs: 'size-4',
       sm: 'size-6',
       lg: 'size-10',
-      xl: 'size[160px]'
+      xl: 'size-[120px]'
     }
   },
   defaultVariants: {

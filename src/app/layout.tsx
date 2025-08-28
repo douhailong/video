@@ -4,7 +4,6 @@ import { Toaster } from 'sonner';
 
 import TRPCProvider from '@/components/provider/trpc-provider';
 import AuthProvider from '@/components/provider/auth-provider';
-
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });

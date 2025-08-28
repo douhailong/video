@@ -7,16 +7,18 @@ import UserAvatar from '@/components/user-avatar';
 import AuthDialog from './auth-dialog';
 import AuthDropdown from './auth-dropdown';
 
-type AuthButtonProps = {};
+type AuthButtonProps = {
+  type: 'simple' | 'complete';
+};
 
-const AuthButton = async ({}: AuthButtonProps) => {
+const AuthButton = async ({ type }: AuthButtonProps) => {
   const session = await auth();
 
   const user = session?.user;
 
   if (user) {
     return (
-      <AuthDropdown userName={user.name} imageUrl={user.image} email={user.email}>
+      <AuthDropdown type={type} userName={user.name} imageUrl={user.image} email={user.email}>
         <UserAvatar className='cursor-pointer' name={user.name} imageUrl={user.image} />
       </AuthDropdown>
     );
@@ -29,7 +31,7 @@ const AuthButton = async ({}: AuthButtonProps) => {
         className='rounded-full border-blue-500/20 px-4 py-2 text-sm font-medium text-blue-600 shadow-none hover:text-blue-500'
       >
         <UserCircle />
-        Sign in
+        登录
       </Button>
     </AuthDialog>
   );

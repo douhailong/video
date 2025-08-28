@@ -5,7 +5,12 @@ import { useForm } from 'react-hook-form';
 import { signIn } from 'next-auth/react';
 import { SmartphoneIcon, MailIcon, BookKeyIcon } from 'lucide-react';
 
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Icons from '@/components/icons';

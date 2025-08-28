@@ -47,7 +47,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import VideoPlayer from '@/modules/videos/ui/components/videos/video-player';
+import VideoPlayer from '@/modules/posts/ui/components/videos/video-player';
 import { Skeleton } from '@/components/ui/skeleton';
 import Error from '@/components/error';
 import { createInsertSchema } from 'drizzle-zod';
@@ -242,7 +242,10 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value ?? undefined}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value ?? undefined}
+                  >
                     <FormControl>
                       <SelectTrigger className='w-full'>
                         <SelectValue placeholder='Selected a category' />
@@ -290,7 +293,9 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                 <div className='flex items-center justify-between'>
                   <div className='flex flex-col gap-y-1'>
                     <p className='text-muted-foreground text-xs'>Video status</p>
-                    <p className='text-sm'>muxStatus{/* {titleToSnakeCase(video.muxStatus)} */}</p>
+                    <p className='text-sm'>
+                      muxStatus{/* {titleToSnakeCase(video.muxStatus)} */}
+                    </p>
                   </div>
                 </div>
                 <div className='flex items-center justify-between'>
@@ -310,7 +315,10 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Visibility</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value ?? undefined}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value ?? undefined}
+                  >
                     <FormControl>
                       <SelectTrigger className='w-full'>
                         <SelectValue placeholder='Selected visibility' />

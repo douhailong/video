@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Upload } from 'lucide-react';
 
 import { auth } from '@/auth';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 
 const PublishButton = async () => {
   const session = await auth();
@@ -12,12 +12,10 @@ const PublishButton = async () => {
   }
 
   return (
-    <Button variant='secondary' asChild>
-      <Link href='/studio'>
-        <Upload />
-        创作中心
-      </Link>
-    </Button>
+    <Link href='/studio' className={buttonVariants({ variant: 'secondary' })}>
+      <Upload />
+      创作中心
+    </Link>
   );
 };
 

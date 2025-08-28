@@ -1,38 +1,44 @@
 'use client';
 
-import { z } from 'zod';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { SmileIcon, ImageIcon } from 'lucide-react';
 
 import { trpc } from '@/trpc/client';
-import { commentInsertSchema, comments } from '@/db/schema';
-import { Textarea } from '@/components/ui/textarea';
-import UserAvatar from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 
 type CommentFormProps = {
-  videoId: string;
+  postId: string;
   onSuccess?: () => void;
 };
 
-const CommentForm = ({ videoId, onSuccess }: CommentFormProps) => {
+type FormValues = {
+  content: string;
+  postId: string;
+};
+
+const CommentForm = ({ postId, onSuccess }: CommentFormProps) => {
   const utils = trpc.useUtils();
 
-  const form = useForm<z.infer<typeof commentInsertSchema>>({
-    resolver: zodResolver(commentInsertSchema.omit({ authorId: true })),
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { isValid }
+  } = useForm<FormValues>({
+    mode: 'onChange',
     defaultValues: {
-      videoId,
-      value: ''
+      content: '',
+      postId
     }
   });
 
   const create = trpc.comments.create.useMutation({
     onSuccess: () => {
-      utils.comments.getMany.invalidate({ videoId });
-      form.reset();
+      utils.comments.getMany.invalidate({ postId });
       toast.success('Comment added');
+      reset();
       onSuccess?.();
     },
     onError: (err) => {
@@ -41,43 +47,31 @@ const CommentForm = ({ videoId, onSuccess }: CommentFormProps) => {
     }
   });
 
-  const onSubmit = (values: z.infer<typeof commentInsertSchema>) => {
+  const onSubmit = (values: FormValues) => {
     create.mutate(values);
   };
 
   return (
-    <Form {...form}>
-      <form className='group flex gap-4' onSubmit={form.handleSubmit(onSubmit)}>
-        <UserAvatar
-          size='lg'
-          // imageUrl={user?.image || '/user-placeholder.svg'}
-          // name={user?.name || 'User'}
+    <form className='w-full' onSubmit={handleSubmit(onSubmit)}>
+      <div className='group relative w-full cursor-text rounded-md bg-gray-100 p-2.5 focus-within:bg-transparent focus-within:ring-1 focus-within:ring-inset focus-within:ring-blue-500'>
+        <textarea
+          {...register('content', {
+            validate: (value) => value.trim().length > 0
+          })}
+          placeholder='添加评论内容'
+          className='group-focus:min-h-30 min-h-10 w-full bg-transparent outline-none transition-all duration-300'
         />
-        <div className='flex-1'>
-          <FormField
-            name='value'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Textarea
-                    {...field}
-                    placeholder='Add a comment...'
-                    className='resize-none overflow-hidden bg-transparent'
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className='mt-2 flex justify-end gap-2'>
-            <Button type='submit' disabled={create.isPending}>
-              Comment
-            </Button>
+        <div className='flex items-center justify-between'>
+          <div className='flex gap-5'>
+            <SmileIcon className='size-5.5 cursor-pointer text-gray-500' />
+            <ImageIcon className='size-5.5 cursor-pointer text-gray-500' />
           </div>
+          <Button type='submit' disabled={create.isPending}>
+            发送
+          </Button>
         </div>
-      </form>
-    </Form>
+      </div>
+    </form>
   );
 };
 

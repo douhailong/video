@@ -12,9 +12,7 @@ import {
 import UserAvatar from '@/components/user-avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 
-type StudioSidebarHeaderProps = {};
-
-const StudioSidebarHeader = ({}: StudioSidebarHeaderProps) => {
+const StudioSidebarHeader = () => {
   const { state } = useSidebar();
   const { data } = useSession();
 

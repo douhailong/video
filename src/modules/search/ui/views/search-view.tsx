@@ -1,4 +1,4 @@
-import CategoriesSection from '@/modules/categories/ui/components/categories-section';
+import CategoriesSection from '@/modules/categories/ui/components/categories';
 import ResultsSection from '../components/results-section';
 
 type SearchViewProps = { query: string; categoryId?: string };

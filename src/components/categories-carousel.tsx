@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 
+import { cn } from '@/lib/utils';
+import { Badge } from './ui/badge';
+import { Skeleton } from './ui/skeleton';
 import {
   Carousel,
   CarouselApi,
@@ -10,18 +13,14 @@ import {
   CarouselNext,
   CarouselPrevious
 } from './ui/carousel';
-import { Badge } from './ui/badge';
-import { Skeleton } from './ui/skeleton';
-
-import { cn } from '@/lib/utils';
 
 type CategoriesCarouselProps = {
-  value?: string;
-  data: { label: string; value: string }[];
+  options: { label: string; value: string }[];
   onSelect: (value?: string) => void;
+  value?: string;
 };
 
-const CategoriesCarousel = ({ value, data, onSelect }: CategoriesCarouselProps) => {
+const CategoriesCarousel = ({ value, options, onSelect }: CategoriesCarouselProps) => {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
@@ -43,17 +42,21 @@ const CategoriesCarousel = ({ value, data, onSelect }: CategoriesCarouselProps) 
           current === 1 && 'hidden'
         )}
       />
-      <Carousel setApi={setApi} opts={{ align: 'start', dragFree: true }} className='w-full px-12'>
+      <Carousel
+        setApi={setApi}
+        opts={{ align: 'start', dragFree: true }}
+        className='w-full px-12'
+      >
         <CarouselContent className='-ml-3'>
           <CarouselItem className='basis-auto pl-3' onClick={() => onSelect()}>
             <Badge
               variant={!value ? 'default' : 'secondary'}
               className='cursor-pointer whitespace-nowrap rounded-lg px-3 py-1 text-sm'
             >
-              All
+              全部
             </Badge>
           </CarouselItem>
-          {data.map((item) => (
+          {options.map((item) => (
             <CarouselItem
               key={item.value}
               className='basis-auto pl-3'

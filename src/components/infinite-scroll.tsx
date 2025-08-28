@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
-import { Button } from './ui/button';
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer';
+import { Button } from './ui/button';
 
 type InfiniteScrollProps = {
   isManual?: boolean;

@@ -1,14 +1,16 @@
 import { z } from 'zod';
 import { createInsertSchema } from 'drizzle-zod';
 
-import { videos } from '@/db/schema';
+import { posts } from '@/db/schema';
 
-export const videoSchema = createInsertSchema(videos, {
-  title: (schema) => schema.trim().max(80, '标题最长80字符')
+export const postSchema = createInsertSchema(posts, {
+  title: (schema) => schema.trim().max(80, '标题最多80字符'),
+  description: (schema) => schema.trim().max(1000, '简介最多1000字符')
 }).omit({
   authorId: true,
   createdAt: true,
-  updatedAt: true
+  updatedAt: true,
+  status: true
 });
 
-export type VideoSchema = z.infer<typeof videoSchema>;
+export type PostSchema = z.infer<typeof postSchema>;

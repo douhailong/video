@@ -10,7 +10,7 @@ module.exports = {
   singleQuote: true,
   jsxSingleQuote: true,
   endOfLine: 'lf',
-  printWidth: 100,
+  printWidth: 90,
   bracketSpacing: true,
   arrowParens: 'always',
   useTabs: false,

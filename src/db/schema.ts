@@ -25,6 +25,7 @@ export const users = pgTable('user', {
   email: varchar().unique().notNull(),
   emailVerified: timestamp('emailVerified'),
   image: varchar().notNull(),
+  role: varchar({ enum: ['root', 'admin', 'user'] }).default('user'),
   ...timestamps
 });
 
@@ -56,7 +57,7 @@ export const categories = pgTable(
     description: varchar({ length: 1000 }).notNull(),
     ...timestamps
   },
-  (t) => [uniqueIndex('name_idx').on(t.name)]
+  (t) => [uniqueIndex('categorie_idx').on(t.name)]
 );
 
 export const tags = pgTable(
@@ -64,26 +65,24 @@ export const tags = pgTable(
   {
     id: uuidtamps,
     name: varchar().unique().notNull(),
+    description: varchar({ length: 1000 }).notNull(),
     ...timestamps
   },
-  (t) => [uniqueIndex('name_idx').on(t.name)]
+  (t) => [uniqueIndex('tag_idx').on(t.name)]
 );
 
-export const videos = pgTable('video', {
+export const posts = pgTable('post', {
   id: uuidtamps,
   title: varchar().notNull(),
-  description: varchar({ length: 1000 }),
+  description: varchar({ length: 1000 }).notNull(),
   playbackUrl: varchar(),
-  thumbnailUrl: varchar(),
+  thumbUrl: varchar(),
   duration: integer().default(0).notNull(),
-  status: varchar({ enum: ['waiting', 'uploading', 'preparing', 'ready', 'errored'] })
+  status: varchar({ enum: ['waiting', 'preparing', 'ready', 'errored'] })
     .default('waiting')
     .notNull(),
-  visibility: varchar({ enum: ['public', 'private'] }).notNull(),
+  visible: varchar({ enum: ['public', 'private'] }).notNull(),
   categoryId: uuid().references(() => categories.id, { onDelete: 'set null' }),
-  // tagsId: uuid()
-  //   .array()
-  //   .references(() => tags.id, { onDelete: 'set null' }),
   authorId: uuid()
     .references(() => users.id, {
       onDelete: 'cascade'
@@ -92,66 +91,52 @@ export const videos = pgTable('video', {
   ...timestamps
 });
 
-export const videoViews = pgTable(
-  'video_view',
+export const postViews = pgTable(
+  'post_view',
   {
     viewerId: uuid()
       .references(() => users.id, { onDelete: 'cascade' })
       .notNull(),
-    videoId: uuid()
-      .references(() => videos.id, { onDelete: 'cascade' })
+    postId: uuid()
+      .references(() => posts.id, { onDelete: 'cascade' })
       .notNull(),
     ...timestamps
   },
-  (t) => [primaryKey({ name: 'video_view_pk', columns: [t.viewerId, t.videoId] })]
+  (t) => [primaryKey({ name: 'post_view_pk', columns: [t.viewerId, t.postId] })]
 );
 
-export const videoReactions = pgTable(
-  'video_reaction',
+export const postReactions = pgTable(
+  'post_reaction',
   {
-    viewerId: uuid()
+    reactorId: uuid()
       .references(() => users.id, { onDelete: 'cascade' })
       .notNull(),
-    videoId: uuid()
-      .references(() => videos.id, { onDelete: 'cascade' })
+    postId: uuid()
+      .references(() => posts.id, { onDelete: 'cascade' })
       .notNull(),
     status: reactionStatus().notNull(),
     ...timestamps
   },
-  (t) => [primaryKey({ name: 'video_reaction_pk', columns: [t.viewerId, t.videoId] })]
-);
-
-export const subscriptions = pgTable(
-  'subscription',
-  {
-    subscriberId: uuid()
-      .references(() => users.id, { onDelete: 'cascade' })
-      .notNull(),
-    publisherId: uuid()
-      .references(() => users.id, { onDelete: 'cascade' })
-      .notNull(),
-    ...timestamps
-  },
-  (t) => [primaryKey({ name: 'subscription_pk', columns: [t.subscriberId, t.publisherId] })]
+  (t) => [primaryKey({ name: 'post_reaction_pk', columns: [t.reactorId, t.postId] })]
 );
 
 export const comments = pgTable('comment', {
   id: uuidtamps,
-  value: varchar({ length: 1000 }).notNull(),
+  content: varchar({ length: 1000 }).notNull(),
+  parentId: uuid().references((): AnyPgColumn => comments.id, { onDelete: 'cascade' }),
   authorId: uuid()
     .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
-  videoId: uuid()
-    .references(() => videos.id, { onDelete: 'cascade' })
+  postId: uuid()
+    .references(() => posts.id, { onDelete: 'cascade' })
     .notNull(),
-  parentId: uuid().references((): AnyPgColumn => comments.id, { onDelete: 'cascade' }),
   ...timestamps
 });
 
 export const commentReactions = pgTable(
   'comment_reaction',
   {
-    viewerId: uuid()
+    reactorId: uuid()
       .references(() => users.id, { onDelete: 'cascade' })
       .notNull(),
     commentId: uuid()
@@ -160,5 +145,21 @@ export const commentReactions = pgTable(
     status: reactionStatus().notNull(),
     ...timestamps
   },
-  (t) => [primaryKey({ name: 'comment_reaction_pk', columns: [t.viewerId, t.commentId] })]
+  (t) => [
+    primaryKey({ name: 'comment_reaction_pk', columns: [t.reactorId, t.commentId] })
+  ]
+);
+
+export const follows = pgTable(
+  'follow',
+  {
+    followerId: uuid()
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    followingId: uuid()
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    ...timestamps
+  },
+  (t) => [primaryKey({ name: 'follow_pk', columns: [t.followerId, t.followingId] })]
 );

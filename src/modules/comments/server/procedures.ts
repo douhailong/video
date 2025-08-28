@@ -1,74 +1,70 @@
 import { and, desc, eq, getTableColumns, lt, or, inArray } from 'drizzle-orm';
-import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
 
 import { db } from '@/db';
 import { commentReactions, comments, users } from '@/db/schema';
-import { procedure, protectedProcedure, createTRPCRouter } from '@/trpc/init';
+import { suspenseProcedure, protectedProcedure, createTRPCRouter } from '@/trpc/init';
 
 export const commentsRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
-        videoId: z.string().uuid(),
-        value: z.string()
+        postId: z.uuid(),
+        content: z.string()
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { videoId, value } = input;
+      const { postId, content } = input;
       const { userId } = ctx;
 
       const [createdComment] = await db
         .insert(comments)
-        .values({ authorId: userId, videoId, value })
+        .values({ authorId: userId, postId, content })
         .returning();
 
       return createdComment;
     }),
-  getMany: procedure
+  getMany: suspenseProcedure
     .input(
       z.object({
-        videoId: z.string().uuid(),
+        postId: z.uuid(),
         cursor: z
           .object({
             updatedAt: z.date(),
-            id: z.string().uuid()
+            id: z.uuid()
           })
           .nullish(),
         limit: z.number()
       })
     )
     .query(async ({ input, ctx }) => {
-      const { videoId, cursor, limit } = input;
-      const { authUserId } = ctx;
-
-      const [user] = await db
-        .select()
-        .from(users)
-        .where(inArray(users.id, authUserId ? [authUserId] : []));
-
-      const userId = user ? user.id : undefined;
+      const { postId, cursor, limit } = input;
+      const { userId } = ctx;
 
       const viewerReactions = db.$with('viewer_reaction').as(
         db
-          .select({ commentId: commentReactions.commentId, status: commentReactions.status })
+          .select()
           .from(commentReactions)
-          .where(inArray(commentReactions.viewerId, userId ? [userId] : []))
+          .where(inArray(commentReactions.reactorId, userId ? [userId] : []))
       );
 
       const [total, data] = await Promise.all([
-        db.$count(comments, eq(comments.videoId, videoId)),
+        db.$count(comments, eq(comments.postId, postId)),
         db
           .with(viewerReactions)
           .select({
             ...getTableColumns(comments),
             user: users,
-            viewerReaction: viewerReactions.status,
-            likeCount: db.$count(
+            reaction: viewerReactions.status,
+            likes: db.$count(
               commentReactions,
-              and(eq(commentReactions.commentId, comments.id), eq(commentReactions.status, 'like'))
+              and(
+                eq(commentReactions.commentId, comments.id),
+                eq(commentReactions.status, 'like')
+              )
             ),
-            dislikeCount: db.$count(
+            dislikes: db.$count(
               commentReactions,
               and(
                 eq(commentReactions.commentId, comments.id),
@@ -79,11 +75,14 @@ export const commentsRouter = createTRPCRouter({
           .from(comments)
           .where(
             and(
-              eq(comments.videoId, videoId),
+              eq(comments.postId, postId),
               cursor
                 ? or(
                     lt(comments.updatedAt, cursor.updatedAt),
-                    and(eq(comments.updatedAt, cursor.updatedAt), lt(comments.id, cursor.id))
+                    and(
+                      eq(comments.updatedAt, cursor.updatedAt),
+                      lt(comments.id, cursor.id)
+                    )
                   )
                 : undefined
             )
@@ -97,12 +96,14 @@ export const commentsRouter = createTRPCRouter({
       const hasMore = data.length > limit;
       const items = hasMore ? data.slice(0, -1) : data;
       const lastItem = items[items.length - 1];
-      const nextCursor = hasMore ? { id: lastItem.id, updatedAt: lastItem.updatedAt } : null;
+      const nextCursor = hasMore
+        ? { id: lastItem.id, updatedAt: lastItem.updatedAt }
+        : null;
 
       return { items, nextCursor, total };
     }),
   remove: protectedProcedure
-    .input(z.object({ id: z.string().uuid() }))
+    .input(z.object({ id: z.uuid() }))
     .mutation(async ({ ctx, input }) => {
       const { id } = input;
       const { userId } = ctx;
