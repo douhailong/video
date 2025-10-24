@@ -21,7 +21,7 @@ const t = initTRPC.context<TRPCContext>().create({ transformer: superjson });
 
 export const createTRPCRouter = t.router;
 export const createCallerFactory = t.createCallerFactory;
-export const procedure = t.procedure;
+export const publicProcedure = t.procedure;
 export const suspenseProcedure = t.procedure.use(async function isAuthed({ ctx, next }) {
   const { authUserId } = ctx;
 
@@ -39,7 +39,7 @@ export const suspenseProcedure = t.procedure.use(async function isAuthed({ ctx, 
   });
 });
 
-export const protectedProcedure = t.procedure.use(async function isAuthed({ ctx, next }) {
+export const procedure = t.procedure.use(async function isAuthed({ ctx, next }) {
   if (!ctx.authUserId) {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }

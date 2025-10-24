@@ -6,10 +6,10 @@ import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
 const avatarVariants = cva('', {
   variants: {
     size: {
-      default: 'size-9',
+      default: 'size-8',
       xs: 'size-4',
       sm: 'size-6',
-      lg: 'size-10',
+      lg: 'size-9',
       xl: 'size-[120px]'
     }
   },

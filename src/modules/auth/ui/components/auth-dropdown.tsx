@@ -1,14 +1,17 @@
 'use client';
 
+import { useTheme } from 'next-themes';
 import {
   HelpCircle,
-  LanguagesIcon,
-  LogOutIcon,
+  Languages,
+  LogOut,
   Mails,
-  MapPinIcon,
-  SettingsIcon,
-  SunIcon,
-  UserPenIcon
+  MapPin,
+  Settings,
+  Sun,
+  UsersRound,
+  Moon,
+  TvMinimalPlay
 } from 'lucide-react';
 
 import { signOut } from 'next-auth/react';
@@ -36,14 +39,26 @@ type AuthDropdownProps = {
   children: React.ReactNode;
 };
 
-const AuthDropdown = ({ type, userName, imageUrl, email, children }: AuthDropdownProps) => {
+const AuthDropdown = ({
+  type,
+  userName,
+  imageUrl,
+  email,
+  children
+}: AuthDropdownProps) => {
+  const { setTheme, theme } = useTheme();
+
   if (type === 'simple') {
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger>{children}</DropdownMenuTrigger>
-        <DropdownMenuContent className='w-56' align='start' side='left'>
+        <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
+        <DropdownMenuContent className='w-48' align='end' side='bottom'>
           <DropdownMenuItem>
-            <UserPenIcon className='mr-2 size-4' />
+            <TvMinimalPlay className='mr-2 size-4' />
+            返回首页
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <UsersRound className='mr-2 size-4' />
             切换账号
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -52,9 +67,31 @@ const AuthDropdown = ({ type, userName, imageUrl, email, children }: AuthDropdow
               signOut();
             }}
           >
-            <LogOutIcon className='mr-2 size-4' />
+            <LogOut className='mr-2 size-4' />
             退出登录
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              {theme === 'dark' ? (
+                <Moon className='mr-4 size-4' />
+              ) : (
+                <Sun className='mr-4 size-4' />
+              )}
+              外观
+            </DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                <DropdownMenuItem onClick={() => setTheme('system')}>
+                  设备
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme('dark')}>深色</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme('light')}>
+                  浅色
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
         </DropdownMenuContent>
       </DropdownMenu>
     );
@@ -62,20 +99,20 @@ const AuthDropdown = ({ type, userName, imageUrl, email, children }: AuthDropdow
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>{children}</DropdownMenuTrigger>
-      <DropdownMenuContent className='w-64' align='start' side='left'>
+      <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
+      <DropdownMenuContent className='w-64' align='end' side='bottom'>
         <DropdownMenuLabel>
           <div className='flex gap-2'>
             <UserAvatar size='lg' name={userName} imageUrl={imageUrl} />
             <div className='flex flex-col'>
-              <p className='text-sm font-medium'>{userName}</p>
-              <span className='text-muted-foreground line-clamp-1 text-xs'>{email}</span>
+              <p className='line-clamp-1 text-base font-medium'>{userName}</p>
+              <span className='text-muted-foreground line-clamp-1 text-sm'>{email}</span>
             </div>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
-          <UserPenIcon className='mr-2 size-4' />
+          <UsersRound className='mr-2 size-4' />
           切换账号
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -84,26 +121,30 @@ const AuthDropdown = ({ type, userName, imageUrl, email, children }: AuthDropdow
             signOut();
           }}
         >
-          <LogOutIcon className='mr-2 size-4' />
+          <LogOut className='mr-2 size-4' />
           退出登录
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
-            <SunIcon className='mr-4 size-4' />
+            {theme === 'dark' ? (
+              <Moon className='mr-4 size-4' />
+            ) : (
+              <Sun className='mr-4 size-4' />
+            )}
             外观
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
-              <DropdownMenuItem>设备</DropdownMenuItem>
-              <DropdownMenuItem>深色</DropdownMenuItem>
-              <DropdownMenuItem>浅色</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme('system')}>设备</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme('dark')}>深色</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme('light')}>浅色</DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
-            <LanguagesIcon className='mr-4 size-4' />
+            <Languages className='mr-4 size-4' />
             语言
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
@@ -116,7 +157,7 @@ const AuthDropdown = ({ type, userName, imageUrl, email, children }: AuthDropdow
         </DropdownMenuSub>
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
-            <MapPinIcon className='mr-4 size-4' />
+            <MapPin className='mr-4 size-4' />
             位置
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
@@ -129,7 +170,7 @@ const AuthDropdown = ({ type, userName, imageUrl, email, children }: AuthDropdow
         </DropdownMenuSub>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
-          <SettingsIcon className='mr-2 size-4' />
+          <Settings className='mr-2 size-4' />
           设置
         </DropdownMenuItem>
         <DropdownMenuSeparator />

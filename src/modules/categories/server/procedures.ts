@@ -4,10 +4,10 @@ import z from 'zod';
 
 import { db } from '@/db';
 import { categories } from '@/db/schema';
-import { procedure, protectedProcedure, createTRPCRouter } from '@/trpc/init';
+import { publicProcedure, procedure, createTRPCRouter } from '@/trpc/init';
 
 export const categoriesRouter = createTRPCRouter({
-  getMany: procedure.query(async () => {
+  getMany: publicProcedure.query(async () => {
     const data = await db.select().from(categories);
 
     // await db
@@ -20,28 +20,26 @@ export const categoriesRouter = createTRPCRouter({
 
     return data;
   }),
-  remove: protectedProcedure
-    .input(z.object({ id: z.uuid() }))
-    .mutation(async ({ input, ctx }) => {
-      const { id } = input;
-      // const { role } = ctx;
+  remove: procedure.input(z.object({ id: z.uuid() })).mutation(async ({ input, ctx }) => {
+    const { id } = input;
+    // const { role } = ctx;
 
-      // if (role === 'user') {
-      //   throw new TRPCError({ code: 'FORBIDDEN' });
-      // }
+    // if (role === 'user') {
+    //   throw new TRPCError({ code: 'FORBIDDEN' });
+    // }
 
-      const [deletedCategory] = await db
-        .delete(categories)
-        .where(eq(categories.id, id))
-        .returning();
+    const [deletedCategory] = await db
+      .delete(categories)
+      .where(eq(categories.id, id))
+      .returning();
 
-      if (!deletedCategory) {
-        throw new TRPCError({ code: 'BAD_REQUEST' });
-      }
+    if (!deletedCategory) {
+      throw new TRPCError({ code: 'BAD_REQUEST' });
+    }
 
-      return deletedCategory;
-    }),
-  create: protectedProcedure
+    return deletedCategory;
+  }),
+  create: procedure
     .input(
       z.object({
         name: z.string().max(6),

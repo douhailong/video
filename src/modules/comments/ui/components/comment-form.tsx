@@ -1,7 +1,6 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
+import { useState, useRef, ChangeEvent } from 'react';
 import { SmileIcon, ImageIcon } from 'lucide-react';
 
 import { trpc } from '@/trpc/client';
@@ -9,36 +8,21 @@ import { Button } from '@/components/ui/button';
 
 type CommentFormProps = {
   postId: string;
+  parentId?: string;
+  feedbackId?: string;
   onSuccess?: () => void;
 };
 
-type FormValues = {
-  content: string;
-  postId: string;
-};
-
-const CommentForm = ({ postId, onSuccess }: CommentFormProps) => {
+const CommentForm = ({ postId, parentId, feedbackId, onSuccess }: CommentFormProps) => {
+  const [content, setContnet] = useState('');
+  const inputRef = useRef<HTMLDivElement>(null);
   const utils = trpc.useUtils();
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    watch,
-    formState: { isValid }
-  } = useForm<FormValues>({
-    mode: 'onChange',
-    defaultValues: {
-      content: '',
-      postId
-    }
-  });
 
   const create = trpc.comments.create.useMutation({
     onSuccess: () => {
       utils.comments.getMany.invalidate({ postId });
-      toast.success('Comment added');
-      reset();
+      inputRef.current!.innerHTML = '';
+      setContnet('');
       onSuccess?.();
     },
     onError: (err) => {
@@ -47,31 +31,47 @@ const CommentForm = ({ postId, onSuccess }: CommentFormProps) => {
     }
   });
 
-  const onSubmit = (values: FormValues) => {
-    create.mutate(values);
-  };
-
   return (
-    <form className='w-full' onSubmit={handleSubmit(onSubmit)}>
-      <div className='group relative w-full cursor-text rounded-md bg-gray-100 p-2.5 focus-within:bg-transparent focus-within:ring-1 focus-within:ring-inset focus-within:ring-blue-500'>
-        <textarea
-          {...register('content', {
-            validate: (value) => value.trim().length > 0
-          })}
-          placeholder='添加评论内容'
-          className='group-focus:min-h-30 min-h-10 w-full bg-transparent outline-none transition-all duration-300'
-        />
-        <div className='flex items-center justify-between'>
-          <div className='flex gap-5'>
-            <SmileIcon className='size-5.5 cursor-pointer text-gray-500' />
-            <ImageIcon className='size-5.5 cursor-pointer text-gray-500' />
-          </div>
-          <Button type='submit' disabled={create.isPending}>
+    <div className='focus-within:min-h-30 flex max-h-60 min-h-0 w-full flex-col overflow-hidden rounded-md bg-gray-100 transition-all focus-within:bg-transparent focus-within:ring focus-within:ring-blue-500'>
+      <div
+        ref={inputRef}
+        className='empty:before:text-muted-foreground flex-1 overflow-auto break-all px-3 py-2.5 outline-none empty:before:text-sm empty:before:content-[attr(data-placeholder)]'
+        contentEditable
+        spellCheck={false}
+        data-placeholder='留下你的精彩评论吧'
+        onInput={(e: ChangeEvent<HTMLDivElement>) =>
+          setContnet(e.target.innerText.trim())
+        }
+      />
+      <div
+        className='flex items-center justify-between px-3 pb-2'
+        tabIndex={1}
+        onFocus={() => inputRef.current?.focus()}
+      >
+        <div className='flex items-center gap-5'>
+          <SmileIcon className='size-5.5 cursor-pointer text-gray-500' />
+          <ImageIcon className='size-5.5 cursor-pointer text-gray-500' />
+        </div>
+        <div className='flex items-center gap-5'>
+          <span className='text-muted-foreground text-xs'>
+            <span>{content.length}</span> / 1000
+          </span>
+          <Button
+            disabled={!content || create.isPending}
+            onClick={() =>
+              create.mutate({
+                content,
+                parentId,
+                feedbackId,
+                postId
+              })
+            }
+          >
             发送
           </Button>
         </div>
       </div>
-    </form>
+    </div>
   );
 };
 

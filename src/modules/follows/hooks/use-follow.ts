@@ -2,20 +2,16 @@ import { toast } from 'sonner';
 import { trpc } from '@/trpc/client';
 
 type UseFollowProps = {
-  userId: string;
-  fromVideoId?: string;
+  followingId: string;
   isFollowed: boolean;
+  onSuccess: () => void;
 };
 
-export const useFollow = ({ userId, fromVideoId, isFollowed }: UseFollowProps) => {
-  const utils = trpc.useUtils();
-
+export const useFollow = ({ followingId, onSuccess, isFollowed }: UseFollowProps) => {
   const follow = trpc.follows.follow.useMutation({
     onSuccess: () => {
       toast.success('Subscribed');
-      if (fromVideoId) {
-        utils.posts.getOne.invalidate({ id: fromVideoId });
-      }
+      onSuccess();
     },
     onError: (err) => {
       if (err.data?.code === 'UNAUTHORIZED') {
@@ -26,9 +22,7 @@ export const useFollow = ({ userId, fromVideoId, isFollowed }: UseFollowProps) =
   const unfollow = trpc.follows.unfollow.useMutation({
     onSuccess: () => {
       toast.success('Unsubscribed');
-      if (fromVideoId) {
-        utils.posts.getOne.invalidate({ id: fromVideoId });
-      }
+      onSuccess();
     },
     onError: (err) => {
       if (err.data?.code === 'UNAUTHORIZED') {
@@ -39,7 +33,9 @@ export const useFollow = ({ userId, fromVideoId, isFollowed }: UseFollowProps) =
   const isPending = follow.isPending || unfollow.isPending;
 
   const onClick = () => {
-    isFollowed ? unfollow.mutate({ id: userId }) : follow.mutate({ id: userId });
+    isFollowed
+      ? unfollow.mutate({ id: followingId })
+      : follow.mutate({ id: followingId });
   };
 
   return { isPending, onClick };

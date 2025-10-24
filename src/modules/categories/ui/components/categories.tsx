@@ -1,23 +1,22 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { trpc } from '@/trpc/client';
 import Boundary from '@/components/boundary';
 import CategoriesCarousel from '@/components/categories-carousel';
 
-type CategoriesProps = { categoryId?: string };
-
-const Categories = (props: CategoriesProps) => {
+const Categories = () => {
   return (
     <Boundary fallback={<CategoriesCarousel.Skeleton />}>
-      <CategoriesSuspense {...props} />
+      <CategoriesSuspense />
     </Boundary>
   );
 };
 
-const CategoriesSuspense = ({ categoryId }: CategoriesProps) => {
+const CategoriesSuspense = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [categories] = trpc.categories.getMany.useSuspenseQuery();
 
@@ -25,6 +24,7 @@ const CategoriesSuspense = ({ categoryId }: CategoriesProps) => {
     label: category.name,
     value: category.id
   }));
+  const categoryId = searchParams.get('categoryId');
 
   const onSelect = (value?: string) => {
     const url = new URL(process.env.NEXT_PUBLIC_SERVER_URL!);

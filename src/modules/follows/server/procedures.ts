@@ -4,34 +4,32 @@ import { TRPCError } from '@trpc/server';
 
 import { db } from '@/db';
 import { follows } from '@/db/schema';
-import { protectedProcedure, createTRPCRouter } from '@/trpc/init';
+import { procedure, createTRPCRouter } from '@/trpc/init';
 
 export const followsRouter = createTRPCRouter({
-  follow: protectedProcedure
-    .input(z.object({ id: z.uuid() }))
-    .mutation(async ({ ctx, input }) => {
-      const { id } = input;
-      const { userId } = ctx;
+  follow: procedure.input(z.object({ id: z.uuid() })).mutation(async ({ ctx, input }) => {
+    const { id } = input;
+    const { userId } = ctx;
 
-      if (id === userId) {
-        throw new TRPCError({ code: 'CONFLICT' });
-      }
+    if (id === userId) {
+      throw new TRPCError({ code: 'CONFLICT' });
+    }
 
-      const [createdFollow] = await db
-        .insert(follows)
-        .values({
-          followerId: userId,
-          followingId: id
-        })
-        .returning();
+    const [createdFollow] = await db
+      .insert(follows)
+      .values({
+        followerId: userId,
+        followingId: id
+      })
+      .returning();
 
-      if (!createdFollow) {
-        throw new TRPCError({ code: 'BAD_REQUEST' });
-      }
+    if (!createdFollow) {
+      throw new TRPCError({ code: 'BAD_REQUEST' });
+    }
 
-      return createdFollow;
-    }),
-  unfollow: protectedProcedure
+    return createdFollow;
+  }),
+  unfollow: procedure
     .input(z.object({ id: z.uuid() }))
     .mutation(async ({ ctx, input }) => {
       const { id } = input;

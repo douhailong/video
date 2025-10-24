@@ -4,10 +4,10 @@ import { z } from 'zod';
 
 import { db } from '@/db';
 import { users, postReactions, posts, postViews } from '@/db/schema';
-import { procedure, protectedProcedure, createTRPCRouter } from '@/trpc/init';
+import { publicProcedure, procedure, createTRPCRouter } from '@/trpc/init';
 
 export const suggestionsRouter = createTRPCRouter({
-  getMany: procedure
+  getMany: publicProcedure
     .input(
       z.object({
         postId: z.uuid(),

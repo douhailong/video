@@ -30,7 +30,7 @@ const PostDescription = ({ createdAt, views, description }: PostDescriptionProps
         <span className='font-medium'>{isExpanded ? expandDate : compactDate}</span>
       </div>
       <div className='relative'>
-        <p className={cn('whitespace-pre-wrap text-sm', !isExpanded && 'line-clamp-2')}>
+        <p className={cn('break-all text-sm', !isExpanded && 'line-clamp-2')}>
           {description}
         </p>
         <div className='mt-2 flex items-center gap-1 text-sm font-medium'>

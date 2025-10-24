@@ -4,10 +4,10 @@ import { TRPCError } from '@trpc/server';
 
 import { db } from '@/db';
 import { commentReactions } from '@/db/schema';
-import { procedure, protectedProcedure, createTRPCRouter } from '@/trpc/init';
+import { publicProcedure, procedure, createTRPCRouter } from '@/trpc/init';
 
 export const commentReactionsRouter = createTRPCRouter({
-  like: protectedProcedure
+  like: procedure
     .input(z.object({ commentId: z.uuid() }))
     .mutation(async ({ ctx, input }) => {
       const { commentId } = input;
@@ -54,7 +54,7 @@ export const commentReactionsRouter = createTRPCRouter({
 
       return createdReaction;
     }),
-  dislike: protectedProcedure
+  dislike: procedure
     .input(z.object({ commentId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       const { commentId } = input;

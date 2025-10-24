@@ -1,12 +1,8 @@
-import Categories from '@/modules/categories/ui/components/categories';
-import PostsSection from '../components/posts/posts-section';
+import PostsSection from '../components/home-view/posts-section';
 
-type HomeViewProps = { categoryId?: string };
-
-const HomeView = ({ categoryId }: HomeViewProps) => {
+const HomeView = () => {
   return (
-    <div className='mx-auto mb-5 flex max-w-[2400px] flex-col gap-y-6 px-4 pt-2.5'>
-      <Categories categoryId={categoryId} />
+    <div className='mx-auto max-w-[2400px] px-5 py-6 sm:px-6'>
       <PostsSection />
     </div>
   );

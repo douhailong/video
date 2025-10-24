@@ -48,7 +48,7 @@ const PostReactions = ({ postId, likes, dislikes, reaction }: PostReactionsProps
         className='gap-2 rounded-l-full rounded-r-none'
       >
         <ThumbsUpIcon className={cn('size-5', reaction === 'like' && 'fill-black')} />
-        {likes}
+        {likes || null}
       </Button>
       <Separator orientation='vertical' className='!h-7' />
       <Button
@@ -57,10 +57,8 @@ const PostReactions = ({ postId, likes, dislikes, reaction }: PostReactionsProps
         variant='secondary'
         className='gap-2 rounded-l-none rounded-r-full'
       >
-        <ThumbsDownIcon
-          className={cn('size-5', reaction === 'dislike' && 'fill-black')}
-        />
-        {dislikes}
+        <ThumbsDownIcon className={cn('size-5', reaction === 'dislike' && 'fill-black')} />
+        {/* {dislikes} */}
       </Button>
     </div>
   );

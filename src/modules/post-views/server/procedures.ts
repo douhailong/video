@@ -4,10 +4,10 @@ import { z } from 'zod';
 
 import { db } from '@/db';
 import { postViews } from '@/db/schema';
-import { protectedProcedure, createTRPCRouter } from '@/trpc/init';
+import { procedure, createTRPCRouter } from '@/trpc/init';
 
 export const postViewsRouter = createTRPCRouter({
-  create: protectedProcedure
+  create: procedure
     .input(z.object({ postId: z.uuid() }))
     .mutation(async ({ ctx, input }) => {
       const { postId } = input;
@@ -19,7 +19,8 @@ export const postViewsRouter = createTRPCRouter({
         .where(and(eq(postViews.viewerId, userId), eq(postViews.postId, postId)));
 
       if (existingView) {
-        throw new TRPCError({ code: 'CONFLICT' });
+        return existingView;
+        // throw new TRPCError({ code: 'CONFLICT' });
       }
 
       const [createdView] = await db

@@ -4,10 +4,10 @@ import { z } from 'zod';
 
 import { db } from '@/db';
 import { postReactions } from '@/db/schema';
-import { protectedProcedure, createTRPCRouter } from '@/trpc/init';
+import { procedure, createTRPCRouter } from '@/trpc/init';
 
 export const postReactionsRouter = createTRPCRouter({
-  like: protectedProcedure
+  like: procedure
     .input(z.object({ postId: z.uuid() }))
     .mutation(async ({ ctx, input }) => {
       const { postId } = input;
@@ -51,7 +51,7 @@ export const postReactionsRouter = createTRPCRouter({
 
       return createdReaction;
     }),
-  dislike: protectedProcedure
+  dislike: procedure
     .input(z.object({ postId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       const { postId } = input;

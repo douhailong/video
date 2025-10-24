@@ -17,7 +17,7 @@ import {
 type CategoriesCarouselProps = {
   options: { label: string; value: string }[];
   onSelect: (value?: string) => void;
-  value?: string;
+  value: string | null;
 };
 
 const CategoriesCarousel = ({ value, options, onSelect }: CategoriesCarouselProps) => {

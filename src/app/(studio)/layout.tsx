@@ -1,10 +1,6 @@
 import StudioLayout from '@/modules/studio/ui/layout/studio-layout';
 
-type LayoutProps = {
-  children: React.ReactNode;
-};
-
-const Layout = ({ children }: LayoutProps) => {
+const Layout = ({ children }: { children: React.ReactNode }) => {
   return <StudioLayout>{children}</StudioLayout>;
 };
 

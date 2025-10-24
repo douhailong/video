@@ -4,10 +4,10 @@ import { z } from 'zod';
 
 import { db } from '@/db';
 import { users, videoReactions, videos, videoViews } from '@/db/schema';
-import { procedure, protectedProcedure, createTRPCRouter } from '@/trpc/init';
+import { publicProcedure, procedure, createTRPCRouter } from '@/trpc/init';
 
 export const searchRouter = createTRPCRouter({
-  getMany: procedure
+  getMany: publicProcedure
     .input(
       z.object({
         cursor: z.object({ id: z.string().uuid(), updateAt: z.date() }).nullish(),
@@ -49,7 +49,9 @@ export const searchRouter = createTRPCRouter({
       const hasMore = data.length > limit;
       const items = hasMore ? data.slice(0, -1) : data;
       const lastItem = items[items.length - 1];
-      const nextCursor = hasMore ? { id: lastItem.id, updateAt: lastItem.updatedAt } : null;
+      const nextCursor = hasMore
+        ? { id: lastItem.id, updateAt: lastItem.updatedAt }
+        : null;
 
       return { items, nextCursor };
     })

@@ -1,16 +1,35 @@
 import { z } from 'zod';
 import { createInsertSchema } from 'drizzle-zod';
 
-import { posts } from '@/db/schema';
+import { posts, videos, pictures } from '@/db/schema';
 
-export const postSchema = createInsertSchema(posts, {
-  title: (schema) => schema.trim().max(80, '标题最多80字符'),
-  description: (schema) => schema.trim().max(1000, '简介最多1000字符')
+const basePostSchema = createInsertSchema(posts, {
+  title: (schema) => schema.trim().max(80, '作品标题最多80字符'),
+  description: (schema) => schema.trim().max(1000, '作品介绍最多1000字符')
 }).omit({
-  authorId: true,
+  userId: true,
   createdAt: true,
   updatedAt: true,
-  status: true
+  id: true
 });
+
+const videoSchema = createInsertSchema(videos).omit({
+  postId: true
+});
+
+const pictureSchema = createInsertSchema(pictures).omit({
+  postId: true
+});
+
+export const postSchema = z.discriminatedUnion('type', [
+  basePostSchema.extend({
+    type: z.literal('video'),
+    video: videoSchema
+  }),
+  basePostSchema.extend({
+    type: z.literal('picture'),
+    picture: pictureSchema
+  })
+]);
 
 export type PostSchema = z.infer<typeof postSchema>;

@@ -8,9 +8,9 @@ import superjson from 'superjson';
 import { trpc } from '@/trpc/client';
 import { makeQueryClient } from '@/trpc/query-client';
 
-interface TRPCProviderProps {
+type TRPCProviderProps = {
   children: React.ReactNode;
-}
+};
 
 let clientQueryClientSingleton: QueryClient;
 
@@ -23,7 +23,7 @@ function getQueryClient() {
   return (clientQueryClientSingleton ??= makeQueryClient());
 }
 
-const TRPCProvider = ({ children }: TRPCProviderProps) => {
+export function TRPCProvider({ children }: TRPCProviderProps) {
   const queryClient = getQueryClient();
   const [trpcClient] = useState(() =>
     trpc.createClient({
@@ -62,6 +62,4 @@ const TRPCProvider = ({ children }: TRPCProviderProps) => {
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </trpc.Provider>
   );
-};
-
-export default TRPCProvider;
+}

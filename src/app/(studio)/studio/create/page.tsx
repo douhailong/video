@@ -1,13 +1,13 @@
 import { HydrateClient, trpc } from '@/trpc/server';
 
-import CreateView from '@/modules/studio/ui/views/create-view';
+import CreatePostView from '@/modules/studio/ui/views/create-post-view';
 
 const Page = async () => {
-  void trpc.categories.getMany.prefetch();
+  // void trpc.categories.getMany.prefetch();
 
   return (
     <HydrateClient>
-      <CreateView />
+      <CreatePostView />
     </HydrateClient>
   );
 };
