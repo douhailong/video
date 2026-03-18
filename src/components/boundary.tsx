@@ -4,9 +4,9 @@ import { ErrorBoundary } from 'react-error-boundary';
 import Error from './error';
 
 type BoundaryProps = {
-  children: React.ReactNode;
-  fallback: React.ReactNode;
-  errorFallback?: React.ReactNode;
+  children: ReactNode;
+  fallback: ReactNode;
+  errorFallback?: ReactNode;
 };
 
 const Boundary = ({ children, fallback, errorFallback }: BoundaryProps) => {

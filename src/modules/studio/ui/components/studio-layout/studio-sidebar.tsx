@@ -21,7 +21,7 @@ import UserAvatar from '@/components/user-avatar';
 
 const menus = [
   { href: '/studio', text: '信息中心', icon: LayoutDashboard },
-  { href: '/studio/posts', text: '内容管理', icon: FolderCog },
+  { href: '/studio/posts', text: '内容', icon: FolderCog },
   { href: '/studio/overview', text: '数据分析', icon: ChartColumn },
   { href: '/studio/captions', text: '字幕', icon: Captions }
 ];
@@ -43,9 +43,9 @@ const StudioSidebar = () => {
                   asChild
                   isActive={pathname === href}
                 >
-                  <Link href={href}>
+                  <Link href={href} className='flex items-center gap-4'>
                     <Icon />
-                    <span className='pl-2 text-base'>{text}</span>
+                    <span className='text-base'>{text}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -82,7 +82,7 @@ const StudioSidebarHeader = () => {
       <SidebarMenuItem>
         <SidebarMenuButton tooltip='个人信息' asChild>
           <Link href='/user/current'>
-            <UserAvatar imageUrl={user.image} name={user.name} size='xs' />
+            <UserAvatar imageUrl={user.image} name={user.name} />
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>

@@ -1,16 +1,18 @@
-import HeadeNavbar from '../components/home-layout/heade-navbar';
-import { SideNavbar } from '../components/home-layout/side-navbar';
+import { DesktopNavbar, MobileNavbar } from '../components/home-layout/navbar';
+import { Headbar } from '../components/home-layout/headbar';
 
-const HomeLayout = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <>
-      <HeadeNavbar />
-      <div className='flex min-h-screen w-full pt-[3.5rem]'>
-        <SideNavbar />
-        <main className='flex-1 overflow-y-auto'>{children}</main>
-      </div>
-    </>
-  );
+type HomeLayoutProps = {
+  children: ReactNode;
+  isOpen?: boolean;
 };
+
+const HomeLayout = ({ children, isOpen = true }: HomeLayoutProps) => (
+  <div className='flex min-h-screen flex-col pt-14 sm:flex-row'>
+    <Headbar />
+    {isOpen && <DesktopNavbar />}
+    <main className='flex-1 overflow-y-auto'>{children}</main>
+    {isOpen && <MobileNavbar />}
+  </div>
+);
 
 export default HomeLayout;

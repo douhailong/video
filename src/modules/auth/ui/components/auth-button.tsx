@@ -1,6 +1,9 @@
+'use server';
+
 import { UserCircle } from 'lucide-react';
 
 import { auth } from '@/auth';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import UserAvatar from '@/components/user-avatar';
 
@@ -9,9 +12,10 @@ import AuthDropdown from './auth-dropdown';
 
 type AuthButtonProps = {
   type: 'simple' | 'complete';
+  className?: string;
 };
 
-const AuthButton = async ({ type }: AuthButtonProps) => {
+const AuthButton = async ({ type, className }: AuthButtonProps) => {
   const session = await auth();
   const user = session?.user;
 
@@ -23,7 +27,11 @@ const AuthButton = async ({ type }: AuthButtonProps) => {
         imageUrl={user.image}
         email={user.email}
       >
-        <UserAvatar className='cursor-pointer' name={user.name} imageUrl={user.image} />
+        <UserAvatar
+          className={cn('cursor-pointer', className)}
+          name={user.name}
+          imageUrl={user.image}
+        />
       </AuthDropdown>
     );
   }

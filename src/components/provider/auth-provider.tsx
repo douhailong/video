@@ -3,7 +3,7 @@
 import { SessionProvider } from 'next-auth/react';
 
 type AuthProviderProps = {
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 export function AuthProvider({ children }: AuthProviderProps) {

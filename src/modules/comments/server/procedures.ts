@@ -7,14 +7,15 @@ import {
   or,
   inArray,
   isNull,
-  sql
+  sql,
+  count
 } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
 import { db } from '@/db';
-import { commentReactions, comments, users } from '@/db/schema';
+import { commentLikes, comments, users } from '@/db/schema';
 import { suspenseProcedure, procedure, createTRPCRouter } from '@/trpc/init';
 
 export const commentsRouter = createTRPCRouter({
@@ -22,41 +23,36 @@ export const commentsRouter = createTRPCRouter({
     .input(
       z.object({
         postId: z.uuid(),
+        text: z.string(),
         parentId: z.uuid().nullish(),
-        feedbackId: z.uuid().nullish(),
-        content: z.string()
+        feedbackId: z.uuid().nullish()
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { postId, parentId, feedbackId, content } = input;
+      const { postId, parentId, feedbackId, text } = input;
       const { userId } = ctx;
 
-      const [existingComment] = await db
-        .select()
-        .from(comments)
-        .where(inArray(comments.id, parentId ? [parentId] : []));
-
-      if (!existingComment && parentId) {
-        throw new TRPCError({ code: 'NOT_FOUND' });
-      }
-
-      if (existingComment?.parentId && parentId && !feedbackId) {
-        throw new TRPCError({ code: 'BAD_REQUEST' });
-      }
-
-      // const [feedbackComment] = await db
+      // const [existingComment] = await db
       //   .select()
       //   .from(comments)
-      //   .where(and(eq(comments.parentId, parentId!)));
+      //   .where(parentId ? eq(comments.id, parentId) : sql`false`);
+
+      // if (!existingComment && parentId) {
+      //   throw new TRPCError({ code: 'NOT_FOUND' });
+      // }
+
+      // if (existingComment?.parentId && parentId && !feedbackId) {
+      //   throw new TRPCError({ code: 'BAD_REQUEST' });
+      // }
 
       const [createdComment] = await db
         .insert(comments)
         .values({
-          authorId: userId,
+          userId,
           postId,
           parentId,
           feedbackId: parentId && feedbackId ? feedbackId : undefined,
-          content
+          text
         })
         .returning();
 
@@ -80,41 +76,53 @@ export const commentsRouter = createTRPCRouter({
       const { postId, parentId, cursor, limit } = input;
       const { userId } = ctx;
 
-      const subComments = alias(comments, 'sub_comment');
-
-      const viewerReaction = db.$with('viewer_reaction').as(
+      const viewerLikes = db.$with('viewer_like').as(
         db
           .select()
-          .from(commentReactions)
-          .where(inArray(commentReactions.reactorId, userId ? [userId] : []))
+          .from(commentLikes)
+          .where(userId ? eq(commentLikes.userId, userId) : sql`false`)
       );
+
+      // const commentCounts = db.$with('comment_count').as(
+      //   db
+      //     .select({
+      //       postId: comments.postId,
+      //       count: count(comments.id).as('commentCount')
+      //     })
+      //     .from(comments)
+      //     .groupBy(comments.id)
+      // );
+
+      // const likeCounts = db.$with('like_count').as(
+      //   db
+      //     .select({
+      //       postId: commentLikes.commentId,
+      //       count: count(commentLikes.commentId).as('likeCount')
+      //     })
+      //     .from(commentLikes)
+      //     .where(eq(commentLikes.status, 'like'))
+      //     .groupBy(commentLikes.commentId)
+      // );
 
       const [total, data] = await Promise.all([
         db.$count(comments, eq(comments.postId, postId)),
         db
-          .with(viewerReaction)
+          .with(viewerLikes)
+          // .with(viewerFeedback, commentCounts, likeCounts)
           .select({
             ...getTableColumns(comments),
             user: users,
-            reaction: viewerReaction.status,
-            comments: db.$count(
-              db.select().from(subComments).where(eq(subComments.parentId, comments.id))
-            ),
-
-            likes: db.$count(
-              commentReactions,
+            likeCount: db.$count(
+              commentLikes,
               and(
-                eq(commentReactions.commentId, comments.id),
-                eq(commentReactions.status, 'like')
+                eq(commentLikes.commentId, comments.id),
+                eq(commentLikes.status, 'like')
               )
             ),
-            dislikes: db.$count(
-              commentReactions,
-              and(
-                eq(commentReactions.commentId, comments.id),
-                eq(commentReactions.status, 'dislike')
-              )
-            )
+            likeStatus: viewerLikes.status
+            // feedback: viewerFeedback.status,
+            // commentCount: commentCounts.count,
+            // likeCount: likeCounts.count
           })
           .from(comments)
           .where(
@@ -132,8 +140,10 @@ export const commentsRouter = createTRPCRouter({
                 : undefined
             )
           )
-          .innerJoin(users, eq(comments.authorId, users.id))
-          .leftJoin(viewerReaction, eq(viewerReaction.commentId, comments.id))
+          .innerJoin(users, eq(comments.userId, users.id))
+          .leftJoin(viewerLikes, eq(viewerLikes.commentId, comments.id))
+          // .leftJoin(commentCounts, eq(commentCounts.postId, postId))
+          // .leftJoin(likeCounts, eq(likeCounts.postId, postId))
           .orderBy(desc(comments.updatedAt), desc(comments.id))
           .limit(limit + 1)
       ]);
@@ -145,12 +155,6 @@ export const commentsRouter = createTRPCRouter({
         ? { id: lastItem.id, updatedAt: lastItem.updatedAt }
         : null;
 
-      // await new Promise((res) => {
-      //   setTimeout(() => {
-      //     res(1);
-      //   }, 3000);
-      // });
-
       return { items, nextCursor, total };
     }),
   remove: procedure.input(z.object({ id: z.uuid() })).mutation(async ({ ctx, input }) => {
@@ -159,7 +163,7 @@ export const commentsRouter = createTRPCRouter({
 
     const [removedComment] = await db
       .delete(comments)
-      .where(and(eq(comments.id, id), eq(comments.authorId, userId)))
+      .where(and(eq(comments.id, id), eq(comments.userId, userId)))
       .returning();
 
     if (!removedComment) {

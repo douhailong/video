@@ -1,7 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 
-const protectedRoute = ['/studio(.*)', '/playlist(.*)', '/feed(.*)', '/setting(.*)'];
+const protectedRoute = [] as string[];
+// ['/studio(.*)', '/playlist(.*)', '/feed(.*)', '/setting(.*)'];
 
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

@@ -14,7 +14,7 @@ import {
 
 type MessageButtonProps = {};
 
-const MessageButton = async ({}: MessageButtonProps) => {
+const MessageButton = ({}: MessageButtonProps) => {
   const num = '9+';
   // TODO 请求studio消息
 
@@ -26,9 +26,20 @@ const MessageButton = async ({}: MessageButtonProps) => {
       <DropdownMenuContent className='w-[480px]' align='end' side='top'>
         <DropdownMenuLabel className='flex items-center justify-between'>
           <span className='text-base'>通知</span>
-          <Settings className='size-6' />
+          <Button variant='ghost' size='icon' className='-mr-1'>
+            <Settings />
+          </Button>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuLabel>重要通知</DropdownMenuLabel>
+        <DropdownMenuItem asChild>
+          <MenuItem />
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <MenuItem />
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel>更多通知</DropdownMenuLabel>
         <DropdownMenuItem asChild>
           <MenuItem />
         </DropdownMenuItem>
@@ -41,26 +52,32 @@ export default MessageButton;
 
 const MenuItem = () => {
   return (
-    <div className='py-4 pr-4'>
-      <Link href='' className='flex w-full gap-2'>
-        <div className='size-12 rounded-full bg-red-200'>1</div>
+    <Link href='/studio' className='relative -mx-1 !rounded-none px-3 py-4'>
+      <div className='flex w-full gap-2'>
+        <div className='size-12 rounded-full bg-red-200'></div>
         <div>
           <p className='pb-2'>为你推荐：Jan Marshal</p>
           <span className='text-muted-foreground text-xs'>一天前</span>
         </div>
         <div className='aspect-video h-12 rounded-md bg-red-100'></div>
-      </Link>
-      <Button variant='ghost' size='icon'>
+      </div>
+      <Button
+        type='button'
+        variant='ghost'
+        size='icon'
+        // onClick={(e) => e.preventDefault()}
+      >
         <MoreVertical />
       </Button>
-    </div>
+      <div className='bg-destructive absolute left-1 top-1/2 size-1 -translate-y-1/2 rounded-full' />
+    </Link>
   );
 };
 
 const ToggleButton = ({ num }: { num: string }) => {
   return (
-    <Button variant='ghost' className='relative size-10'>
-      <Bell className='size-6' />
+    <Button variant='ghost' size='icon' className='relative'>
+      <Bell />
       <div
         className={cn(
           'absolute -right-1 top-1.5 flex min-w-4 items-center justify-center rounded-full bg-red-600 opacity-0 ring-1 ring-white transition-opacity',

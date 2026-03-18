@@ -18,17 +18,17 @@ const RichShelf = ({ title, description }: RichShelfProps) => {
       </div>
       <div className='flex gap-2'>
         <Button size='icon' variant='ghost'>
-          <Plus className='size-6' />
+          <Plus />
         </Button>
 
         <Button variant='outline' asChild>
           <Link href=''>查看全部</Link>
         </Button>
         <Button size='icon' variant='outline'>
-          <ChevronLeft className='size-6' />
+          <ChevronLeft />
         </Button>
         <Button size='icon' variant='outline'>
-          <ChevronRight className='size-6' />
+          <ChevronRight />
         </Button>
       </div>
     </div>

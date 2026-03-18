@@ -282,7 +282,7 @@ const DropdownButton = ({ onDelete, onBlacklist, onFeedback }: DropdownButtonPro
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant='ghost' size='icon' className='size-8'>
+        <Button variant='ghost' size='icon'>
           <MoreVertical />
         </Button>
       </DropdownMenuTrigger>

@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 
 type RedDotProps = {
   className?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 const RedDot = ({ className, children }: RedDotProps) => {

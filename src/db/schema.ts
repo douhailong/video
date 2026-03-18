@@ -12,10 +12,16 @@ import type { AdapterAccountType } from 'next-auth/adapters';
 
 const timestamps = {
   createdAt: timestamp().defaultNow().notNull(),
-  updatedAt: timestamp().defaultNow().notNull()
+  updatedAt: timestamp()
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull()
 };
 
 export const likeStatus = pgEnum('like_status', ['like', 'dislike']);
+export const visibleStatus = pgEnum('visible_status', ['public', 'private']);
+
+export const postType = pgEnum('post_type', ['video', 'picture']);
 
 export const users = pgTable('user', {
   id: uuid().primaryKey().defaultRandom(),
@@ -46,35 +52,13 @@ export const accounts = pgTable(
   (t) => [primaryKey({ name: 'account_pk', columns: [t.provider, t.providerAccountId] })]
 );
 
-export const videos = pgTable('video', {
-  postId: uuid()
-    .primaryKey()
-    .references(() => posts.id, { onDelete: 'cascade' }),
-  playbackUrl: varchar(),
-  duration: integer().default(0).notNull(),
-  resolution: varchar(),
-  status: varchar({ enum: ['waiting', 'preparing', 'ready', 'errored'] })
-    .default('waiting')
-    .notNull()
-});
-
-export const pictures = pgTable('picture', {
-  postId: uuid()
-    .primaryKey()
-    .references(() => posts.id, { onDelete: 'cascade' }),
-  pictureUrl: varchar().array().notNull()
-});
-
 export const posts = pgTable('post', {
   id: uuid().primaryKey().defaultRandom(),
   title: varchar().notNull(),
-  description: varchar({ length: 1000 }).notNull(),
-  type: varchar({ enum: ['video', 'picture'] }).notNull(),
-  posterUrl: varchar(),
-  visible: varchar({ enum: ['public', 'private'] })
-    .default('public')
-    .notNull(),
-  categoryId: uuid().references(() => categories.id, { onDelete: 'set null' }),
+  description: varchar().notNull(),
+  visible: visibleStatus().notNull(),
+  coverUrl: varchar().notNull(),
+  type: postType().notNull(),
   userId: uuid()
     .references(() => users.id, {
       onDelete: 'cascade'
@@ -83,67 +67,24 @@ export const posts = pgTable('post', {
   ...timestamps
 });
 
-export const categories = pgTable('categorie', {
+export const videos = pgTable('video', {
   id: uuid().primaryKey().defaultRandom(),
-  name: varchar().unique().notNull(),
-  description: varchar({ length: 1000 }).notNull(),
-  ...timestamps
+  playbackUrl: varchar().notNull(),
+  duration: integer().notNull(),
+  // resolution: varchar(), 分辨率，格式怎么写？
+  status: varchar({ enum: ['waiting', 'preparing', 'ready', 'errored'] }).notNull(),
+  postId: uuid()
+    .references(() => posts.id, { onDelete: 'cascade' })
+    .notNull()
 });
 
-export const tags = pgTable('tag', {
+export const pictures = pgTable('picture', {
   id: uuid().primaryKey().defaultRandom(),
-  name: varchar().unique().notNull(),
-  description: varchar({ length: 1000 }).notNull(),
-  ...timestamps
+  pictureUrl: varchar().notNull(),
+  postId: uuid()
+    .references(() => posts.id, { onDelete: 'cascade' })
+    .notNull()
 });
-
-export const postTags = pgTable(
-  'post_tags',
-  {
-    postId: uuid()
-      .notNull()
-      .references(() => posts.id, { onDelete: 'cascade' }),
-    tagId: uuid()
-      .notNull()
-      .references(() => tags.id, { onDelete: 'cascade' }),
-    ...timestamps
-  },
-  (t) => [primaryKey({ name: 'post_tag_pk', columns: [t.tagId, t.postId] })]
-);
-
-export const favorites = pgTable('favorite', {
-  id: uuid().primaryKey().defaultRandom(),
-  name: varchar().notNull(),
-  description: varchar({ length: 1000 }).notNull(),
-  ...timestamps
-});
-
-export const postFavorites = pgTable(
-  'post_favorite',
-  {
-    favoriteId: uuid()
-      .notNull()
-      .references(() => favorites.id, { onDelete: 'cascade' }),
-    postId: uuid()
-      .notNull()
-      .references(() => posts.id, { onDelete: 'cascade' })
-  },
-  (t) => [primaryKey({ name: 'post_favorite_pk', columns: [t.favoriteId, t.postId] })]
-);
-
-export const postCollects = pgTable(
-  'post_collect',
-  {
-    userId: uuid()
-      .references(() => users.id, { onDelete: 'cascade' })
-      .notNull(),
-    postId: uuid()
-      .references(() => posts.id, { onDelete: 'cascade' })
-      .notNull(),
-    ...timestamps
-  },
-  (t) => [primaryKey({ name: 'post_collect_pk', columns: [t.userId, t.postId] })]
-);
 
 export const postViews = pgTable(
   'post_view',
@@ -174,9 +115,23 @@ export const postLikes = pgTable(
   (t) => [primaryKey({ name: 'post_like_pk', columns: [t.userId, t.postId] })]
 );
 
+export const postCollections = pgTable(
+  'post_collection',
+  {
+    userId: uuid()
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    postId: uuid()
+      .references(() => posts.id, { onDelete: 'cascade' })
+      .notNull(),
+    ...timestamps
+  },
+  (t) => [primaryKey({ name: 'post_collection_pk', columns: [t.userId, t.postId] })]
+);
+
 export const comments = pgTable('comment', {
   id: uuid().primaryKey().defaultRandom(),
-  text: varchar({ length: 1000 }).notNull(),
+  text: varchar().notNull(),
   parentId: uuid().references((): AnyPgColumn => comments.id, { onDelete: 'cascade' }),
   feedbackId: uuid().references((): AnyPgColumn => comments.id, {
     onDelete: 'cascade'
@@ -202,22 +157,70 @@ export const commentLikes = pgTable(
     status: likeStatus().notNull(),
     ...timestamps
   },
-  (t) => [primaryKey({ name: 'comment_like_pk', columns: [t.userId, t.commentId] })]
+  (t) => [primaryKey({ name: 'comment_feedback_pk', columns: [t.userId, t.commentId] })]
 );
 
-export const subscribes = pgTable(
-  'subscribe',
-  {
-    subscriberId: uuid()
-      .references(() => users.id, { onDelete: 'cascade' })
-      .notNull(),
-    publisherId: uuid()
-      .references(() => users.id, { onDelete: 'cascade' })
-      .notNull(),
-    ...timestamps
-  },
-  (t) => [primaryKey({ name: 'subscribe_pk', columns: [t.subscriberId, t.publisherId] })]
-);
+// export const categories = pgTable('categorie', {
+//   id: uuid().primaryKey().defaultRandom(),
+//   name: varchar().unique().notNull(),
+//   description: varchar({ length: 1000 }).notNull(),
+//   ...timestamps
+// });
+
+// export const tags = pgTable('tag', {
+//   id: uuid().primaryKey().defaultRandom(),
+//   name: varchar().unique().notNull(),
+//   description: varchar({ length: 1000 }).notNull(),
+//   ...timestamps
+// });
+
+// export const postTags = pgTable(
+//   'post_tags',
+//   {
+//     postId: uuid()
+//       .notNull()
+//       .references(() => posts.id, { onDelete: 'cascade' }),
+//     tagId: uuid()
+//       .notNull()
+//       .references(() => tags.id, { onDelete: 'cascade' }),
+//     ...timestamps
+//   },
+//   (t) => [primaryKey({ name: 'post_tag_pk', columns: [t.tagId, t.postId] })]
+// );
+
+// export const favorites = pgTable('favorite', {
+//   id: uuid().primaryKey().defaultRandom(),
+//   name: varchar().notNull(),
+//   description: varchar().notNull(),
+//   ...timestamps
+// });
+
+// export const postFavorites = pgTable(
+//   'post_favorite',
+//   {
+//     favoriteId: uuid()
+//       .notNull()
+//       .references(() => favorites.id, { onDelete: 'cascade' }),
+//     postId: uuid()
+//       .notNull()
+//       .references(() => posts.id, { onDelete: 'cascade' })
+//   },
+//   (t) => [primaryKey({ name: 'post_favorite_pk', columns: [t.favoriteId, t.postId] })]
+// );
+
+// export const subscribes = pgTable(
+//   'subscribe',
+//   {
+//     subscriberId: uuid()
+//       .references(() => users.id, { onDelete: 'cascade' })
+//       .notNull(),
+//     publisherId: uuid()
+//       .references(() => users.id, { onDelete: 'cascade' })
+//       .notNull(),
+//     ...timestamps
+//   },
+//   (t) => [primaryKey({ name: 'subscribe_pk', columns: [t.subscriberId, t.publisherId] })]
+// );
 
 // export const messages = pgTable('message', {
 //   id: uuid().primaryKey().defaultRandom(),

@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 type CreateDropdownProps = {
-  icon: React.ReactNode;
+  icon: ReactNode;
   variant?: ButtonProps['variant'];
 };
 

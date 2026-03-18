@@ -1,6 +1,7 @@
 'use client';
 
 import { useTheme } from 'next-themes';
+import { signOut } from 'next-auth/react';
 import {
   HelpCircle,
   Languages,
@@ -14,7 +15,6 @@ import {
   TvMinimalPlay
 } from 'lucide-react';
 
-import { signOut } from 'next-auth/react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,7 +36,7 @@ type AuthDropdownProps = {
   userName?: string | null;
   imageUrl?: string | null;
   email?: string | null;
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 const AuthDropdown = ({

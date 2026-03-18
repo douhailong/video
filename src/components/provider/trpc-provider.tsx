@@ -9,7 +9,7 @@ import { trpc } from '@/trpc/client';
 import { makeQueryClient } from '@/trpc/query-client';
 
 type TRPCProviderProps = {
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 let clientQueryClientSingleton: QueryClient;

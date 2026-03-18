@@ -13,3 +13,5 @@ export const WorkVisible = {
   public: '公开',
   private: '私密'
 } as const;
+
+export const MINIO_BUCKET = 'youtube-clone';

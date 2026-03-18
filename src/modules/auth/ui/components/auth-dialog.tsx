@@ -19,7 +19,7 @@ type FormValues = {
   value: string;
 };
 
-type AuthDialogProps = { children: React.ReactNode };
+type AuthDialogProps = { children: ReactNode };
 
 const AuthDialog = ({ children }: AuthDialogProps) => {
   const [channel, setChannel] = useState<'mail' | 'phone'>('mail');

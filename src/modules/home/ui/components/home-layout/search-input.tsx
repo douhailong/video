@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, usePathname, useSearchParams, useParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { SearchIcon, XIcon } from 'lucide-react';
 
@@ -43,14 +43,14 @@ const SearchInput = () => {
       className='hidden h-10 w-full max-w-[600px] sm:flex'
       onSubmit={handleSubmit(onSubmit)}
     >
-      <div className='bg-background relative w-full'>
+      <div className='relative w-full'>
         <input
           {...register('query', {
             validate: (value) => value.trim().length > 0
           })}
           type='text'
           placeholder='搜索'
-          className='ring-border w-full rounded-l-full py-2 pl-4 pr-12 outline-none ring-1 ring-inset focus:ring-blue-800'
+          className='ring-border bg-background w-full rounded-l-full py-2 pl-4 pr-9 outline-none ring-1 ring-inset focus:ring-blue-800'
         />
         {queryValue && (
           <Button
@@ -58,9 +58,9 @@ const SearchInput = () => {
             variant='ghost'
             type='button'
             onClick={() => reset({ query: '' })}
-            className='absolute right-0 top-1/2 -translate-y-1/2'
+            className='absolute right-0.5 top-1/2 size-9 -translate-y-1/2'
           >
-            <XIcon className='size-6' />
+            <XIcon />
           </Button>
         )}
       </div>
