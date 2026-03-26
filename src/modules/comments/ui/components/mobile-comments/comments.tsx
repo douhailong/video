@@ -63,10 +63,10 @@ type CommentItemProps = {
 const CommentItem = ({ postId, comment }: CommentItemProps) => {
   const utils = trpc.useUtils();
 
-  const likeMutation = trpc.like.comment.like.useMutation({
+  const likeMutation = trpc.likes.comment.like.useMutation({
     onSuccess: () => utils.comments.getMany.invalidate({ postId })
   });
-  const dislikeMutation = trpc.like.comment.dislike.useMutation({
+  const dislikeMutation = trpc.likes.comment.dislike.useMutation({
     onSuccess: () => utils.comments.getMany.invalidate({ postId })
   });
 

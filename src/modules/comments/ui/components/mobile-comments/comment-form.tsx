@@ -45,8 +45,7 @@ const CommentForm = ({ postId }: CommentFormProps) => {
   };
 
   return (
-    <form className='flex gap-2 border-y px-3 py-4' onSubmit={handleSubmit(onSubmit)}>
-      <UserAvatar className='size-12' />
+    <form className='flex gap-2 border-t px-3 py-2' onSubmit={handleSubmit(onSubmit)}>
       <div className='w-full'>
         {isWriting ? (
           <Textarea

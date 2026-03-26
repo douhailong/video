@@ -6,7 +6,7 @@ import { db } from '@/db';
 import { commentLikes, postLikes } from '@/db/schema';
 import { procedure, createTRPCRouter } from '@/trpc/init';
 
-export const likeRouter = createTRPCRouter({
+export const likesRouter = createTRPCRouter({
   post: createTRPCRouter({
     like: procedure
       .input(z.object({ postId: z.uuid() }))

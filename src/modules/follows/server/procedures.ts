@@ -1,4 +1,4 @@
-import { and, eq, getTableColumns } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 
@@ -19,7 +19,7 @@ export const followsRouter = createTRPCRouter({
       .insert(follows)
       .values({
         followerId: userId,
-        followingId: id
+        followedId: id
       })
       .returning();
 
@@ -41,7 +41,7 @@ export const followsRouter = createTRPCRouter({
 
       const [createdUnfollow] = await db
         .delete(follows)
-        .where(and(eq(follows.followerId, userId), eq(follows.followingId, id)))
+        .where(and(eq(follows.followerId, userId), eq(follows.followedId, id)))
         .returning();
 
       if (!createdUnfollow) {

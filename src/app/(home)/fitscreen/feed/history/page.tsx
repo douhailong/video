@@ -1,14 +1,14 @@
 import { trpc, HydrateClient } from '@/trpc/server';
-
 import { DEFAULT_LIMIT } from '@/lib/constants';
-import HomeView from '@/modules/home/ui/views/home-view';
+
+import HistoryView from '@/modules/history/ui/views/history-view';
 
 const Page = async () => {
-  void trpc.posts.getMany.prefetchInfinite({ limit: DEFAULT_LIMIT });
+  void trpc.history.getMany.prefetchInfinite({ limit: DEFAULT_LIMIT });
 
   return (
     <HydrateClient>
-      <HomeView />
+      <HistoryView />
     </HydrateClient>
   );
 };

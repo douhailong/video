@@ -5,9 +5,10 @@ import { ThumbsUp, ThumbsDown } from 'lucide-react';
 import { trpc } from '@/trpc/client';
 import { cn } from '@/lib/utils';
 import { likeStatus } from '@/db/schema';
-
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+
+import { usePostLike } from '@/modules/likes/hooks/use-post-like';
 
 type PostLikeButtonProps = {
   postId: string;
@@ -18,23 +19,20 @@ type PostLikeButtonProps = {
 const PostLikeButton = ({ postId, count, status }: PostLikeButtonProps) => {
   const utils = trpc.useUtils();
 
-  const likeMutation = trpc.like.post.like.useMutation({
-    onSuccess: () => utils.posts.getOne.invalidate({ id: postId })
+  const { isPending, onClick } = usePostLike({
+    postId,
+    onSuccess: () => {
+      utils.posts.getOne.invalidate({ id: postId });
+      utils.posts.getMany.invalidate();
+    }
   });
-  const dislikeMutation = trpc.like.post.dislike.useMutation({
-    onSuccess: () => utils.posts.getOne.invalidate({ id: postId })
-  });
-
-  const isLoading = likeMutation.isPending || dislikeMutation.isPending;
 
   return (
     <div className='flex flex-none items-center'>
       <Button
         variant='secondary'
         className='gap-2 rounded-r-none'
-        onClick={() => {
-          if (!isLoading) likeMutation.mutate({ postId });
-        }}
+        onClick={() => !isPending && onClick.like()}
       >
         <ThumbsUp className={cn('size-5', status === 'like' && 'fill-black')} />
         {count}
@@ -43,9 +41,7 @@ const PostLikeButton = ({ postId, count, status }: PostLikeButtonProps) => {
       <Button
         variant='secondary'
         className='gap-2 rounded-l-none'
-        onClick={() => {
-          if (!isLoading) dislikeMutation.mutate({ postId });
-        }}
+        onClick={() => !isPending && onClick.dislike()}
       >
         <ThumbsDown className={cn('size-5', status === 'dislike' && 'fill-black')} />
       </Button>

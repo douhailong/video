@@ -4,6 +4,7 @@ import {
   Drawer,
   DrawerContent,
   DrawerHeader,
+  DrawerFooter,
   DrawerTitle,
   DrawerTrigger
 } from '@/components/ui/drawer';
@@ -26,9 +27,11 @@ const MobileComments = ({ commentCount, postId }: MobileCommentsProps) => {
           </DrawerTitle>
         </DrawerHeader>
         <div className='flex flex-1 flex-col overflow-y-auto'>
-          <CommentForm postId={postId} />
           <Comments postId={postId} />
         </div>
+        <DrawerFooter className='p-0'>
+          <CommentForm postId={postId} />
+        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );

@@ -1,16 +1,14 @@
-import { toast } from 'sonner';
 import { trpc } from '@/trpc/client';
 
 type UseFollowProps = {
-  followingId: string;
-  isFollowed: boolean;
+  followerId: string;
+  followed: boolean;
   onSuccess: () => void;
 };
 
-export const useFollow = ({ followingId, onSuccess, isFollowed }: UseFollowProps) => {
+export const useFollow = ({ followerId, onSuccess, followed }: UseFollowProps) => {
   const follow = trpc.follows.follow.useMutation({
     onSuccess: () => {
-      toast.success('Subscribed');
       onSuccess();
     },
     onError: (err) => {
@@ -21,7 +19,6 @@ export const useFollow = ({ followingId, onSuccess, isFollowed }: UseFollowProps
 
   const unfollow = trpc.follows.unfollow.useMutation({
     onSuccess: () => {
-      toast.success('Unsubscribed');
       onSuccess();
     },
     onError: (err) => {
@@ -33,9 +30,7 @@ export const useFollow = ({ followingId, onSuccess, isFollowed }: UseFollowProps
   const isPending = follow.isPending || unfollow.isPending;
 
   const onClick = () => {
-    isFollowed
-      ? unfollow.mutate({ id: followingId })
-      : follow.mutate({ id: followingId });
+    followed ? unfollow.mutate({ id: followerId }) : follow.mutate({ id: followerId });
   };
 
   return { isPending, onClick };

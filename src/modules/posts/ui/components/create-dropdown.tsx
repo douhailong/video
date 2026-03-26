@@ -26,19 +26,19 @@ const CreateDropdown = ({ icon, variant = 'outline' }: CreateDropdownProps) => {
       <DropdownMenuContent className='w-44' align='end' side='bottom'>
         <DropdownMenuItem asChild>
           <Link href='/studio/create'>
-            <ArrowUpFromLine className='mr-2 size-4' />
+            <ArrowUpFromLine />
             上传作品
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href='/studio/live-stream'>
-            <Radio className='mr-2 size-4' />
+            <Radio />
             开始直播
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href='/studio/playlist'>
-            <ListPlus className='mr-2 size-4' />
+            <ListPlus />
             新建播放列表
           </Link>
         </DropdownMenuItem>

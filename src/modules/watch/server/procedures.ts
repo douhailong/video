@@ -18,9 +18,7 @@ import { db } from '@/db';
 import { comments, users } from '@/db/schema';
 import { suspenseProcedure, procedure, createTRPCRouter } from '@/trpc/init';
 
-export const commentsRouter = createTRPCRouter({
-  getOne: suspenseProcedure.input(z.object()).query(async () => {}),
-
+export const authorRelatedRouter = createTRPCRouter({
   getMany: suspenseProcedure
     .input(
       z.object({

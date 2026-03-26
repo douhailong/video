@@ -1,10 +1,11 @@
 'use client';
 
 import { Skeleton } from '@/components/ui/skeleton';
-
 import Boundary from '@/components/boundary';
+
 import PostListCard from '@/modules/posts/ui/components/post-list-card';
 import PostGridCard from '@/modules/posts/ui/components/post-grid-card';
+import PostCard from './post-card';
 
 const DesktopRelated = () => {
   return (
@@ -18,11 +19,9 @@ const DesktopRelatedSuspense = () => {
   return (
     <div>
       <div className='flex flex-col gap-2'>
-        <PostListCard />
-        <PostListCard />
-        <PostListCard />
-        <PostListCard />
-        <PostListCard />
+        <PostCard />
+        <PostCard />
+        <PostCard />
       </div>
     </div>
   );
@@ -54,9 +53,9 @@ const MobileRelated = () => {
 const MobileRelatedSuspense = () => {
   return (
     <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-y-6 md:grid-cols-3'>
-      <PostGridCard />
-      <PostGridCard />
-      <PostGridCard />
+      <PostCard />
+      <PostCard />
+      <PostCard />
     </div>
   );
 };

@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { MoreHorizontal, Share2, Bookmark, Scissors, Flag } from 'lucide-react';
 
-import { formatTimeDistance } from '@/lib/utils';
+import { trpc } from '@/trpc/client';
+import { formatCount, formatTimeDistance } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -13,6 +14,7 @@ import UserAvatar from '@/components/user-avatar';
 
 import { OnePostTypes } from '@/modules/posts/types';
 import PostLikeButton from '@/modules/likes/ui/components/post-like-button';
+import FollowButton from '@/modules/follows/ui/components/follow-button';
 
 type MetadataProps = {
   postId: string;
@@ -20,7 +22,9 @@ type MetadataProps = {
 };
 
 const DesktopMetadata = ({ postId, data }: MetadataProps) => {
-  const { user, title, description, likeCount, likeStatus, createdAt } = data;
+  const { user, title, description, likeCount, likeStatus, createdAt, viewCount } = data;
+
+  const utils = trpc.useUtils();
 
   return (
     <div className='hidden flex-col gap-3 pb-6 pt-3 sm:flex'>
@@ -35,10 +39,16 @@ const DesktopMetadata = ({ postId, data }: MetadataProps) => {
               <Link href='' className='text-base font-medium'>
                 {user.name}
               </Link>
-              <span className='text-muted-foreground text-xs'>5.11万位订阅者</span>
+              <span className='text-muted-foreground text-xs'>
+                {formatCount(user.followerCount)} 位订阅者
+              </span>
             </div>
           </div>
-          <Button>订阅</Button>
+          <FollowButton
+            followed={user.followed}
+            userId={user.id}
+            onSuccess={() => utils.posts.getOne.invalidate({ id: postId })}
+          />
         </div>
         <div className='flex items-center gap-2'>
           <PostLikeButton count={likeCount} status={likeStatus} postId={postId} />
@@ -51,7 +61,7 @@ const DesktopMetadata = ({ postId, data }: MetadataProps) => {
       </div>
       <div className='bg-secondary cursor-pointer rounded-xl p-3 duration-300 hover:bg-[#fff5f0]'>
         <span className='text-sm font-medium'>
-          1.1万次观看 {formatTimeDistance(createdAt)}
+          {formatCount(viewCount)} 次观看 {formatTimeDistance(createdAt)}
         </span>
         <span className='line-clamp-3 break-words text-sm'>{description}</span>
         <button className='cursor-pointer text-sm font-medium'>...更多</button>
@@ -65,7 +75,9 @@ DesktopMetadata.Skeleton = () => {
 };
 
 const MobileMetadata = ({ postId, data }: MetadataProps) => {
-  const { user, title, description, likeCount, likeStatus, createdAt } = data;
+  const { user, title, description, likeCount, likeStatus, createdAt, viewCount } = data;
+
+  const utils = trpc.useUtils();
 
   return (
     <div className='block sm:hidden'>
@@ -73,7 +85,8 @@ const MobileMetadata = ({ postId, data }: MetadataProps) => {
         <h1 className='line-clamp-2 text-lg font-medium'>{title}</h1>
         <div className='text-muted-foreground mt-0.5 text-xs'>
           <span className='line-clamp-1'>
-            1.1万次观看&nbsp;·&nbsp;{formatTimeDistance(createdAt)} {description}
+            {formatCount(viewCount)} 次观看&nbsp;·&nbsp;{formatTimeDistance(createdAt)}{' '}
+            {description}
           </span>
         </div>
       </div>
@@ -86,10 +99,16 @@ const MobileMetadata = ({ postId, data }: MetadataProps) => {
             <Link href='' className='text-sm font-medium sm:text-base'>
               {user.name}
             </Link>
-            <span className='text-muted-foreground text-xs'>5.11万位订阅者</span>
+            <span className='text-muted-foreground text-xs'>
+              {formatCount(user.followerCount)} 位订阅者
+            </span>
           </div>
         </div>
-        <Button>订阅</Button>
+        <FollowButton
+          followed={user.followed}
+          userId={user.id}
+          onSuccess={() => utils.posts.getOne.invalidate({ id: postId })}
+        />
       </div>
       <div className='flex items-center gap-2 overflow-x-scroll px-4 py-2 [scrollbar-width:none]'>
         <PostLikeButton count={likeCount} status={likeStatus} postId={postId} />

@@ -1,38 +1,45 @@
+'use client';
+
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
   DialogFooter
 } from './ui/dialog';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerFooter
-} from './ui/drawer';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from './ui/drawer';
 
-type AdapteModalProps = {
+type BoundaryModalProps = {
   open: boolean;
   title: string;
-  onOpenChange: (open: boolean) => void;
+  className?: string;
   children: ReactNode;
+  trigger: ReactNode;
+  onOpenChange: (open: boolean) => void;
+  showCloseButton?: boolean;
 };
 
-const AdapteModal = ({ open, title, onOpenChange, children }: AdapteModalProps) => {
+const BoundaryModal = ({
+  open,
+  title,
+  onOpenChange,
+  children,
+  trigger,
+  className,
+  showCloseButton = true
+}: BoundaryModalProps) => {
   const isMobile = useIsMobile();
 
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent>
+        <DrawerContent className={className}>
           <DrawerHeader>
             <DrawerTitle>{title}</DrawerTitle>
           </DrawerHeader>
           {children}
-          <DrawerFooter></DrawerFooter>
         </DrawerContent>
       </Drawer>
     );
@@ -40,15 +47,17 @@ const AdapteModal = ({ open, title, onOpenChange, children }: AdapteModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      <DialogContent className={className} showCloseButton={showCloseButton}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         {children}
-        <DialogFooter></DialogFooter>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default AdapteModal;
+BoundaryModal.Fotter = DialogFooter;
+
+export default BoundaryModal;

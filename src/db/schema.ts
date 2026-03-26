@@ -57,7 +57,7 @@ export const posts = pgTable('post', {
   title: varchar().notNull(),
   description: varchar().notNull(),
   visible: visibleStatus().notNull(),
-  coverUrl: varchar().notNull(),
+  thumbUrl: varchar().notNull(),
   type: postType().notNull(),
   userId: uuid()
     .references(() => users.id, {
@@ -70,7 +70,7 @@ export const posts = pgTable('post', {
 export const videos = pgTable('video', {
   id: uuid().primaryKey().defaultRandom(),
   playbackUrl: varchar().notNull(),
-  duration: integer().notNull(),
+  duration: integer().default(0).notNull(),
   // resolution: varchar(), 分辨率，格式怎么写？
   status: varchar({ enum: ['waiting', 'preparing', 'ready', 'errored'] }).notNull(),
   postId: uuid()
@@ -95,6 +95,7 @@ export const postViews = pgTable(
     postId: uuid()
       .references(() => posts.id, { onDelete: 'cascade' })
       .notNull(),
+    watchTime: integer().default(0).notNull(),
     ...timestamps
   },
   (t) => [primaryKey({ name: 'post_view_pk', columns: [t.userId, t.postId] })]
@@ -157,7 +158,45 @@ export const commentLikes = pgTable(
     status: likeStatus().notNull(),
     ...timestamps
   },
-  (t) => [primaryKey({ name: 'comment_feedback_pk', columns: [t.userId, t.commentId] })]
+  (t) => [primaryKey({ name: 'comment_like_pk', columns: [t.userId, t.commentId] })]
+);
+
+export const follows = pgTable(
+  'follows',
+  {
+    followerId: uuid()
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    followedId: uuid()
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    ...timestamps
+  },
+  (t) => [primaryKey({ name: 'follows_pk', columns: [t.followerId, t.followedId] })]
+);
+
+export const playlists = pgTable('playlist', {
+  id: uuid().primaryKey().defaultRandom(),
+  name: varchar().unique().notNull(),
+  visible: visibleStatus().notNull(),
+  userId: uuid()
+    .references(() => users.id, { onDelete: 'cascade' })
+    .notNull(),
+  ...timestamps
+});
+
+export const playlistPosts = pgTable(
+  'playlist_post',
+  {
+    playlistId: uuid()
+      .references(() => playlists.id, { onDelete: 'cascade' })
+      .notNull(),
+    postId: uuid()
+      .references(() => posts.id, { onDelete: 'cascade' })
+      .notNull(),
+    ...timestamps
+  },
+  (t) => [primaryKey({ name: 'playlist_post_pk', columns: [t.playlistId, t.postId] })]
 );
 
 // export const categories = pgTable('categorie', {
@@ -206,20 +245,6 @@ export const commentLikes = pgTable(
 //       .references(() => posts.id, { onDelete: 'cascade' })
 //   },
 //   (t) => [primaryKey({ name: 'post_favorite_pk', columns: [t.favoriteId, t.postId] })]
-// );
-
-// export const subscribes = pgTable(
-//   'subscribe',
-//   {
-//     subscriberId: uuid()
-//       .references(() => users.id, { onDelete: 'cascade' })
-//       .notNull(),
-//     publisherId: uuid()
-//       .references(() => users.id, { onDelete: 'cascade' })
-//       .notNull(),
-//     ...timestamps
-//   },
-//   (t) => [primaryKey({ name: 'subscribe_pk', columns: [t.subscriberId, t.publisherId] })]
 // );
 
 // export const messages = pgTable('message', {

@@ -1,9 +1,11 @@
-import PostsSection from '../components/home-view/posts-section';
+import ScreenContent from '@/components/screen-content';
+
+import PostsRenderer from '../components/home-view/posts-renderer';
 
 const HomeView = () => (
-  <div className='mx-auto max-w-[2400px] pb-6 sm:p-6'>
-    <PostsSection />
-  </div>
+  <ScreenContent direction='center'>
+    <PostsRenderer />
+  </ScreenContent>
 );
 
 export default HomeView;

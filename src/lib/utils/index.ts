@@ -37,3 +37,7 @@ export function intlNumber({
 }) {
   return Intl.NumberFormat(intl, { notation }).format(number);
 }
+
+export function formatCount(count: number = 0): string {
+  return count < 10000 ? String(count) : `${(count / 10000).toFixed(1)}万`;
+}

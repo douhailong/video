@@ -10,6 +10,7 @@ type PageProps = {
 const Page = async ({ searchParams }: PageProps) => {
   const { v, t } = await searchParams;
 
+  void trpc.history.create({ postId: v, watchTime: t ? Number(t) : 0 });
   void trpc.posts.getOne.prefetch({ id: v });
   void trpc.comments.getMany.prefetchInfinite({ postId: v, limit: DEFAULT_LIMIT });
 

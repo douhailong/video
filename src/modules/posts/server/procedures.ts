@@ -1,5 +1,6 @@
 import {
   and,
+  count,
   desc,
   eq,
   getTableColumns,
@@ -13,15 +14,8 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 
 import { db } from '@/db';
-import { minio } from '@/lib/minio';
-import { users, posts, postViews, postLikes } from '@/db/schema';
-import {
-  publicProcedure,
-  procedure,
-  createTRPCRouter,
-  suspenseProcedure
-} from '@/trpc/init';
-import { postSchema } from '@/lib/zod';
+import { users, posts, postViews, postLikes, follows } from '@/db/schema';
+import { createTRPCRouter, suspenseProcedure } from '@/trpc/init';
 
 export const postsRouter = createTRPCRouter({
   // create: procedure.input(postSchema).mutation(async ({ ctx, input }) => {
@@ -75,7 +69,11 @@ export const postsRouter = createTRPCRouter({
       const [post] = await db
         .select({
           ...getTableColumns(posts),
-          user: users,
+          user: {
+            ...getTableColumns(users),
+            followed: isNotNull(follows.followerId).mapWith(Boolean),
+            followerCount: db.$count(follows, eq(follows.followedId, users.id))
+          },
           viewCount: db.$count(postViews, eq(postViews.postId, posts.id)),
           likeCount: db.$count(
             postLikes,
@@ -86,14 +84,20 @@ export const postsRouter = createTRPCRouter({
         .from(posts)
         .innerJoin(users, eq(users.id, posts.userId))
         .leftJoin(
+          follows,
+          and(
+            eq(follows.followedId, posts.userId),
+            userId ? eq(follows.followerId, userId) : sql`false`
+          )
+        )
+        .leftJoin(
           postLikes,
           and(
             eq(postLikes.postId, posts.id),
             userId ? eq(postLikes.userId, userId) : sql`false`
           )
         )
-        .where(eq(posts.id, id));
-      // .groupBy(posts.id, users.id, postLikes.status);
+        .where(and(eq(posts.id, id), eq(posts.visible, 'public')));
 
       if (!post) {
         throw new TRPCError({ code: 'NOT_FOUND' });
@@ -101,7 +105,7 @@ export const postsRouter = createTRPCRouter({
 
       return post;
     }),
-  // ???????????????????????????
+
   getMany: suspenseProcedure
     .input(
       z.object({
@@ -110,31 +114,42 @@ export const postsRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
-      const { userId } = ctx;
       const { cursor, limit } = input;
-
-      const viewerLikes = db.$with('viewer_reaction').as(
-        db
-          .select()
-          .from(postLikes)
-          .where(userId ? eq(postLikes.userId, userId) : sql`false`)
-      );
+      const { userId } = ctx;
 
       const data = await db
-        .with(viewerLikes)
         .select({
           ...getTableColumns(posts),
-          user: { id: users.id, name: users.name, image: users.image },
-          reaction: viewerLikes.status,
-          views: db.$count(postViews, eq(postViews.postId, posts.id)),
-          likes: db.$count(
+          user: {
+            ...getTableColumns(users),
+            followed: isNotNull(follows.followerId).mapWith(Boolean)
+          },
+          viewCount: db.$count(postViews, eq(postViews.postId, posts.id)),
+          likeCount: db.$count(
             postLikes,
             and(eq(postLikes.postId, posts.id), eq(postLikes.status, 'like'))
-          )
+          ),
+          likeStatus: postLikes.status
         })
         .from(posts)
+        .innerJoin(users, eq(users.id, posts.userId))
+        .leftJoin(
+          follows,
+          and(
+            eq(follows.followedId, posts.userId),
+            userId ? eq(follows.followerId, userId) : sql`false`
+          )
+        )
+        .leftJoin(
+          postLikes,
+          and(
+            eq(postLikes.postId, posts.id),
+            userId ? eq(postLikes.userId, userId) : sql`false`
+          )
+        )
         .where(
           and(
+            eq(posts.visible, 'public'),
             cursor
               ? or(
                   lt(posts.updatedAt, cursor.updateAt),
@@ -143,8 +158,6 @@ export const postsRouter = createTRPCRouter({
               : undefined
           )
         )
-        .innerJoin(users, eq(users.id, posts.userId))
-        .leftJoin(viewerLikes, eq(viewerLikes.postId, posts.id))
         .orderBy(desc(posts.updatedAt), desc(posts.id))
         .limit(limit + 1);
 

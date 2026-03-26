@@ -16,8 +16,6 @@ type WatchViewProps = {
 const WatchView = ({ postId }: WatchViewProps) => {
   const [data] = trpc.posts.getOne.useSuspenseQuery({ id: postId });
 
-  console.log(data, '???????....');
-
   return (
     <div className='flex flex-col'>
       <FullPlayer />
@@ -28,7 +26,7 @@ const WatchView = ({ postId }: WatchViewProps) => {
             <MobileMetadata postId={postId} data={data} />
             <DesktopMetadata postId={postId} data={data} />
             <div className='mx-4 mb-4 mt-2 block sm:hidden'>
-              <MobileComments commentCount={data.commentCount} postId={postId} />
+              <MobileComments commentCount={1001} postId={postId} />
             </div>
             <div className='block lg:hidden'>
               <MobileRelated />

@@ -1,20 +1,34 @@
-import { Plus } from 'lucide-react';
+import { Check } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
 import { type ButtonProps, Button } from '@/components/ui/button';
 
+import { useFollow } from '@/modules/follows/hooks/use-follow';
+
 type FollowButtonProps = {
-  isFollowed: boolean;
+  followed: boolean;
+  onSuccess: () => void;
+  userId: string;
 } & ButtonProps;
 
-const FollowButton = ({ isFollowed, className, ...restProps }: FollowButtonProps) => {
+const FollowButton = ({
+  followed,
+  userId,
+  onSuccess,
+  ...restProps
+}: FollowButtonProps) => {
+  const { onClick, isPending } = useFollow({
+    followed,
+    onSuccess,
+    followerId: userId
+  });
+
   return (
     <Button
-      variant={isFollowed ? 'secondary' : 'default'}
-      className={className}
+      onClick={() => !isPending && onClick()}
+      variant={followed ? 'secondary' : 'default'}
       {...restProps}
     >
-      {isFollowed ? '已关注' : '关注'}
+      {followed ? '已关注' : '关注'}
     </Button>
   );
 };

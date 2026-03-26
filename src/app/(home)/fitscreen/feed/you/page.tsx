@@ -1,6 +1,5 @@
-import type { Metadata } from 'next';
-
 import { trpc, HydrateClient } from '@/trpc/server';
+
 import YouView from '@/modules/you/ui/views/you-view';
 
 const Page = () => {
@@ -12,5 +11,3 @@ const Page = () => {
 };
 
 export default Page;
-
-export const metadata: Metadata = { title: 'YouTube clone' };
