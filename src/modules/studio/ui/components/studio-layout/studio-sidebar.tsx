@@ -22,8 +22,8 @@ import UserAvatar from '@/components/user-avatar';
 const menus = [
   { href: '/studio', text: '信息中心', icon: LayoutDashboard },
   { href: '/studio/posts', text: '内容', icon: FolderCog },
-  { href: '/studio/overview', text: '数据分析', icon: ChartColumn },
-  { href: '/studio/captions', text: '字幕', icon: Captions }
+  { href: '/studio/analytics', text: '数据分析', icon: ChartColumn },
+  { href: '/studio/translations', text: '字幕', icon: Captions }
 ];
 
 const StudioSidebar = () => {

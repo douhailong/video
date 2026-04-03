@@ -6,7 +6,8 @@ import {
   timestamp,
   uuid,
   varchar,
-  primaryKey
+  primaryKey,
+  boolean
 } from 'drizzle-orm/pg-core';
 import type { AdapterAccountType } from 'next-auth/adapters';
 
@@ -18,10 +19,15 @@ const timestamps = {
     .notNull()
 };
 
-export const likeStatus = pgEnum('like_status', ['like', 'dislike']);
-export const visibleStatus = pgEnum('visible_status', ['public', 'private']);
-
-export const postType = pgEnum('post_type', ['video', 'picture']);
+export const postEnum = pgEnum('post_enum', ['video', 'picture']);
+export const likeEnum = pgEnum('like_enum', ['like', 'dislike']);
+export const visibleEnum = pgEnum('visible_enum', ['public', 'private']);
+export const processEnum = pgEnum('process_enum', [
+  'waiting',
+  'preparing',
+  'ready',
+  'errored'
+]);
 
 export const users = pgTable('user', {
   id: uuid().primaryKey().defaultRandom(),
@@ -56,9 +62,9 @@ export const posts = pgTable('post', {
   id: uuid().primaryKey().defaultRandom(),
   title: varchar().notNull(),
   description: varchar().notNull(),
-  visible: visibleStatus().notNull(),
+  visible: visibleEnum().notNull(),
   thumbUrl: varchar().notNull(),
-  type: postType().notNull(),
+  type: postEnum().notNull(),
   userId: uuid()
     .references(() => users.id, {
       onDelete: 'cascade'
@@ -72,7 +78,7 @@ export const videos = pgTable('video', {
   playbackUrl: varchar().notNull(),
   duration: integer().default(0).notNull(),
   // resolution: varchar(), 分辨率，格式怎么写？
-  status: varchar({ enum: ['waiting', 'preparing', 'ready', 'errored'] }).notNull(),
+  status: processEnum().notNull(),
   postId: uuid()
     .references(() => posts.id, { onDelete: 'cascade' })
     .notNull()
@@ -96,6 +102,7 @@ export const postViews = pgTable(
       .references(() => posts.id, { onDelete: 'cascade' })
       .notNull(),
     watchTime: integer().default(0).notNull(),
+    deleted: boolean().default(false),
     ...timestamps
   },
   (t) => [primaryKey({ name: 'post_view_pk', columns: [t.userId, t.postId] })]
@@ -110,7 +117,7 @@ export const postLikes = pgTable(
     postId: uuid()
       .references(() => posts.id, { onDelete: 'cascade' })
       .notNull(),
-    status: likeStatus().notNull(),
+    status: likeEnum().notNull(),
     ...timestamps
   },
   (t) => [primaryKey({ name: 'post_like_pk', columns: [t.userId, t.postId] })]
@@ -155,7 +162,7 @@ export const commentLikes = pgTable(
     commentId: uuid()
       .references(() => comments.id, { onDelete: 'cascade' })
       .notNull(),
-    status: likeStatus().notNull(),
+    status: likeEnum().notNull(),
     ...timestamps
   },
   (t) => [primaryKey({ name: 'comment_like_pk', columns: [t.userId, t.commentId] })]
@@ -178,7 +185,7 @@ export const follows = pgTable(
 export const playlists = pgTable('playlist', {
   id: uuid().primaryKey().defaultRandom(),
   name: varchar().unique().notNull(),
-  visible: visibleStatus().notNull(),
+  visible: visibleEnum().notNull(),
   userId: uuid()
     .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),

@@ -8,6 +8,7 @@ import { z } from 'zod';
 
 import { trpc } from '@/trpc/client';
 import { cn } from '@/lib/utils';
+import { VISIBLE_VALUES } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -33,7 +34,7 @@ import { tabs } from '../views/playlists-view';
 
 const formSchema = z.object({
   name: z.string().trim().min(1, '请输入标题'),
-  visible: z.enum(['public', 'private'])
+  visible: z.enum(VISIBLE_VALUES)
 });
 
 type FormValues = z.input<typeof formSchema>;

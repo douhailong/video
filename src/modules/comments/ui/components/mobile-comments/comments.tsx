@@ -1,32 +1,29 @@
+'use client';
+
 import {
   MoreVertical,
   ChevronDown,
-  Loader2,
   ThumbsDown,
   ThumbsUp,
   MessageSquareText
 } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
-import Boundary from '@/components/boundary';
-import UserAvatar from '@/components/user-avatar';
+import { cn, formatTimeDistance } from '@/lib/utils';
 import { trpc } from '@/trpc/client';
 import { DEFAULT_LIMIT } from '@/lib/constants';
 import { ManyCommentTypes } from '@/modules/comments/types';
+import { Button } from '@/components/ui/button';
+import InfiniteScroll from '@/components/infinite-scroll';
+import Boundary from '@/components/boundary';
+import UserAvatar from '@/components/user-avatar';
 
 type CommentsProps = {
   postId: string;
   parentId?: string;
 };
 
-const Comments = (props: CommentsProps) => (
-  <Boundary fallback={<CommentsSkeleton />}>
-    <CommentsSuspense {...props} />
-  </Boundary>
-);
-
-const CommentsSuspense = ({ postId }: CommentsProps) => {
-  const [data] = trpc.comments.getMany.useSuspenseInfiniteQuery(
+const Comments = ({ postId }: CommentsProps) => {
+  const [data, query] = trpc.comments.getMany.useSuspenseInfiniteQuery(
     {
       limit: DEFAULT_LIMIT,
       postId
@@ -36,22 +33,21 @@ const CommentsSuspense = ({ postId }: CommentsProps) => {
 
   const comments = data?.pages.flatMap((page) => page.items) || [];
 
-  console.log(comments, '1111');
-
   return (
-    <div className='flex-1'>
-      {comments.map((comment) => (
-        <CommentItem key={comment.id} postId={postId} comment={comment} />
-      ))}
-    </div>
+    <>
+      <div>
+        {comments.map((comment) => (
+          <CommentItem key={comment.id} postId={postId} comment={comment} />
+        ))}
+      </div>
+      <InfiniteScroll
+        hasNextPage={query.hasNextPage}
+        isFetchingNextPage={query.isFetchingNextPage}
+        fetchNextPage={query.fetchNextPage}
+      />
+    </>
   );
 };
-
-const CommentsSkeleton = () => (
-  <div className='flex h-full items-center justify-center'>
-    <Loader2 className='text-muted-foreground size-6 animate-spin' />
-  </div>
-);
 
 export default Comments;
 
@@ -63,10 +59,10 @@ type CommentItemProps = {
 const CommentItem = ({ postId, comment }: CommentItemProps) => {
   const utils = trpc.useUtils();
 
-  const likeMutation = trpc.likes.comment.like.useMutation({
+  const like = trpc.likes.comment.like.useMutation({
     onSuccess: () => utils.comments.getMany.invalidate({ postId })
   });
-  const dislikeMutation = trpc.likes.comment.dislike.useMutation({
+  const dislike = trpc.likes.comment.dislike.useMutation({
     onSuccess: () => utils.comments.getMany.invalidate({ postId })
   });
 
@@ -79,17 +75,17 @@ const CommentItem = ({ postId, comment }: CommentItemProps) => {
         name={user.name}
         className={cn('size-12', comment.parentId && 'size-6.5')}
       />
-      <div className='flex w-full flex-col pr-1'>
+      <div className='flex w-full flex-col'>
         <div className='text-muted-foreground flex items-center justify-between text-xs'>
           <span>{user.name}</span>
-          <span>5天前</span>
+          <span>{formatTimeDistance(comment.createdAt)}</span>
         </div>
         <p className='line-clamp-3 py-1 text-sm'>{comment.text}</p>
         <div className='flex items-center justify-between py-1'>
           <div className='flex items-center gap-3'>
             <button
               className='text-muted-foreground flex items-center gap-1.5 text-xs'
-              onClick={() => likeMutation.mutate({ commentId: comment.id })}
+              onClick={() => like.mutate({ commentId: comment.id })}
             >
               <ThumbsUp
                 className={cn(
@@ -101,7 +97,7 @@ const CommentItem = ({ postId, comment }: CommentItemProps) => {
             </button>
             <button
               className='text-muted-foreground flex text-xs'
-              onClick={() => dislikeMutation.mutate({ commentId: comment.id })}
+              onClick={() => dislike.mutate({ commentId: comment.id })}
             >
               <ThumbsDown
                 className={cn(
@@ -115,36 +111,46 @@ const CommentItem = ({ postId, comment }: CommentItemProps) => {
               <span>12</span>
             </button>
           </div>
-          <button>
+          <Button size='icon' variant='ghost'>
             <MoreVertical className='text-muted-foreground size-4.5' />
-          </button>
+          </Button>
         </div>
-        <SubComments postId={postId} parentId={comment.id} />
-        {/* {commentId && (
-          <div className='mt-1 flex flex-col gap-2'>
-            <CommentItem />
-            <CommentItem />
-            <CommentItem />
-          </div>
-        )} */}
-        <OpenButton />
+        {!comment.parentId && (
+          <Boundary fallback={<div>sub loading...</div>}>
+            <SubComments postId={postId} parentId={comment.id} />
+          </Boundary>
+        )}
+        {!comment.parentId && <OpenButton />}
       </div>
     </div>
   );
 };
 
 const SubComments = ({ postId, parentId }: CommentsProps) => {
-  if (!parentId) {
-    return null;
-  }
+  const [data, query] = trpc.comments.getMany.useSuspenseInfiniteQuery(
+    {
+      limit: DEFAULT_LIMIT,
+      postId,
+      parentId
+    },
+    { getNextPageParam: (next) => next.nextCursor }
+  );
+
+  const comments = data?.pages.flatMap((page) => page.items) || [];
 
   return (
-    <div className='bg-red-200'>
-      {/* <CommentItem postId={postId} commentId={'sub--commentId--1'} />
-      <CommentItem postId={postId} commentId={'sub--commentId--2'} />
-      <CommentItem postId={postId} commentId={'sub--commentId--3'} />
-      <CommentItem postId={postId} commentId={'sub--commentId--4'} /> */}
-    </div>
+    <>
+      <div className='bg-red-200'>
+        {comments.map((comment) => (
+          <CommentItem postId={postId} comment={comment} />
+        ))}
+      </div>
+      {/* <InfiniteScroll
+        hasNextPage={query.hasNextPage}
+        isFetchingNextPage={query.isFetchingNextPage}
+        fetchNextPage={query.fetchNextPage}
+      /> */}
+    </>
   );
 };
 

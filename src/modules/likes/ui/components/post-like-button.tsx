@@ -4,7 +4,7 @@ import { ThumbsUp, ThumbsDown } from 'lucide-react';
 
 import { trpc } from '@/trpc/client';
 import { cn } from '@/lib/utils';
-import { likeStatus } from '@/db/schema';
+import { LIKE_VALUES } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
@@ -13,7 +13,7 @@ import { usePostLike } from '@/modules/likes/hooks/use-post-like';
 type PostLikeButtonProps = {
   postId: string;
   count: number;
-  status: (typeof likeStatus.enumValues)[number] | null;
+  status: (typeof LIKE_VALUES)[number] | null;
 };
 
 const PostLikeButton = ({ postId, count, status }: PostLikeButtonProps) => {
@@ -34,7 +34,7 @@ const PostLikeButton = ({ postId, count, status }: PostLikeButtonProps) => {
         className='gap-2 rounded-r-none'
         onClick={() => !isPending && onClick.like()}
       >
-        <ThumbsUp className={cn('size-5', status === 'like' && 'fill-black')} />
+        <ThumbsUp className={cn('size-6', status === 'like' && 'fill-black')} />
         {count}
       </Button>
       <Separator orientation='vertical' className='!h-7' />
@@ -43,7 +43,7 @@ const PostLikeButton = ({ postId, count, status }: PostLikeButtonProps) => {
         className='gap-2 rounded-l-none'
         onClick={() => !isPending && onClick.dislike()}
       >
-        <ThumbsDown className={cn('size-5', status === 'dislike' && 'fill-black')} />
+        <ThumbsDown className={cn('size-6', status === 'dislike' && 'fill-black')} />
       </Button>
     </div>
   );

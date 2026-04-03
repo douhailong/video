@@ -124,12 +124,7 @@ export const postsRouter = createTRPCRouter({
             ...getTableColumns(users),
             followed: isNotNull(follows.followerId).mapWith(Boolean)
           },
-          viewCount: db.$count(postViews, eq(postViews.postId, posts.id)),
-          likeCount: db.$count(
-            postLikes,
-            and(eq(postLikes.postId, posts.id), eq(postLikes.status, 'like'))
-          ),
-          likeStatus: postLikes.status
+          viewCount: db.$count(postViews, eq(postViews.postId, posts.id))
         })
         .from(posts)
         .innerJoin(users, eq(users.id, posts.userId))
@@ -138,13 +133,6 @@ export const postsRouter = createTRPCRouter({
           and(
             eq(follows.followedId, posts.userId),
             userId ? eq(follows.followerId, userId) : sql`false`
-          )
-        )
-        .leftJoin(
-          postLikes,
-          and(
-            eq(postLikes.postId, posts.id),
-            userId ? eq(postLikes.userId, userId) : sql`false`
           )
         )
         .where(

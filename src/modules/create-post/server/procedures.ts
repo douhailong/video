@@ -4,7 +4,7 @@ import { TRPCError } from '@trpc/server';
 
 import { db } from '@/db';
 import { minio } from '@/lib/minio';
-import { users, posts, postViews, postLikes, postType } from '@/db/schema';
+import { users, posts, postViews, postLikes } from '@/db/schema';
 import { createTRPCRouter, procedure } from '@/trpc/init';
 import { MINIO_BUCKET } from '@/lib/constants';
 
@@ -17,8 +17,6 @@ export const createPostRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input: { category, filename } }) => {
-      console.log(postType, '?????????');
-
       const uploadDir = `/${category}/${filename}`;
 
       const uploadUrl = await minio.presignedPutObject(MINIO_BUCKET, uploadDir, 60 * 10);

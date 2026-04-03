@@ -19,8 +19,8 @@ const avatarVariants = cva('', {
 });
 
 type UserAvatarProps = {
-  imageUrl?: string;
-  name?: string;
+  imageUrl?: string | null;
+  name?: string | null;
   className?: string;
   onClick?: () => void;
 } & VariantProps<typeof avatarVariants>;

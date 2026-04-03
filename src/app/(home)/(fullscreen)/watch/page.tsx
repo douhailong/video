@@ -10,13 +10,16 @@ type PageProps = {
 const Page = async ({ searchParams }: PageProps) => {
   const { v, t } = await searchParams;
 
-  void trpc.history.create({ postId: v, watchTime: t ? Number(t) : 0 });
+  const watchTime = t ? Number(t) : 0;
+
+  void trpc.history.create({ postId: v, watchTime });
   void trpc.posts.getOne.prefetch({ id: v });
+  void trpc.watch.getMany.prefetchInfinite({ limit: DEFAULT_LIMIT });
   void trpc.comments.getMany.prefetchInfinite({ postId: v, limit: DEFAULT_LIMIT });
 
   return (
     <HydrateClient>
-      <WatchView postId={v} />
+      <WatchView postId={v} watchTime={watchTime} />
     </HydrateClient>
   );
 };

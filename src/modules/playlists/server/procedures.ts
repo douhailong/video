@@ -1,26 +1,15 @@
-import {
-  and,
-  desc,
-  eq,
-  getTableColumns,
-  lt,
-  or,
-  inArray,
-  isNull,
-  sql,
-  count
-} from 'drizzle-orm';
-import { alias } from 'drizzle-orm/pg-core';
+import { and, desc, eq, lt, or } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
 import { db } from '@/db';
 import { playlists, users } from '@/db/schema';
 import { procedure, createTRPCRouter } from '@/trpc/init';
+import { VISIBLE_VALUES } from '@/lib/constants';
 
 export const playlistRouter = createTRPCRouter({
   create: procedure
-    .input(z.object({ name: z.string(), visible: z.enum(['public', 'private']) }))
+    .input(z.object({ name: z.string(), visible: z.enum(VISIBLE_VALUES) }))
     .mutation(async ({ input, ctx }) => {
       const { name, visible } = input;
       const { userId } = ctx;
@@ -49,7 +38,7 @@ export const playlistRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string(),
-        visible: z.enum(['public', 'private']),
+        visible: z.enum(VISIBLE_VALUES),
         id: z.string()
       })
     )
@@ -78,6 +67,9 @@ export const playlistRouter = createTRPCRouter({
 
       return updatedPlaylist;
     }),
+  // deleteMany: procedure.input().mutation(async ({ ctx }) => {
+  //   const { userId } = ctx;
+  // }),
   deleteOne: procedure
     .input(
       z.object({
@@ -123,7 +115,7 @@ export const playlistRouter = createTRPCRouter({
   getMany: procedure
     .input(
       z.object({
-        visible: z.enum(['public', 'private']).nullish(),
+        visible: z.enum(VISIBLE_VALUES).nullish(),
         cursor: z.object({ id: z.uuid(), updateAt: z.date() }).nullish(),
         limit: z.number()
       })

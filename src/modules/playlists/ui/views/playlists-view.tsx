@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 
-import { Button } from '@/components/ui/button';
-import ScreenContent from '@/components/screen-content';
+import { VISIBLE_VALUES } from '@/lib/constants';
+import SizeConstraint from '@/components/size-constraint';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import PlaylistRenderer from '../components/playlist-renderer';
+import PlaylistsBody from '../components/playlists-body';
 
 export const tabs = [
   { name: '播放列表', key: 'total' },
@@ -19,22 +20,19 @@ const PlaylistsView = () => {
   const [currentTab, setCurrentTab] = useState<TabKey>('total');
 
   return (
-    <ScreenContent className='flex flex-col gap-4'>
-      <h1 className='px-4 text-3xl font-bold sm:px-0'>播放列表</h1>
-      <div className='flex gap-1.5 px-4 sm:px-0'>
-        {tabs.map((tab) => (
-          <Button
-            key={tab.key}
-            className='h-7 rounded-md px-2.5 text-xs'
-            variant={tab.key === currentTab ? 'default' : 'secondary'}
-            onClick={() => setCurrentTab(tab.key)}
-          >
-            {tab.name}
-          </Button>
-        ))}
-      </div>
-      <PlaylistRenderer visible={currentTab === 'total' ? undefined : currentTab} />
-    </ScreenContent>
+    <SizeConstraint>
+      <SizeConstraint.Title title='播放列表' />
+      <Tabs value={currentTab} onValueChange={(val) => setCurrentTab(val as TabKey)}>
+        <TabsList variant='button' className='px-4 sm:px-0'>
+          {tabs.map((tab) => (
+            <TabsTrigger key={tab.key} value={tab.key}>
+              {tab.name}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        <PlaylistsBody visible={currentTab === 'total' ? undefined : currentTab} />
+      </Tabs>
+    </SizeConstraint>
   );
 };
 

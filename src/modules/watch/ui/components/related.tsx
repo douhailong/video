@@ -1,73 +1,141 @@
 'use client';
 
-import { Skeleton } from '@/components/ui/skeleton';
-import Boundary from '@/components/boundary';
+import { useState } from 'react';
 
-import PostListCard from '@/modules/posts/ui/components/post-list-card';
-import PostGridCard from '@/modules/posts/ui/components/post-grid-card';
-import PostCard from './post-card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+import { trpc } from '@/trpc/client';
+import { DEFAULT_LIMIT } from '@/lib/constants';
+import InfiniteScroll from '@/components/infinite-scroll';
+import { RowCard, ColumnCard } from '@/components/card';
+
+const tabs = [
+  { name: 'TA的作品', key: '1' },
+  { name: '作品合集', key: '2' },
+  { name: '收藏', key: '3' }
+];
+
+type TabKey = (typeof tabs)[number]['key'];
 
 const DesktopRelated = () => {
-  return (
-    <Boundary fallback={<DesktopRelatedSkeleton />}>
-      <DesktopRelatedSuspense />
-    </Boundary>
-  );
-};
+  const [currentTab, setCurrentTab] = useState<TabKey>('1');
 
-const DesktopRelatedSuspense = () => {
+  const [data, query] = trpc.watch.getMany.useSuspenseInfiniteQuery(
+    { limit: DEFAULT_LIMIT },
+    { getNextPageParam: (next) => next.nextCursor }
+  );
+
+  const posts = data?.pages.flatMap((page) => page.items) || [];
+
   return (
-    <div>
+    <Tabs value={currentTab} onValueChange={(val) => setCurrentTab(val as TabKey)}>
+      <TabsList variant='button'>
+        {tabs.map((tab) => (
+          <TabsTrigger key={tab.key} value={tab.key}>
+            {tab.name}
+          </TabsTrigger>
+        ))}
+      </TabsList>
       <div className='flex flex-col gap-2'>
-        <PostCard />
-        <PostCard />
-        <PostCard />
+        {posts.map((post) => (
+          <RowCard
+            key={post.id}
+            user={post.user}
+            data={{
+              title: post.title,
+              thumbUrl: post.thumbUrl,
+              playbackUrl: 'string',
+              duration: 1002,
+              viewCount: post.viewCount,
+              createdAt: post.createdAt
+            }}
+          />
+        ))}
       </div>
-    </div>
+      <InfiniteScroll
+        hasNextPage={query.hasNextPage}
+        isFetchingNextPage={query.isFetchingNextPage}
+        fetchNextPage={query.fetchNextPage}
+      />
+    </Tabs>
   );
 };
 
-const DesktopRelatedSkeleton = () => {
-  return (
+const DesktopLoading = () => (
+  <div>
+    <div className='mb-3 flex gap-2'>
+      <Skeleton className='w-19 h-8 rounded-md' />
+      <Skeleton className='h-8 w-16 rounded-md' />
+      <Skeleton className='w-13 h-8 rounded-md' />
+    </div>
     <div className='flex flex-col gap-2'>
-      <div className='flex gap-2 pb-2'>
-        <Skeleton className='h-8 w-14' />
-        <Skeleton className='h-8 w-24' />
-        <Skeleton className='h-8 w-16' />
-      </div>
       {Array.from({ length: 8 }).map((_, index) => (
-        <PostListCard.Skeleton key={index} />
+        <RowCard.Loading key={index} />
       ))}
     </div>
-  );
-};
+  </div>
+);
 
 const MobileRelated = () => {
+  const [currentTab, setCurrentTab] = useState<TabKey>('1');
+
+  const [data, query] = trpc.posts.getMany.useSuspenseInfiniteQuery(
+    { limit: DEFAULT_LIMIT },
+    { getNextPageParam: (next) => next.nextCursor }
+  );
+
+  const posts = data?.pages.flatMap((page) => page.items) || [];
+
   return (
-    <Boundary fallback={<MobileRelatedSkeleton />}>
-      <MobileRelatedSuspense />
-    </Boundary>
+    <Tabs value={currentTab} onValueChange={(val) => setCurrentTab(val as TabKey)}>
+      <TabsList variant='button' className='px-4 sm:px-0'>
+        {tabs.map((tab) => (
+          <TabsTrigger key={tab.key} value={tab.key}>
+            {tab.name}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+      <div className='grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-8'>
+        {posts.map((post) => (
+          <ColumnCard
+            key={post.id}
+            user={post.user}
+            data={{
+              title: post.title,
+              thumbUrl: post.thumbUrl,
+              playbackUrl: 'string',
+              duration: 1002,
+              viewCount: post.viewCount,
+              createdAt: post.createdAt
+            }}
+          />
+        ))}
+      </div>
+      <InfiniteScroll
+        hasNextPage={query.hasNextPage}
+        isFetchingNextPage={query.isFetchingNextPage}
+        fetchNextPage={query.fetchNextPage}
+      />
+    </Tabs>
   );
 };
 
-const MobileRelatedSuspense = () => {
+const MobileLoading = () => {
   return (
-    <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-y-6 md:grid-cols-3'>
-      <PostCard />
-      <PostCard />
-      <PostCard />
+    <div>
+      <div className='mb-3 flex gap-2 px-4 sm:px-0'>
+        <Skeleton className='w-19 h-8 rounded-md' />
+        <Skeleton className='h-8 w-16 rounded-md' />
+        <Skeleton className='w-13 h-8 rounded-md' />
+      </div>
+      <div className='grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-8'>
+        {Array.from({ length: 8 }).map((_, index) => (
+          <ColumnCard.Loading key={index} />
+        ))}
+      </div>
     </div>
   );
 };
 
-const MobileRelatedSkeleton = () => {
-  return (
-    <div className='grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 md:grid-cols-3'>
-      {Array.from({ length: 10 }).map((_, index) => (
-        <PostGridCard.Skeleton key={index} />
-      ))}
-    </div>
-  );
-};
-
-export { DesktopRelated, MobileRelated };
+export { DesktopRelated, MobileRelated, DesktopLoading, MobileLoading };

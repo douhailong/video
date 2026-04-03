@@ -1,40 +1,41 @@
-'use client';
-
-import { trpc } from '@/trpc/client';
+import Boundary from '@/components/boundary';
 import { MiniPlayer, FullPlayer } from '@/components/player';
 
-import MobileComments from '@/modules/comments/ui/components/mobile-comments';
+import {
+  DesktopRelated,
+  MobileRelated,
+  DesktopLoading,
+  MobileLoading
+} from '../components/related';
 
-import { DesktopMetadata, MobileMetadata } from '../components/metadata';
-import { DesktopRelated, MobileRelated } from '../components/related';
+import ActionBar from '../components/action-bar';
+import CommentsBar from '@/modules/comments/ui/comments-bar';
 
 type WatchViewProps = {
   postId: string;
-  currentTime?: number;
+  watchTime?: number;
 };
 
 const WatchView = ({ postId }: WatchViewProps) => {
-  const [data] = trpc.posts.getOne.useSuspenseQuery({ id: postId });
-
   return (
     <div className='flex flex-col'>
       <FullPlayer />
       <div className='w-full sm:px-6 lg:mx-auto lg:max-w-[2314px] lg:py-6'>
-        <div className='flex flex-col lg:flex-row lg:justify-center lg:gap-6'>
+        <div className='flex flex-col lg:flex-row lg:justify-center lg:gap-4'>
           <div className='w-full lg:min-w-[640px] lg:max-w-[calc((100vh-56px-24px-136px)*(16/9))]'>
             <MiniPlayer />
-            <MobileMetadata postId={postId} data={data} />
-            <DesktopMetadata postId={postId} data={data} />
-            <div className='mx-4 mb-4 mt-2 block sm:hidden'>
-              <MobileComments commentCount={1001} postId={postId} />
-            </div>
+            <ActionBar postId={postId} />
+            <CommentsBar postId={postId} />
             <div className='block lg:hidden'>
-              <MobileRelated />
+              <Boundary fallback={<MobileLoading />}>
+                <MobileRelated />
+              </Boundary>
             </div>
-            <div className='hidden sm:block'>desktop comments</div>
           </div>
           <div className='hidden w-full min-w-[300px] max-w-[402px] lg:block'>
-            <DesktopRelated />
+            <Boundary fallback={<DesktopLoading />}>
+              <DesktopRelated />
+            </Boundary>
           </div>
         </div>
       </div>

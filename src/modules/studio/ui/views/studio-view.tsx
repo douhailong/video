@@ -5,12 +5,13 @@ import { ArrowUpFromLine, Radio } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import SizeConstraint from '@/components/size-constraint';
 
 const StudioView = () => {
   return (
-    <div className='max-w-screen-lg'>
-      <div className='flex items-stretch justify-between px-8 py-5'>
-        <h1 className='text-2xl font-bold leading-normal'>频道信息中心</h1>
+    <SizeConstraint direction='left'>
+      <SizeConstraint.Title title='频道信息中心' size='md' />
+      {/* <div className='flex items-stretch justify-between'>
         <div className='flex gap-3'>
           <Button size='icon' variant='outline'>
             <ArrowUpFromLine />
@@ -19,7 +20,7 @@ const StudioView = () => {
             <Radio />
           </Button>
         </div>
-      </div>
+      </div> */}
       <div className='flex w-2/3 flex-col gap-6 px-6 pb-8 sm:flex-row'>
         <div className='flex-1 rounded-2xl border p-6'>
           <div className='flex h-full flex-col items-center justify-center gap-6 rounded-2xl border border-dashed'>
@@ -69,7 +70,7 @@ const StudioView = () => {
           </div>
         </div>
       </div>
-    </div>
+    </SizeConstraint>
   );
 };
 

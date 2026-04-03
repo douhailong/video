@@ -24,7 +24,7 @@ const SearchInput = () => {
   } = useForm<FormValues>({
     mode: 'onChange',
     defaultValues: {
-      query: searchParams.get('query') || ''
+      query: decodeURIComponent(searchParams.get('query') || '')
     }
   });
 

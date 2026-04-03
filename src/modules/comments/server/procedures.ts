@@ -32,18 +32,30 @@ export const commentsRouter = createTRPCRouter({
       const { postId, parentId, feedbackId, text } = input;
       const { userId } = ctx;
 
-      // const [existingComment] = await db
-      //   .select()
-      //   .from(comments)
-      //   .where(parentId ? eq(comments.id, parentId) : sql`false`);
+      function queryWhere() {
+        if (!parentId) {
+          return sql`false`;
+        }
 
-      // if (!existingComment && parentId) {
-      //   throw new TRPCError({ code: 'NOT_FOUND' });
-      // }
+        if (!feedbackId) {
+          return eq(comments.id, parentId);
+        }
 
-      // if (existingComment?.parentId && parentId && !feedbackId) {
-      //   throw new TRPCError({ code: 'BAD_REQUEST' });
-      // }
+        return and(eq(comments.parentId, parentId), eq(comments.id, feedbackId));
+      }
+
+      // 当前回复的评论
+      const [existing] = await db.select().from(comments).where(queryWhere());
+
+      // parentId没查到对应的一级评论
+      if (!existing && parentId) {
+        throw new TRPCError({ code: 'NOT_FOUND' });
+      }
+
+      // 回复的评论和当前评论属于同一个一级评论下
+      if (existing && existing.parentId === parentId && !feedbackId) {
+        throw new TRPCError({ code: 'BAD_REQUEST' });
+      }
 
       const [createdComment] = await db
         .insert(comments)
@@ -157,19 +169,21 @@ export const commentsRouter = createTRPCRouter({
 
       return { items, nextCursor, total };
     }),
-  remove: procedure.input(z.object({ id: z.uuid() })).mutation(async ({ ctx, input }) => {
-    const { id } = input;
-    const { userId } = ctx;
+  deleteOne: procedure
+    .input(z.object({ id: z.uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const { id } = input;
+      const { userId } = ctx;
 
-    const [removedComment] = await db
-      .delete(comments)
-      .where(and(eq(comments.id, id), eq(comments.userId, userId)))
-      .returning();
+      const [comment] = await db
+        .delete(comments)
+        .where(and(eq(comments.id, id), eq(comments.userId, userId)))
+        .returning();
 
-    if (!removedComment) {
-      throw new TRPCError({ code: 'NOT_FOUND' });
-    }
+      if (!comment) {
+        throw new TRPCError({ code: 'NOT_FOUND' });
+      }
 
-    return removedComment;
-  })
+      return comment;
+    })
 });

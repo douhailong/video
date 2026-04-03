@@ -9,8 +9,8 @@ import Boundary from '@/components/boundary';
 import InfiniteScroll from '@/components/infinite-scroll';
 import UserAvatar from '@/components/user-avatar';
 
-import CommentForm from '@/modules/comments/ui/components/comment-form';
-import CommentItem from '@/modules/comments/ui/components/comment-item';
+import CommentForm from '@/modules/comments/ui/components/destop-comments/comment-form';
+import CommentItem from '@/modules/comments/ui/components/destop-comments/comment-item';
 
 type CommentsSectionProps = { postId: string };
 

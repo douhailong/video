@@ -1,16 +1,4 @@
-import {
-  and,
-  desc,
-  eq,
-  getTableColumns,
-  lt,
-  or,
-  inArray,
-  isNull,
-  sql,
-  count
-} from 'drizzle-orm';
-import { alias } from 'drizzle-orm/pg-core';
+import { and, desc, eq, getTableColumns, lt, or, inArray, ne } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
@@ -30,12 +18,12 @@ export const historyRouter = createTRPCRouter({
       const { postId, watchTime } = input;
       const { userId } = ctx;
 
-      const [existingView] = await db
+      const [view] = await db
         .select()
         .from(postViews)
         .where(and(eq(postViews.postId, postId), eq(postViews.userId, userId)));
 
-      if (existingView) {
+      if (view) {
         const [updatedView] = await db
           .update(postViews)
           .set({ watchTime })
@@ -69,29 +57,36 @@ export const historyRouter = createTRPCRouter({
       })
     )
     .query(async ({ input, ctx }) => {
-      const { userId } = ctx;
       const { cursor, limit } = input;
+      const { userId } = ctx;
 
       const data = await db
         .select({
           ...getTableColumns(postViews),
           user: users,
-          post: posts,
-          viewCount: db.$count(postViews, eq(postViews.userId, userId))
+          post: {
+            ...getTableColumns(posts),
+            viewCount: db.$count(postViews, eq(postViews.postId, posts.id))
+          }
         })
         .from(postViews)
-        .innerJoin(users, eq(postViews.userId, users.id))
         .innerJoin(posts, eq(postViews.postId, posts.id))
+        .innerJoin(users, eq(posts.userId, users.id))
         .where(
-          cursor
-            ? or(
-                lt(postViews.updatedAt, cursor.updateAt),
-                and(
-                  eq(postViews.updatedAt, cursor.updateAt),
-                  lt(postViews.postId, cursor.id)
+          and(
+            eq(postViews.userId, userId),
+            ne(postViews.deleted, true),
+            eq(posts.visible, 'public'),
+            cursor
+              ? or(
+                  lt(postViews.updatedAt, cursor.updateAt),
+                  and(
+                    eq(postViews.updatedAt, cursor.updateAt),
+                    lt(postViews.postId, cursor.id)
+                  )
                 )
-              )
-            : undefined
+              : undefined
+          )
         )
         .orderBy(desc(postViews.updatedAt), desc(postViews.postId))
         .limit(limit + 1);
@@ -106,21 +101,41 @@ export const historyRouter = createTRPCRouter({
       return { items, nextCursor };
     }),
 
+  deleteOne: procedure
+    .input(z.object({ id: z.uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const { id } = input;
+      const { userId } = ctx;
+
+      const [view] = await db
+        .update(postViews)
+        .set({ deleted: true })
+        .where(and(eq(postViews.postId, id), eq(postViews.userId, userId)))
+        .returning();
+
+      if (!view) {
+        throw new TRPCError({ code: 'NOT_FOUND' });
+      }
+
+      return view;
+    }),
+
   deleteMany: procedure
     .input(z.object({ ids: z.array(z.uuid()) }))
     .mutation(async ({ ctx, input }) => {
       const { ids } = input;
       const { userId } = ctx;
 
-      const deletedViews = await db
-        .delete(postViews)
+      const views = await db
+        .update(postViews)
+        .set({ deleted: true })
         .where(and(inArray(postViews.postId, ids), eq(postViews.userId, userId)))
         .returning();
 
-      if (!deletedViews.length) {
+      if (!views.length) {
         throw new TRPCError({ code: 'NOT_FOUND' });
       }
 
-      return deletedViews;
+      return views;
     })
 });

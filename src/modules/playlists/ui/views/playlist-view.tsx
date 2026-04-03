@@ -4,7 +4,7 @@ import { Play, Shuffle } from 'lucide-react';
 
 import { trpc } from '@/trpc/client';
 import { Button } from '@/components/ui/button';
-import ScreenContent from '@/components/screen-content';
+import SizeConstraint from '@/components/size-constraint';
 import { formatTimeDistance } from '@/lib/utils';
 
 type PlaylistViewProps = { id: string };
@@ -13,7 +13,7 @@ const PlaylistView = ({ id }: PlaylistViewProps) => {
   const [data] = trpc.playlists.getOne.useSuspenseQuery({ id });
 
   return (
-    <ScreenContent>
+    <SizeConstraint>
       <div className='fixed bottom-6 left-[74px] top-[calc(24px+56px)] ml-6 w-[360px] rounded-xl bg-black/60 p-6'>
         <div className='aspect-video rounded-xl bg-gray-200'></div>
         <h3 className='text-2xl font-bold text-white'>{data.name}</h3>
@@ -32,7 +32,7 @@ const PlaylistView = ({ id }: PlaylistViewProps) => {
         </div>
       </div>
       <div className='ml-[384px] h-[1200px] bg-yellow-200'>222</div>
-    </ScreenContent>
+    </SizeConstraint>
   );
 };
 

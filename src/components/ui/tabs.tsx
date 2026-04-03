@@ -31,7 +31,8 @@ const tabsListVariants = cva(
     variants: {
       variant: {
         default: 'bg-muted',
-        line: 'gap-1 bg-transparent'
+        line: 'gap-1 bg-transparent',
+        button: 'gap-1.5 bg-transparent p-0'
       }
     },
     defaultVariants: {
@@ -68,6 +69,8 @@ function TabsTrigger({
         'group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-[state=active]:bg-transparent dark:group-data-[variant=line]/tabs-list:data-[state=active]:border-transparent dark:group-data-[variant=line]/tabs-list:data-[state=active]:bg-transparent',
         'data-[state=active]:bg-background data-[state=active]:text-foreground dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 dark:data-[state=active]:text-foreground',
         'after:bg-foreground after:absolute after:opacity-0 after:transition-opacity group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=vertical]/tabs:after:inset-y-0 group-data-[orientation=horizontal]/tabs:after:bottom-[-5px] group-data-[orientation=vertical]/tabs:after:-right-1 group-data-[orientation=horizontal]/tabs:after:h-0.5 group-data-[orientation=vertical]/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-[state=active]:after:opacity-100',
+        'group-data-[variant=button]/tabs-list:h-7 group-data-[variant=button]/tabs-list:flex-none group-data-[variant=button]/tabs-list:rounded-md group-data-[variant=button]/tabs-list:border-0 group-data-[variant=button]/tabs-list:px-2.5 group-data-[variant=button]/tabs-list:py-0 group-data-[variant=button]/tabs-list:text-xs group-data-[variant=button]/tabs-list:shadow-xs group-data-[variant=button]/tabs-list:data-[state=inactive]:bg-secondary group-data-[variant=button]/tabs-list:data-[state=inactive]:text-secondary-foreground group-data-[variant=button]/tabs-list:data-[state=active]:bg-primary group-data-[variant=button]/tabs-list:data-[state=active]:text-primary-foreground group-data-[variant=button]/tabs-list:data-[state=active]:shadow-xs dark:group-data-[variant=button]/tabs-list:data-[state=active]:border-0 dark:group-data-[variant=button]/tabs-list:data-[state=active]:bg-primary dark:group-data-[variant=button]/tabs-list:data-[state=inactive]:bg-secondary',
+        'group-data-[variant=button]/tabs-list:after:hidden',
         className
       )}
       {...props}
