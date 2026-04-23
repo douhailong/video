@@ -5,93 +5,90 @@ import { z } from 'zod';
 import { db } from '@/db';
 import { comments, videos, postLikes, postViews, posts, pictures } from '@/db/schema';
 import { procedure, createTRPCRouter } from '@/trpc/init';
-import { postSchema } from '@/lib/zod';
 
 export const postsRouter = createTRPCRouter({
-  create: procedure.input(postSchema).mutation(async ({ ctx, input }) => {
+  create: procedure.input(z.object()).mutation(async ({ ctx, input }) => {
     const { userId } = ctx;
 
-    const post = (async function () {
-      if (input.type === 'video') {
-        const { video, ...basePost } = input;
+    // const post = (async function () {
+    //   if (input.type === 'video') {
+    //     const { video, ...basePost } = input;
 
-        const post = await db.transaction(async (tx) => {
-          const [createdPost] = await tx
-            .insert(posts)
-            .values({
-              ...basePost,
-              userId
-            })
-            .returning();
+    //     const post = await db.transaction(async (tx) => {
+    //       const [createdPost] = await tx
+    //         .insert(posts)
+    //         .values({
+    //           ...basePost,
+    //           userId
+    //         })
+    //         .returning();
 
-          const [createdVideo] = await tx
-            .insert(videos)
-            .values({
-              ...video,
-              postId: createdPost.id
-            })
-            .returning();
+    //       const [createdVideo] = await tx
+    //         .insert(videos)
+    //         .values({
+    //           ...video,
+    //           postId: createdPost.id
+    //         })
+    //         .returning();
 
-          return { ...createdPost, video: createdVideo };
-        });
+    //       return { ...createdPost, video: createdVideo };
+    //     });
 
-        return post;
-      }
+    //     return post;
+    //   }
 
-      if (input.type === 'picture') {
-        const { picture, ...basePost } = input;
+    //   if (input.type === 'picture') {
+    //     const { picture, ...basePost } = input;
 
-        const post = await db.transaction(async (tx) => {
-          const [createdPost] = await tx
-            .insert(posts)
-            .values({
-              ...basePost,
-              userId
-            })
-            .returning();
+    //     const post = await db.transaction(async (tx) => {
+    //       const [createdPost] = await tx
+    //         .insert(posts)
+    //         .values({
+    //           ...basePost,
+    //           userId
+    //         })
+    //         .returning();
 
-          const [createdPicture] = await tx
-            .insert(pictures)
-            .values({
-              ...picture,
-              postId: createdPost.id
-            })
-            .returning();
+    //       const [createdPicture] = await tx
+    //         .insert(pictures)
+    //         .values({
+    //           ...picture,
+    //           postId: createdPost.id
+    //         })
+    //         .returning();
 
-          return { ...createdPost, picture: createdPicture };
-        });
+    //       return { ...createdPost, picture: createdPicture };
+    //     });
 
-        return post;
-      }
-    })();
+    //     return post;
+    //   }
+    // })();
 
-    if (!post) {
-      throw new TRPCError({ code: 'BAD_REQUEST' });
+    // if (!post) {
+    //   throw new TRPCError({ code: 'BAD_REQUEST' });
+    // }
+
+    // return post;
+  }),
+  update: procedure.input(z.object()).mutation(async ({ ctx, input }) => {
+    const { id, ...restInput } = input;
+    const { userId } = ctx;
+
+    const [updatedPost] = await db
+      .update(posts)
+      .set({
+        ...restInput,
+        updatedAt: new Date()
+      })
+      .where(and(eq(posts.id, id!), eq(posts.userId, userId)))
+      .returning();
+
+    if (!updatedPost) {
+      throw new TRPCError({ code: 'NOT_FOUND' });
     }
 
-    return post;
+    return updatedPost;
   }),
-  update: procedure
-    .input(postSchema.and(z.object({ id: z.uuid() })))
-    .mutation(async ({ ctx, input }) => {
-      const { id, ...restInput } = input;
-      const { userId } = ctx;
-
-      const [updatedPost] = await db
-        .update(posts)
-        .set({
-          ...restInput,
-          updatedAt: new Date()
-        })
-        .where(and(eq(posts.id, id!), eq(posts.userId, userId)))
-        .returning();
-
-      if (!updatedPost) {
-        throw new TRPCError({ code: 'NOT_FOUND' });
-      }
-
-      return updatedPost;
-    }),
   remove: procedure.input(z.object({ id: z.uuid() })).mutation(async ({ ctx, input }) => {
     const { id } = input;
     const { userId } = ctx;

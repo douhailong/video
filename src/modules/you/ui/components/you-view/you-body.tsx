@@ -8,7 +8,9 @@ import PlaylistModal from '@/modules/playlists/ui/components/playlist-modal';
 import { ActionBar, ActionBarContent } from './action-bar';
 
 const YouBody = async () => {
-  // const { user } = await trpc.you.getYou();
+  const data = await trpc.you.getYou();
+
+  console.log(data, '/????????????-----');
 
   return (
     <div className='pt-6'>

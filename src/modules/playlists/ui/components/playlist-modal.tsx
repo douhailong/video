@@ -8,7 +8,7 @@ import { z } from 'zod';
 
 import { trpc } from '@/trpc/client';
 import { cn } from '@/lib/utils';
-import { VISIBLE_VALUES } from '@/lib/constants';
+import { visibility } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -34,7 +34,7 @@ import { tabs } from '../views/playlists-view';
 
 const formSchema = z.object({
   name: z.string().trim().min(1, '请输入标题'),
-  visible: z.enum(VISIBLE_VALUES)
+  visibility: z.enum(visibility)
 });
 
 type FormValues = z.input<typeof formSchema>;
@@ -42,9 +42,10 @@ type FormValues = z.input<typeof formSchema>;
 type PlaylistModalProps = {
   children: ReactNode;
   id?: string;
+  onSuccess?: () => void;
 };
 
-const PlaylistModal = ({ children, id }: PlaylistModalProps) => {
+const PlaylistModal = ({ children, id, onSuccess }: PlaylistModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const router = useRouter();
@@ -54,7 +55,7 @@ const PlaylistModal = ({ children, id }: PlaylistModalProps) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      visible: 'private'
+      visibility: 'private'
     }
   });
 
@@ -66,6 +67,9 @@ const PlaylistModal = ({ children, id }: PlaylistModalProps) => {
   const create = trpc.playlists.create.useMutation({
     onSuccess(data) {
       setIsOpen(false);
+      if (onSuccess) {
+        return onSuccess();
+      }
       router.push(`/feed/playlists/${data.id}`);
     }
   });
@@ -73,6 +77,9 @@ const PlaylistModal = ({ children, id }: PlaylistModalProps) => {
   const update = trpc.playlists.update.useMutation({
     onSuccess(data) {
       setIsOpen(false);
+      if (onSuccess) {
+        return onSuccess();
+      }
       utils.playlists.getMany.invalidate();
       router.push(`/feed/playlists/${data.id}`);
     }
@@ -80,7 +87,7 @@ const PlaylistModal = ({ children, id }: PlaylistModalProps) => {
 
   useEffect(() => {
     if (data) {
-      form.reset({ name: data.name, visible: data.visible });
+      form.reset({ name: data.name, visibility: data.visibility });
     }
   }, [data]);
 
@@ -118,7 +125,7 @@ const PlaylistModal = ({ children, id }: PlaylistModalProps) => {
           />
           <FormField
             control={form.control}
-            name='visible'
+            name='visibility'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>公开范围</FormLabel>

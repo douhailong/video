@@ -14,52 +14,11 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 
 import { db } from '@/db';
-import { users, posts, postViews, postLikes, follows } from '@/db/schema';
-import { createTRPCRouter, suspenseProcedure } from '@/trpc/init';
+import { users, posts, postViews, postLikes, follows, videos } from '@/db/schema';
+import { createTRPCRouter, suspenseProcedure, procedure } from '@/trpc/init';
+import { mediaType } from '@/lib/constants';
 
 export const postsRouter = createTRPCRouter({
-  // create: procedure.input(postSchema).mutation(async ({ ctx, input }) => {
-  //   const { userId } = ctx;
-  //   const [createdPost] = await db
-  //     .insert(posts)
-  //     .values({
-  //       userId: userId,
-  //       ...input
-  //     })
-  //     .returning();
-  //   if (!createdPost) {
-  //     throw new TRPCError({ code: 'BAD_REQUEST' });
-  //   }
-  //   return createdPost;
-  // }),
-  // remove: procedure.input(z.object({ id: z.uuid() })).mutation(async ({ ctx, input }) => {
-  //   const { id } = input;
-  //   const { userId } = ctx;
-  //   const [removedPost] = await db
-  //     .delete(posts)
-  //     .where(and(eq(posts.id, id), eq(posts.userId, userId)))
-  //     .returning();
-  //   if (!removedPost) {
-  //     throw new TRPCError({ code: 'NOT_FOUND' });
-  //   }
-  //   return removedPost;
-  // }),
-  // update: procedure.input(postSchema).mutation(async ({ ctx, input }) => {
-  //   const { id, ...restInput } = input;
-  //   const { userId } = ctx;
-  //   const [updatedPost] = await db
-  //     .update(posts)
-  //     .set({
-  //       ...restInput,
-  //       updatedAt: new Date()
-  //     })
-  //     .where(and(eq(posts.id, id!), eq(posts.userId, userId)))
-  //     .returning();
-  //   if (!updatedPost) {
-  //     throw new TRPCError({ code: 'NOT_FOUND' });
-  //   }
-  //   return updatedPost;
-  // }),
   getOne: suspenseProcedure
     .input(z.object({ id: z.uuid() }))
     .query(async ({ ctx, input }) => {
@@ -97,7 +56,7 @@ export const postsRouter = createTRPCRouter({
             userId ? eq(postLikes.userId, userId) : sql`false`
           )
         )
-        .where(and(eq(posts.id, id), eq(posts.visible, 'public')));
+        .where(and(eq(posts.id, id), eq(posts.visibility, 'public')));
 
       if (!post) {
         throw new TRPCError({ code: 'NOT_FOUND' });
@@ -137,7 +96,7 @@ export const postsRouter = createTRPCRouter({
         )
         .where(
           and(
-            eq(posts.visible, 'public'),
+            eq(posts.visibility, 'public'),
             cursor
               ? or(
                   lt(posts.updatedAt, cursor.updateAt),

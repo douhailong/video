@@ -66,7 +66,7 @@ const CommentItem = ({
     }
   });
 
-  const remove = trpc.comments.remove.useMutation({
+  const remove = trpc.comments.delete.useMutation({
     onSuccess: () => {
       utils.comments.getMany.invalidate({ postId: comment.postId });
     }

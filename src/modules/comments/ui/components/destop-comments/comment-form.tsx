@@ -9,11 +9,11 @@ import { Button } from '@/components/ui/button';
 type CommentFormProps = {
   postId: string;
   parentId?: string;
-  feedbackId?: string;
+  repliedId?: string;
   onSuccess?: () => void;
 };
 
-const CommentForm = ({ postId, parentId, feedbackId, onSuccess }: CommentFormProps) => {
+const CommentForm = ({ postId, parentId, repliedId, onSuccess }: CommentFormProps) => {
   const [content, setContnet] = useState('');
   const inputRef = useRef<HTMLDivElement>(null);
   const utils = trpc.useUtils();
@@ -60,9 +60,9 @@ const CommentForm = ({ postId, parentId, feedbackId, onSuccess }: CommentFormPro
             disabled={!content || create.isPending}
             onClick={() =>
               create.mutate({
-                text,
+                text: '',
                 parentId,
-                feedbackId,
+                repliedId,
                 postId
               })
             }

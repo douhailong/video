@@ -1,3 +1,4 @@
+import DestopComments from './components/destop-comments';
 import MobileComments from './components/mobile-comments';
 
 type CommentsBarProps = {
@@ -8,7 +9,7 @@ const CommentsBar = ({ postId }: CommentsBarProps) => {
   return (
     <>
       <MobileComments postId={postId} />
-      <div className='hidden sm:block'>desktop comments</div>
+      <DestopComments />
     </>
   );
 };

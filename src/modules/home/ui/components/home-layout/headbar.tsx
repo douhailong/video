@@ -26,7 +26,7 @@ export function Headbar() {
         <Button variant='ghost' size='icon' className='inline-flex sm:hidden'>
           <Search />
         </Button>
-        <CreateDropdown variant='secondary' icon={<Plus className='size-6' />} />
+        <CreateDropdown variant='secondary' icon={<Plus />} />
         <MessageButton />
         <AuthButton className='mx-3.5' type='simple' />
       </div>

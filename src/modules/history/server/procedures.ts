@@ -70,13 +70,15 @@ export const historyRouter = createTRPCRouter({
           }
         })
         .from(postViews)
-        .innerJoin(posts, eq(postViews.postId, posts.id))
+        .innerJoin(
+          posts,
+          and(eq(postViews.postId, posts.id), eq(posts.visible, 'public'))
+        )
         .innerJoin(users, eq(posts.userId, users.id))
         .where(
           and(
             eq(postViews.userId, userId),
-            ne(postViews.deleted, true),
-            eq(posts.visible, 'public'),
+            // ne(postViews.deleted, true),
             cursor
               ? or(
                   lt(postViews.updatedAt, cursor.updateAt),
@@ -101,24 +103,23 @@ export const historyRouter = createTRPCRouter({
       return { items, nextCursor };
     }),
 
-  deleteOne: procedure
-    .input(z.object({ id: z.uuid() }))
-    .mutation(async ({ ctx, input }) => {
-      const { id } = input;
-      const { userId } = ctx;
+  delete: procedure.input(z.object({ id: z.uuid() })).mutation(async ({ ctx, input }) => {
+    const { id } = input;
+    const { userId } = ctx;
 
-      const [view] = await db
-        .update(postViews)
-        .set({ deleted: true })
-        .where(and(eq(postViews.postId, id), eq(postViews.userId, userId)))
-        .returning();
+    const [view] = await db
+      .update(postViews)
+      // .set({ deleted: true })
+      .set({})
+      .where(and(eq(postViews.postId, id), eq(postViews.userId, userId)))
+      .returning();
 
-      if (!view) {
-        throw new TRPCError({ code: 'NOT_FOUND' });
-      }
+    if (!view) {
+      throw new TRPCError({ code: 'NOT_FOUND' });
+    }
 
-      return view;
-    }),
+    return view;
+  }),
 
   deleteMany: procedure
     .input(z.object({ ids: z.array(z.uuid()) }))
@@ -128,7 +129,8 @@ export const historyRouter = createTRPCRouter({
 
       const views = await db
         .update(postViews)
-        .set({ deleted: true })
+        .set({})
+        // .set({ deleted: true })
         .where(and(inArray(postViews.postId, ids), eq(postViews.userId, userId)))
         .returning();
 

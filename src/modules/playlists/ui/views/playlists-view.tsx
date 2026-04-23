@@ -2,9 +2,8 @@
 
 import { useState } from 'react';
 
-import { VISIBLE_VALUES } from '@/lib/constants';
-import SizeConstraint from '@/components/size-constraint';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import SizeConstraint from '@/components/size-constraint';
 
 import PlaylistsBody from '../components/playlists-body';
 
@@ -30,7 +29,7 @@ const PlaylistsView = () => {
             </TabsTrigger>
           ))}
         </TabsList>
-        <PlaylistsBody visible={currentTab === 'total' ? undefined : currentTab} />
+        <PlaylistsBody visibility={currentTab === 'total' ? undefined : currentTab} />
       </Tabs>
     </SizeConstraint>
   );

@@ -2,9 +2,7 @@ import { UserCircle, Bell } from 'lucide-react';
 
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
-type MessageDropdownProps = { children: ReactNode };
-
-const MessageDropdown = ({ children }: MessageDropdownProps) => {
+const MessageDropdown = ({ children }: ChildrenProps) => {
   return (
     <Tooltip>
       <TooltipTrigger asChild>{children}</TooltipTrigger>

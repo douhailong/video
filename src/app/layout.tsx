@@ -9,19 +9,19 @@ import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
-const RootLayout = ({ children }: { children: ReactNode }) => (
-  <html lang='en' suppressHydrationWarning>
-    <body className={inter.className}>
-      <ThemeProvider>
-        <TRPCProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </TRPCProvider>
-        <Toaster />
-      </ThemeProvider>
-    </body>
-  </html>
-);
-
-export default RootLayout;
-
 export const metadata: Metadata = { title: 'YouTube clone' };
+
+export default function RootLayout({ children }: ChildrenProps) {
+  return (
+    <html lang='en' suppressHydrationWarning>
+      <body className={inter.className}>
+        <ThemeProvider>
+          <TRPCProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </TRPCProvider>
+          <Toaster position='bottom-center' invert />
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}

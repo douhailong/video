@@ -6,7 +6,8 @@ import { zfd } from 'zod-form-data';
 
 import { procedure, createTRPCRouter } from '@/trpc/init';
 import { minio } from '@/lib/minio';
-import { MINIO_BUCKET } from '@/lib/constants';
+import { mediaType, WEBSITE_ASSETS_BUCKET } from '@/lib/constants';
+import { buildSourceObjectId } from '@/lib/utils/s3';
 
 const uploadChunkInput = zfd.formData({
   chunk: zfd.file(),
@@ -82,21 +83,27 @@ async function mergeChunks({
 
 export const uploadRouter = createTRPCRouter({
   presignedUrl: procedure
-    .input(z.object({ pathname: z.enum(['video', 'picture']), filename: z.string() }))
-    .mutation(async ({ input: { pathname, filename } }) => {
-      const uploadPath = `/${pathname}/${filename}`;
+    .input(
+      z.object({
+        mediaType: z.enum(mediaType),
+        mediaId: z.uuid(),
+        filename: z.string()
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { mediaType, mediaId, filename } = input;
 
-      const presignedUrl = await minio.presignedPutObject(
-        MINIO_BUCKET,
-        uploadPath,
+      const uploadId = await minio.presignedPutObject(
+        WEBSITE_ASSETS_BUCKET,
+        buildSourceObjectId(mediaType, mediaId, filename),
         60 * 10
       );
 
-      if (!presignedUrl) {
-        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+      if (!uploadId) {
+        throw new TRPCError({ code: 'BAD_REQUEST' });
       }
 
-      return { uploadPath, presignedUrl };
+      return { uploadId };
     }),
   upload: procedure.mutation(async () => {}),
 

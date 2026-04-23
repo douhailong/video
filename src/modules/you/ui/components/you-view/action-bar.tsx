@@ -44,7 +44,7 @@ const ActionBar = ({
   );
 };
 
-const ActionBarContent = ({ children }: { children: ReactNode }) => {
+const ActionBarContent = ({ children }: ChildrenProps) => {
   const data = Array.from({ length: 10 });
 
   return <div className='bg-green-300'>1</div>;

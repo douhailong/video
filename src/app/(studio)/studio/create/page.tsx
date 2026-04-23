@@ -1,5 +1,3 @@
-import CreatePostView from '@/modules/create-post/ui/views/create-post-view';
+import UploadMediaView from '@/modules/studio-post/ui/views/upload-media-view';
 
-const Page = () => <CreatePostView />;
-
-export default Page;
+export default UploadMediaView;

@@ -7,17 +7,17 @@ import Boundary from '@/components/boundary';
 
 import PlaylistCard from './playlist-card';
 
-type PlaylistsBodyProps = { visible?: 'public' | 'private' };
+type PlaylistsBodyProps = { visibility?: 'public' | 'private' };
 
-const PlaylistsBody = ({ visible }: PlaylistsBodyProps) => (
+const PlaylistsBody = ({ visibility }: PlaylistsBodyProps) => (
   <Boundary fallback={<PlaylistsBodySkeleton />}>
-    <PlaylistsBodySuspense visible={visible} />
+    <PlaylistsBodySuspense visibility={visibility} />
   </Boundary>
 );
 
-const PlaylistsBodySuspense = ({ visible }: PlaylistsBodyProps) => {
+const PlaylistsBodySuspense = ({ visibility }: PlaylistsBodyProps) => {
   const [data, query] = trpc.playlists.getMany.useSuspenseInfiniteQuery(
-    { limit: DEFAULT_LIMIT, visible },
+    { limit: DEFAULT_LIMIT, visibility },
     { getNextPageParam: (next) => next.nextCursor }
   );
 

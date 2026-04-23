@@ -6,12 +6,12 @@ import { followsRouter } from '@/modules/follows/server/procedures';
 import { historyRouter } from '@/modules/history/server/procedures';
 import { playlistRouter } from '@/modules/playlists/server/procedures';
 
+import { studioPostRouter } from '@/modules/studio-post/server/procedures';
 // TODO
 import { userRouter } from '@/modules/user/server/procedures';
 import { watchRouter } from '@/modules/watch/server/procedures';
 
 import { uploadRouter } from '@/modules/upload/server/procedures';
-import { createPostRouter } from '@/modules/create-post/server/procedures';
 import { postsRouter } from '@/modules/posts/server/procedures';
 import { categoriesRouter } from '@/modules/categories/server/procedures';
 import { studioRouter } from '@/modules/studio/server';
@@ -31,8 +31,8 @@ export const appRouter = createTRPCRouter({
   you: youRouter,
   watch: watchRouter,
 
+  studioPost: studioPostRouter,
   upload: uploadRouter,
-  createPost: createPostRouter,
   posts: postsRouter,
   studio: studioRouter,
   comments: commentsRouter,

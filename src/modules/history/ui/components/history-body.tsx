@@ -16,13 +16,13 @@ const HistoryBody = () => {
     { getNextPageParam: (next) => next.nextCursor }
   );
 
-  const { mutate } = trpc.history.deleteOne.useMutation({
-    onSuccess() {
-      utils.history.getMany.invalidate();
-    }
+  const { mutate } = trpc.history.delete.useMutation({
+    onSuccess: () => utils.history.getMany.invalidate()
   });
 
   const views = data?.pages.flatMap((page) => page.items) || [];
+
+  console.log(views, '>>>>>>>>>>>>');
 
   const actions: Actions = [
     {

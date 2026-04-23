@@ -1,7 +1,5 @@
 import StudioView from '@/modules/studio/ui/views/studio-view';
 
-const Page = () => {
+export default function () {
   return <StudioView />;
-};
-
-export default Page;
+}

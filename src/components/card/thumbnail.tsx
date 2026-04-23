@@ -25,4 +25,4 @@ const Thumbnail = (props: ThumbnailProps) => {
   );
 };
 
-export default Thumbnail;
+export { Thumbnail };

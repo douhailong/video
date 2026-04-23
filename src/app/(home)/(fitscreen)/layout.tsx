@@ -1,7 +1,5 @@
 import HomeLayout from '@/modules/home/ui/layout/home-layout';
 
-const Layout = ({ children }: { children: ReactNode }) => (
-  <HomeLayout>{children}</HomeLayout>
-);
+const Layout = ({ children }: ChildrenProps) => <HomeLayout>{children}</HomeLayout>;
 
 export default Layout;

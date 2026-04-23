@@ -1,15 +1,4 @@
-import {
-  and,
-  desc,
-  eq,
-  getTableColumns,
-  lt,
-  or,
-  inArray,
-  isNull,
-  sql,
-  count
-} from 'drizzle-orm';
+import { and, desc, eq, getTableColumns, lt, or, isNull, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
@@ -19,57 +8,6 @@ import { commentLikes, comments, users } from '@/db/schema';
 import { suspenseProcedure, procedure, createTRPCRouter } from '@/trpc/init';
 
 export const commentsRouter = createTRPCRouter({
-  create: procedure
-    .input(
-      z.object({
-        postId: z.uuid(),
-        text: z.string(),
-        parentId: z.uuid().nullish(),
-        feedbackId: z.uuid().nullish()
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const { postId, parentId, feedbackId, text } = input;
-      const { userId } = ctx;
-
-      function queryWhere() {
-        if (!parentId) {
-          return sql`false`;
-        }
-
-        if (!feedbackId) {
-          return eq(comments.id, parentId);
-        }
-
-        return and(eq(comments.parentId, parentId), eq(comments.id, feedbackId));
-      }
-
-      // 当前回复的评论
-      const [existing] = await db.select().from(comments).where(queryWhere());
-
-      // parentId没查到对应的一级评论
-      if (!existing && parentId) {
-        throw new TRPCError({ code: 'NOT_FOUND' });
-      }
-
-      // 回复的评论和当前评论属于同一个一级评论下
-      if (existing && existing.parentId === parentId && !feedbackId) {
-        throw new TRPCError({ code: 'BAD_REQUEST' });
-      }
-
-      const [createdComment] = await db
-        .insert(comments)
-        .values({
-          userId,
-          postId,
-          parentId,
-          feedbackId: parentId && feedbackId ? feedbackId : undefined,
-          text
-        })
-        .returning();
-
-      return createdComment;
-    }),
   getMany: suspenseProcedure
     .input(
       z.object({
@@ -88,42 +26,15 @@ export const commentsRouter = createTRPCRouter({
       const { postId, parentId, cursor, limit } = input;
       const { userId } = ctx;
 
-      const viewerLikes = db.$with('viewer_like').as(
-        db
-          .select()
-          .from(commentLikes)
-          .where(userId ? eq(commentLikes.userId, userId) : sql`false`)
-      );
-
-      // const commentCounts = db.$with('comment_count').as(
-      //   db
-      //     .select({
-      //       postId: comments.postId,
-      //       count: count(comments.id).as('commentCount')
-      //     })
-      //     .from(comments)
-      //     .groupBy(comments.id)
-      // );
-
-      // const likeCounts = db.$with('like_count').as(
-      //   db
-      //     .select({
-      //       postId: commentLikes.commentId,
-      //       count: count(commentLikes.commentId).as('likeCount')
-      //     })
-      //     .from(commentLikes)
-      //     .where(eq(commentLikes.status, 'like'))
-      //     .groupBy(commentLikes.commentId)
-      // );
+      const subComments = alias(comments, 'sub_comment');
 
       const [total, data] = await Promise.all([
         db.$count(comments, eq(comments.postId, postId)),
         db
-          .with(viewerLikes)
-          // .with(viewerFeedback, commentCounts, likeCounts)
           .select({
             ...getTableColumns(comments),
             user: users,
+            likeStatus: commentLikes.status,
             likeCount: db.$count(
               commentLikes,
               and(
@@ -131,10 +42,14 @@ export const commentsRouter = createTRPCRouter({
                 eq(commentLikes.status, 'like')
               )
             ),
-            likeStatus: viewerLikes.status
-            // feedback: viewerFeedback.status,
-            // commentCount: commentCounts.count,
-            // likeCount: likeCounts.count
+            repliedCount: parentId
+              ? sql<null>`null`
+              : db.$count(
+                  db
+                    .select()
+                    .from(subComments)
+                    .where(eq(subComments.parentId, comments.id))
+                )
           })
           .from(comments)
           .where(
@@ -153,9 +68,15 @@ export const commentsRouter = createTRPCRouter({
             )
           )
           .innerJoin(users, eq(comments.userId, users.id))
-          .leftJoin(viewerLikes, eq(viewerLikes.commentId, comments.id))
-          // .leftJoin(commentCounts, eq(commentCounts.postId, postId))
-          // .leftJoin(likeCounts, eq(likeCounts.postId, postId))
+          .leftJoin(
+            commentLikes,
+            userId
+              ? and(
+                  eq(commentLikes.userId, userId),
+                  eq(commentLikes.commentId, comments.id)
+                )
+              : sql`false`
+          )
           .orderBy(desc(comments.updatedAt), desc(comments.id))
           .limit(limit + 1)
       ]);
@@ -169,21 +90,84 @@ export const commentsRouter = createTRPCRouter({
 
       return { items, nextCursor, total };
     }),
-  deleteOne: procedure
-    .input(z.object({ id: z.uuid() }))
+  delete: procedure
+    .input(
+      z.object({
+        id: z.uuid()
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const { id } = input;
       const { userId } = ctx;
 
-      const [comment] = await db
+      const [deletedComment] = await db
         .delete(comments)
         .where(and(eq(comments.id, id), eq(comments.userId, userId)))
         .returning();
 
-      if (!comment) {
+      if (!deletedComment) {
         throw new TRPCError({ code: 'NOT_FOUND' });
       }
 
-      return comment;
+      return deletedComment;
+    }),
+  create: procedure
+    .input(
+      z.object({
+        postId: z.uuid(),
+        text: z.string(),
+        parentId: z.uuid().nullish(),
+        repliedId: z.uuid().nullish()
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { postId, parentId, repliedId, text } = input;
+      const { userId } = ctx;
+
+      async function createComment() {
+        const [createdComment] = await db
+          .insert(comments)
+          .values({
+            userId,
+            postId,
+            parentId,
+            repliedId: parentId && repliedId ? repliedId : undefined,
+            text
+          })
+          .returning();
+
+        return createdComment;
+      }
+
+      if (!parentId && !repliedId) {
+        return await createComment();
+      }
+
+      if (!parentId || !repliedId) {
+        throw new TRPCError({ code: 'BAD_REQUEST' });
+      }
+
+      const [repliedComment] = await db
+        .select()
+        .from(comments)
+        .where(
+          parentId === repliedId
+            ? and(
+                eq(comments.id, parentId),
+                eq(comments.postId, postId),
+                isNull(comments.parentId)
+              )
+            : and(
+                eq(comments.id, repliedId),
+                eq(comments.parentId, parentId),
+                eq(comments.postId, postId)
+              )
+        );
+
+      if (!repliedComment) {
+        throw new TRPCError({ code: 'NOT_FOUND' });
+      }
+
+      return await createComment();
     })
 });

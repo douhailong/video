@@ -6,7 +6,7 @@ import {
   SheetTitle
 } from '@/components/ui/sheet';
 
-const FeedbackDrawer = ({ children }: { children: ReactNode }) => {
+const FeedbackDrawer = ({ children }: ChildrenProps) => {
   return (
     <Sheet>
       <SheetTrigger>{children}</SheetTrigger>

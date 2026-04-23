@@ -4,8 +4,8 @@ import { cva, type VariantProps } from 'class-variance-authority';
 const variants = cva('sm:p-6 p-0', {
   variants: {
     size: {
-      md: 'max-w-screen-lg',
       sm: 'max-w-screen-md',
+      md: 'max-w-screen-lg',
       lg: 'max-w-screen-xl',
       xl: 'max-w-screen-2xl'
     },

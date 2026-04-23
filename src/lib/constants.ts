@@ -1,13 +1,23 @@
-import { visibleEnum, processEnum, likeEnum } from '@/db/schema';
-
-export const DEFAULT_LIMIT = 10;
+import {
+  visibilityEnum,
+  likeStatusEnum,
+  mediaTypeEnum,
+  mediaStatusEnum
+} from '@/db/schema';
 
 export const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL!;
 
-export const PROCESS_VALUES = processEnum.enumValues;
+export const DEFAULT_LIMIT = 10;
 
-export const VISIBLE_VALUES = visibleEnum.enumValues;
+export const WEBSITE_ASSETS_BUCKET = 'website-assets';
 
-export const LIKE_VALUES = likeEnum.enumValues;
+export const visibility = visibilityEnum.enumValues;
+export const likeStatus = likeStatusEnum.enumValues;
 
-export const MINIO_BUCKET = 'youtube-clone';
+export const mediaType = mediaTypeEnum.enumValues;
+export const mediaStatus = mediaStatusEnum.enumValues;
+
+export type Visibility = (typeof visibility)[number];
+export type LikeStatus = (typeof likeStatus)[number];
+export type MediaType = (typeof mediaType)[number];
+export type MediaStatus = (typeof mediaStatus)[number];

@@ -19,7 +19,7 @@ const StudioNavbar = () => (
       </div>
       <div className='mr-2.5 flex flex-shrink-0 items-center gap-4'>
         <MessageButton />
-        <CreateDropdown icon={<Video className='size-6' />} />
+        <CreateDropdown icon={<Video />} />
         <AuthButton type='simple' />
       </div>
     </div>

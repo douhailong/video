@@ -6,7 +6,7 @@ import { zfd } from 'zod-form-data';
 
 import { procedure, createTRPCRouter } from '@/trpc/init';
 import { minio } from '@/lib/minio';
-import { MINIO_BUCKET } from '@/lib/constants';
+import { WEBSITE_ASSETS_BUCKET } from '@/lib/constants';
 
 const uploadChunkInput = zfd.formData({
   chunk: zfd.file(),
@@ -87,13 +87,19 @@ export const uploadRouter = createTRPCRouter({
       const uploadPath = `/${pathname}/${filename}`;
 
       const presignedUrl = await minio.presignedPutObject(
-        MINIO_BUCKET,
+        WEBSITE_ASSETS_BUCKET,
         uploadPath,
         60 * 10
       );
 
+      if (!presignedUrl) {
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+      }
+
       return { uploadPath, presignedUrl };
     }),
+  upload: procedure.mutation(async () => {}),
+
   validateChunks: procedure
     .input(z.object({ filehash: z.string() }))
     .mutation(async ({ input: { filehash } }) => {
@@ -136,6 +142,5 @@ export const uploadRouter = createTRPCRouter({
       return await mergeChunks({ filehash, filename, chunkTotal });
     }
     return { chunkIndex };
-  }),
-  upload: procedure.mutation(async () => {})
+  })
 });
