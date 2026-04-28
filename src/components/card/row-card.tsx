@@ -1,16 +1,15 @@
 import { formatCount, formatTimeDistance } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Player } from '@/components/player';
 
 import ActionDropdown, { type Actions } from './action-dropdown';
-import Thumbnail from './thumbnail';
+import { Thumbnail } from './thumbnail';
 
 type RowCardProps = {
   user: { id: string; name: string; image: string };
   data: {
     id: string;
     title: string;
-    thumbUrl: string;
+    thumbUrl: string | null;
     playbackUrl: string;
     duration: number;
     viewCount: number;
@@ -28,7 +27,7 @@ const RowCard = ({ data, user, actions }: RowCardProps) => {
           thumbUrl={data.thumbUrl}
           duration={data.duration}
         />
-        <Player className='relative hidden group-hover:block' />
+        {/* <Player className='relative hidden group-hover:block' /> */}
       </div>
       <div className='flex-1'>
         <p className='line-clamp-2 text-base font-medium'>{data.title}</p>

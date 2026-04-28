@@ -13,42 +13,23 @@ import {
 } from '@/db/schema';
 import { createTRPCRouter, procedure } from '@/trpc/init';
 
-const SHELF_PREVIEW_LIMIT = 3;
-
-type HistoryPreviewQuery = {
-  postId: string;
-  title: string;
-  thumbUrl: string;
-  watchTime: number;
-  viewedAt: string;
-  createdAt: string;
-};
-
-type PlaylistPreviewQuery = {
-  id: string;
-  name: string;
-  visible: 'public' | 'private';
-  updatedAt: string;
-  postCount: number;
-};
-
 export const youRouter = createTRPCRouter({
   getYou: procedure.query(async ({ ctx }) => {
     const { userId } = ctx;
 
+    const sq = db.select().from(postViews).where(eq(postViews.userId, userId)).as('sq');
+
     const data = await db
-      .select({
-        user: users
-      })
+      .select()
       .from(users)
-      .where(eq(users.id, userId))
-      .leftJoin(postViews, eq(postViews.userId, users.id));
+      .leftJoin(sq, eq(sq.userId, userId))
+      .where(eq(users.id, userId));
 
     if (!data) {
       throw new TRPCError({ code: 'NOT_FOUND' });
     }
 
-    console.log(data, '????????-----------------11');
+    console.log(data, 'aaaaaaa----------------11');
 
     return data;
   })

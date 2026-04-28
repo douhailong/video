@@ -10,7 +10,7 @@ type PageProps = {
 export default async function Page({ searchParams }: PageProps) {
   const { channel } = await searchParams;
 
-  void trpc.studioPost.getMany.prefetch({ page: 1, pageSize: DEFAULT_LIMIT });
+  void trpc.posts.studio.getMany.prefetch({ page: 1, pageSize: DEFAULT_LIMIT });
 
   return (
     <HydrateClient>

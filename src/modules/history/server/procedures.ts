@@ -18,12 +18,12 @@ export const historyRouter = createTRPCRouter({
       const { postId, watchTime } = input;
       const { userId } = ctx;
 
-      const [view] = await db
+      const [existingView] = await db
         .select()
         .from(postViews)
         .where(and(eq(postViews.postId, postId), eq(postViews.userId, userId)));
 
-      if (view) {
+      if (existingView) {
         const [updatedView] = await db
           .update(postViews)
           .set({ watchTime })

@@ -7,8 +7,8 @@ import { DEFAULT_LIMIT } from '@/lib/constants';
 import InfiniteScroll from '@/components/infinite-scroll';
 import { ColumnCard } from '@/components/card';
 
-const HomeBody = () => {
-  const [data, query] = trpc.posts.getMany.useSuspenseInfiniteQuery(
+export function HomeBody() {
+  const [data, query] = trpc.posts.home.getMany.useSuspenseInfiniteQuery(
     { limit: DEFAULT_LIMIT * 2 },
     { getNextPageParam: (next) => next.nextCursor }
   );
@@ -28,7 +28,7 @@ const HomeBody = () => {
                 thumbUrl: post.thumbUrl,
                 viewCount: post.viewCount,
                 title: post.title,
-                duration: 1009,
+                duration: 10090000,
                 createdAt: post.createdAt,
                 playbackUrl: ''
               }}
@@ -43,14 +43,14 @@ const HomeBody = () => {
       />
     </>
   );
-};
+}
 
-const Loading = () => (
-  <div className='grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'>
-    {Array.from({ length: 12 }).map((_, index) => (
-      <ColumnCard.Loading key={index} />
-    ))}
-  </div>
-);
-
-export { HomeBody, Loading };
+export function Loading() {
+  return (
+    <div className='grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'>
+      {Array.from({ length: 12 }).map((_, index) => (
+        <ColumnCard.Loading key={index} />
+      ))}
+    </div>
+  );
+}

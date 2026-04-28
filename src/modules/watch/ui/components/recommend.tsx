@@ -18,10 +18,10 @@ const tabs = [
 
 type TabKey = (typeof tabs)[number]['key'];
 
-const DesktopRelated = () => {
+export function DesktopRecommend() {
   const [currentTab, setCurrentTab] = useState<TabKey>('1');
 
-  const [data, query] = trpc.watch.getMany.useSuspenseInfiniteQuery(
+  const [data, query] = trpc.posts.recommend.getMany.useSuspenseInfiniteQuery(
     { limit: DEFAULT_LIMIT },
     { getNextPageParam: (next) => next.nextCursor }
   );
@@ -43,6 +43,7 @@ const DesktopRelated = () => {
             key={post.id}
             user={post.user}
             data={{
+              id: post.id,
               title: post.title,
               thumbUrl: post.thumbUrl,
               playbackUrl: 'string',
@@ -60,27 +61,29 @@ const DesktopRelated = () => {
       />
     </Tabs>
   );
-};
+}
 
-const DesktopLoading = () => (
-  <div>
-    <div className='mb-3 flex gap-2'>
-      <Skeleton className='w-19 h-8 rounded-md' />
-      <Skeleton className='h-8 w-16 rounded-md' />
-      <Skeleton className='w-13 h-8 rounded-md' />
+export function DesktopLoading() {
+  return (
+    <div>
+      <div className='mb-3 flex gap-2'>
+        <Skeleton className='w-19 h-8 rounded-md' />
+        <Skeleton className='h-8 w-16 rounded-md' />
+        <Skeleton className='w-13 h-8 rounded-md' />
+      </div>
+      <div className='flex flex-col gap-2'>
+        {Array.from({ length: 8 }).map((_, index) => (
+          <RowCard.Loading key={index} />
+        ))}
+      </div>
     </div>
-    <div className='flex flex-col gap-2'>
-      {Array.from({ length: 8 }).map((_, index) => (
-        <RowCard.Loading key={index} />
-      ))}
-    </div>
-  </div>
-);
+  );
+}
 
-const MobileRelated = () => {
+export function MobileRecommend() {
   const [currentTab, setCurrentTab] = useState<TabKey>('1');
 
-  const [data, query] = trpc.posts.getMany.useSuspenseInfiniteQuery(
+  const [data, query] = trpc.posts.recommend.getMany.useSuspenseInfiniteQuery(
     { limit: DEFAULT_LIMIT },
     { getNextPageParam: (next) => next.nextCursor }
   );
@@ -119,9 +122,9 @@ const MobileRelated = () => {
       />
     </Tabs>
   );
-};
+}
 
-const MobileLoading = () => {
+export function MobileLoading() {
   return (
     <div>
       <div className='mb-3 flex gap-2 px-4 sm:px-0'>
@@ -136,6 +139,4 @@ const MobileLoading = () => {
       </div>
     </div>
   );
-};
-
-export { DesktopRelated, MobileRelated, DesktopLoading, MobileLoading };
+}

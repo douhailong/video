@@ -11,7 +11,7 @@ export default async function Page({ params, searchParams }: PageProps) {
   const { id } = await params;
   const { mediaType } = await searchParams;
 
-  void trpc.studioPost.getOne.prefetch({ id });
+  void trpc.posts.studio.getOne.prefetch({ id });
   void trpc.playlists.getMany.prefetchInfinite({ limit: DEFAULT_LIMIT });
 
   return <PublishPostView mediaType={mediaType} postId={id} />;

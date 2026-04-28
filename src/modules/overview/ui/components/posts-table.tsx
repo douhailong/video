@@ -29,13 +29,13 @@ function PostsTable() {
   const [pageIndex, setPageIndex] = useState(1);
   const [rowSelection, setRowSelection] = useState<RowSelectionState | null>(null);
 
-  const [data, query] = trpc.studioPost.getMany.useSuspenseQuery({
+  const [data, query] = trpc.posts.studio.getMany.useSuspenseQuery({
     page: pageIndex,
     pageSize: DEFAULT_LIMIT,
     query: queryText || undefined
   });
 
-  const { mutate } = trpc.studioPost.deleteMany.useMutation({
+  const { mutate } = trpc.posts.studio.deleteMany.useMutation({
     onSuccess() {
       query.refetch();
       setRowSelection(null);

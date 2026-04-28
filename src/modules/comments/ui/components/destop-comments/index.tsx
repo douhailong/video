@@ -1,11 +1,13 @@
 import CommentForm from './comment-form';
 
-type DestopCommentsProps = {};
+type DestopCommentsProps = {
+  postId: string;
+};
 
-const DestopComments = ({}: DestopCommentsProps) => {
+const DestopComments = ({ postId }: DestopCommentsProps) => {
   return (
-    <div className='hidden sm:block'>
-      <CommentForm />
+    <div className='hidden pb-4 sm:block'>
+      <CommentForm postId={postId} />
     </div>
   );
 };

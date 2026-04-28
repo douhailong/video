@@ -19,41 +19,73 @@ import PostLikeButton from '@/modules/likes/ui/components/post-like-button';
 
 type ActionBarProps = { postId: string };
 
-type DataProps = {
+export default function ActionBar({ postId }: ActionBarProps) {
+  const [data, query] = trpc.posts.home.getOne.useSuspenseQuery({ id: postId });
+
+  const onSuccess = () => query.refetch();
+
+  return (
+    <>
+      <DestopBar data={data} onSuccess={onSuccess} />
+      <MobileBar data={data} onSuccess={onSuccess} />
+    </>
+  );
+}
+
+type ActionProps = {
   data: OnePostTypes;
   onSuccess: () => void;
 };
 
-const ActionBar = ({ postId }: ActionBarProps) => {
-  const utils = trpc.useUtils();
-
-  const [data] = trpc.posts.getOne.useSuspenseQuery({ id: postId });
-
+function DestopBar({ data: { user, ...data }, onSuccess }: ActionProps) {
   return (
-    <>
-      <DestopBar
-        data={data}
-        onSuccess={() => utils.posts.getOne.invalidate({ id: data.id })}
-      />
-      <MobileBar
-        data={data}
-        onSuccess={() => utils.posts.getOne.invalidate({ id: data.id })}
-      />
-    </>
+    <div className='hidden pb-6 pt-4 sm:block'>
+      <h1 className='line-clamp-2 text-2xl font-bold'>{data.title}</h1>
+      <div className='flex items-center justify-between pt-3'>
+        <div className='flex items-center'>
+          <div className='flex items-center gap-3'>
+            <Link href=''>
+              <UserAvatar className='size-10' imageUrl={user.image} name={user.name} />
+            </Link>
+            <div className='mr-6 flex flex-col'>
+              <Link href='' className='text-base font-medium'>
+                {user.name}
+              </Link>
+              <span className='text-muted-foreground text-xs'>
+                {formatCount(user.followerCount)} 位订阅者
+              </span>
+            </div>
+          </div>
+          <FollowButton followed={user.followed} userId={user.id} onSuccess={onSuccess} />
+        </div>
+        <div className='flex items-center gap-2'>
+          <PostLikeButton
+            count={data.likeCount}
+            status={data.likeStatus}
+            postId={data.id}
+          />
+          <Button variant='secondary'>
+            <Share2 className='size-6' />
+            分享
+          </Button>
+          <ActionButton />
+        </div>
+      </div>
+    </div>
   );
-};
+}
 
-const DestopBar = ({ data: { user, ...data }, onSuccess }: DataProps) => (
-  <div className='hidden pb-6 pt-4 sm:block'>
-    <h1 className='line-clamp-2 text-2xl font-bold'>{data.title}</h1>
-    <div className='flex items-center justify-between pt-3'>
-      <div className='flex items-center'>
+function MobileBar({ data: { user, ...data }, onSuccess }: ActionProps) {
+  return (
+    <div className='flex flex-col gap-3 px-4 pb-4 pt-3 sm:hidden'>
+      <h1 className='line-clamp-2 text-xl font-medium'>{data.title}</h1>
+      <div className='flex items-center justify-between'>
         <div className='flex items-center gap-3'>
           <Link href=''>
-            <UserAvatar className='size-10' imageUrl={user.image} name={user.name} />
+            <UserAvatar className='size-9' imageUrl={user.image} name={user.name} />
           </Link>
-          <div className='mr-6 flex flex-col'>
-            <Link href='' className='text-base font-medium'>
+          <div className='flex flex-col'>
+            <Link href='' className='text-sm font-medium sm:text-base'>
               {user.name}
             </Link>
             <span className='text-muted-foreground text-xs'>
@@ -63,67 +95,37 @@ const DestopBar = ({ data: { user, ...data }, onSuccess }: DataProps) => (
         </div>
         <FollowButton followed={user.followed} userId={user.id} onSuccess={onSuccess} />
       </div>
-      <div className='flex items-center gap-2'>
+      <div className='flex items-center gap-2 overflow-x-scroll [scrollbar-width:none]'>
         <PostLikeButton
           count={data.likeCount}
           status={data.likeStatus}
           postId={data.id}
         />
         <Button variant='secondary'>
-          <Share2 className='size-6' />
+          <Share2 className='size-5' />
           分享
         </Button>
-        <ActionButton />
+        <Button className='hidden sm:inline-flex' variant='secondary'>
+          <Scissors className='size-5' />
+          剪辑
+        </Button>
+        <Button className='hidden sm:inline-flex' size='icon' variant='secondary'>
+          <MoreHorizontal />
+        </Button>
+        <Button className='inline-flex sm:hidden' variant='secondary'>
+          <Bookmark className='size-5' />
+          保存
+        </Button>
+        <Button className='inline-flex sm:hidden' variant='secondary'>
+          <Flag className='size-5' />
+          举报
+        </Button>
       </div>
     </div>
-  </div>
-);
+  );
+}
 
-const MobileBar = ({ data: { user, ...data }, onSuccess }: DataProps) => (
-  <div className='flex flex-col gap-3 px-4 pb-4 pt-3 sm:hidden'>
-    <h1 className='line-clamp-2 text-xl font-medium'>{data.title}</h1>
-    <div className='flex items-center justify-between'>
-      <div className='flex items-center gap-3'>
-        <Link href=''>
-          <UserAvatar className='size-9' imageUrl={user.image} name={user.name} />
-        </Link>
-        <div className='flex flex-col'>
-          <Link href='' className='text-sm font-medium sm:text-base'>
-            {user.name}
-          </Link>
-          <span className='text-muted-foreground text-xs'>
-            {formatCount(user.followerCount)} 位订阅者
-          </span>
-        </div>
-      </div>
-      <FollowButton followed={user.followed} userId={user.id} onSuccess={onSuccess} />
-    </div>
-    <div className='flex items-center gap-2 overflow-x-scroll [scrollbar-width:none]'>
-      <PostLikeButton count={data.likeCount} status={data.likeStatus} postId={data.id} />
-      <Button variant='secondary'>
-        <Share2 className='size-5' />
-        分享
-      </Button>
-      <Button className='hidden sm:inline-flex' variant='secondary'>
-        <Scissors className='size-5' />
-        剪辑
-      </Button>
-      <Button className='hidden sm:inline-flex' size='icon' variant='secondary'>
-        <MoreHorizontal />
-      </Button>
-      <Button className='inline-flex sm:hidden' variant='secondary'>
-        <Bookmark className='size-5' />
-        保存
-      </Button>
-      <Button className='inline-flex sm:hidden' variant='secondary'>
-        <Flag className='size-5' />
-        举报
-      </Button>
-    </div>
-  </div>
-);
-
-const ActionButton = () => {
+function ActionButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -153,6 +155,4 @@ const ActionButton = () => {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
-
-export default ActionBar;
+}

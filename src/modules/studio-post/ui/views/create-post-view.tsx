@@ -2,10 +2,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SizeConstraint from '@/components/size-constraint';
 
 import { MediaType } from '@/lib/constants';
-import VideoUploader from '../components/upload-media-view/video-uploader';
-import PictureUploader from '../components/upload-media-view/picture-uploader';
+import VideoUploader from '../components/create-post-view/video-uploader';
+import PictureUploader from '../components/create-post-view/picture-uploader';
 
-export default function UploadMediaView() {
+export default function CrearePostView() {
   return (
     <SizeConstraint size='md'>
       <Tabs defaultValue='video'>
@@ -44,7 +44,7 @@ const MediaSpec = ({ mediaType }: { mediaType: MediaType }) => {
   return (
     <div className='mb-3 flex gap-3 divide-x py-2.5'>
       {mediaSpec.map((spec) => (
-        <div className='flex-1'>
+        <div className='flex-1' key={spec.title}>
           <span className='text-sm font-medium'>{spec.title}</span>
           <p className='text-muted-foreground text-xs'>{spec.desc}</p>
         </div>

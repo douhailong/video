@@ -31,6 +31,7 @@ import {
 import BoundaryModal from '@/components/boundary-modal';
 
 import { tabs } from '../views/playlists-view';
+import { usePlaylistModal } from '@/store/use-playlist-modal';
 
 const formSchema = z.object({
   name: z.string().trim().min(1, '请输入标题'),
@@ -46,6 +47,8 @@ type PlaylistModalProps = {
 };
 
 const PlaylistModal = ({ children, id, onSuccess }: PlaylistModalProps) => {
+  const { isOpen, onClose, onOpen, initialValues } = usePlaylistModal();
+
   const [isOpen, setIsOpen] = useState(false);
 
   const router = useRouter();
@@ -55,7 +58,7 @@ const PlaylistModal = ({ children, id, onSuccess }: PlaylistModalProps) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      visibility: 'private'
+      visibility: 'public'
     }
   });
 

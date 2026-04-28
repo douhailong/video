@@ -1,4 +1,4 @@
-import { and, desc, eq, lt, or } from 'drizzle-orm';
+import { and, desc, eq, getTableColumns, ilike, lt, or } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
@@ -123,5 +123,43 @@ export const playlistRouter = createTRPCRouter({
         : null;
 
       return { items, nextCursor };
+    }),
+  studioGetMany: procedure
+    .input(
+      z.object({
+        query: z.string().nullish(),
+        page: z.number().int().min(1).default(1),
+        pageSize: z.number().int().min(1).max(100).default(10)
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { page, pageSize, query } = input;
+      const { userId } = ctx;
+
+      const where = and(
+        eq(playlists.userId, userId),
+        query ? ilike(playlists.name, `%${query}%`) : undefined
+      );
+
+      const [items, total] = await Promise.all([
+        db
+          .select({
+            ...getTableColumns(playlists)
+            // viewCount: db.$count(postViews, eq(postViews.postId, posts.id))
+          })
+          .from(playlists)
+          .where(where)
+          .orderBy(desc(playlists.updatedAt), desc(playlists.id))
+          .limit(pageSize)
+          .offset((page - 1) * pageSize),
+        db.$count(playlists, where)
+      ]);
+
+      return {
+        items,
+        total,
+        page,
+        pageSize
+      };
     })
 });

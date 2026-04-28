@@ -32,7 +32,7 @@ const CommentForm = ({ postId, parentId, repliedId, onSuccess }: CommentFormProp
   });
 
   return (
-    <div className='focus-within:min-h-30 flex max-h-60 min-h-0 w-full flex-col overflow-hidden rounded-md bg-gray-100 transition-all focus-within:bg-transparent focus-within:ring focus-within:ring-blue-500'>
+    <div className='focus-within:min-h-30 focus-within:ring-primary flex max-h-60 min-h-0 w-full flex-col overflow-hidden rounded-md bg-gray-100 transition-all focus-within:bg-transparent focus-within:ring'>
       <div
         ref={inputRef}
         className='empty:before:text-muted-foreground flex-1 overflow-auto break-all px-3 py-2.5 outline-none empty:before:text-sm empty:before:content-[attr(data-placeholder)]'
@@ -60,7 +60,7 @@ const CommentForm = ({ postId, parentId, repliedId, onSuccess }: CommentFormProp
             disabled={!content || create.isPending}
             onClick={() =>
               create.mutate({
-                text: '',
+                text: content,
                 parentId,
                 repliedId,
                 postId

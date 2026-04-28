@@ -1,3 +1,3 @@
-import UploadMediaView from '@/modules/studio-post/ui/views/upload-media-view';
+import CrearePostView from '@/modules/studio-post/ui/views/create-post-view';
 
-export default UploadMediaView;
+export default CrearePostView;

@@ -24,7 +24,7 @@ const navs = [
   { href: '/feed/you', title: '我', icon: Icons.you }
 ];
 
-export const DesktopNavbar = () => {
+export function DesktopNavbar() {
   const pathname = usePathname();
 
   return (
@@ -44,9 +44,9 @@ export const DesktopNavbar = () => {
       <div className='w-18' />
     </div>
   );
-};
+}
 
-export const MobileNavbar = () => {
+export function MobileNavbar() {
   const pathname = usePathname();
 
   return (
@@ -68,9 +68,9 @@ export const MobileNavbar = () => {
       <div className='h-14' />
     </div>
   );
-};
+}
 
-export const DrawerNavbar = () => {
+export function DrawerNavbar() {
   const pathname = usePathname();
 
   const Trigger = () => (
@@ -122,4 +122,4 @@ export const DrawerNavbar = () => {
       </SheetContent>
     </Sheet>
   );
-};
+}

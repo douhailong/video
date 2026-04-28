@@ -11,7 +11,7 @@ type FormValues = {
   query: string;
 };
 
-const SearchInput = () => {
+export default function SearchInput() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -73,6 +73,4 @@ const SearchInput = () => {
       </button>
     </form>
   );
-};
-
-export default SearchInput;
+}

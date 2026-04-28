@@ -7,7 +7,7 @@ type PageProps = {
   searchParams: { query: string; categoryId?: string };
 };
 
-const Page = async ({ searchParams }: PageProps) => {
+export default async function Page({ searchParams }: PageProps) {
   const { categoryId, query } = await searchParams;
 
   const queryText = decodeURIComponent(query);
@@ -27,6 +27,4 @@ const Page = async ({ searchParams }: PageProps) => {
       />
     </HydrateClient>
   );
-};
-
-export default Page;
+}

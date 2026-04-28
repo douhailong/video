@@ -84,10 +84,11 @@ export const videos = pgTable('video', {
   playbackId: varchar(),
   // providerJobId: varchar().unique(),
   duration: integer(),
-  size: bigint({ mode: 'number' }),
+  name: varchar().notNull(),
+  size: bigint({ mode: 'number' }).notNull(),
   width: integer(),
   height: integer(),
-  mimeType: varchar(),
+  mimeType: varchar().notNull(),
   status: mediaStatusEnum().notNull().default('created'),
   postId: uuid()
     .references(() => posts.id, { onDelete: 'cascade' })

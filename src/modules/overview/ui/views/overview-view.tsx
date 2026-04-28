@@ -4,6 +4,7 @@ import SizeConstraint from '@/components/size-constraint';
 import Boundary from '@/components/boundary';
 
 import { PostsTable, Loading } from '../components/posts-table';
+import { PlaylistsTable } from '../components/playlists-table';
 
 const channels = [
   { label: '视频', value: 'video' },
@@ -20,7 +21,7 @@ export default function OverviewView({ channel }: { channel: Channels }) {
       <div className='px-6'>
         <SizeConstraint.Title size='md' title='频道内容' />
       </div>
-      <Tabs value={channel} className='gap-0'>
+      <Tabs defaultValue='video' value={channel} className='gap-0'>
         <div className='border-b px-6'>
           <TabsList variant='line' className='gap-6'>
             {channels.map((item) => (
@@ -37,7 +38,9 @@ export default function OverviewView({ channel }: { channel: Channels }) {
         </TabsContent>
         <TabsContent value='picture'>picture</TabsContent>
         <TabsContent value='live'>live</TabsContent>
-        <TabsContent value='playlist'>playlist</TabsContent>
+        <TabsContent value='playlist'>
+          <PlaylistsTable />
+        </TabsContent>
       </Tabs>
     </SizeConstraint>
   );

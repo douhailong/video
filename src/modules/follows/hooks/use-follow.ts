@@ -9,6 +9,7 @@ type UseFollowProps = {
 export const useFollow = ({ followerId, onSuccess, followed }: UseFollowProps) => {
   const follow = trpc.follows.follow.useMutation({
     onSuccess: () => {
+      console.log(',,,,,,,,,,,,,,,,,,,,');
       onSuccess();
     },
     onError: (err) => {
@@ -19,6 +20,7 @@ export const useFollow = ({ followerId, onSuccess, followed }: UseFollowProps) =
 
   const unfollow = trpc.follows.unfollow.useMutation({
     onSuccess: () => {
+      console.log('..............................');
       onSuccess();
     },
     onError: (err) => {

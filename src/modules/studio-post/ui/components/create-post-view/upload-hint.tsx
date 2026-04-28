@@ -5,15 +5,7 @@ import { AlertTriangleIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
-import { useDraft } from '@/modules/studio/hooks/use-draft';
-
 const UploadHint = () => {
-  const { draft, removeDraft } = useDraft();
-
-  if (!draft) {
-    return null;
-  }
-
   return (
     <div className='flex items-center justify-between rounded-md border px-3 py-1'>
       <div className='flex items-center gap-2'>
@@ -23,11 +15,11 @@ const UploadHint = () => {
         </p>
       </div>
       <div className='flex gap-2'>
-        <Button size='sm' variant='ghost' onClick={() => removeDraft()}>
+        <Button size='sm' variant='ghost'>
           放弃
         </Button>
         <Button variant='secondary' size='sm' asChild>
-          <Link href={`/studio/create/${draft.type}`}>继续编辑</Link>
+          <Link href={`/studio/create/`}>继续编辑</Link>
         </Button>
       </div>
     </div>

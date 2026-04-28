@@ -14,14 +14,15 @@ export default function VideoUploader() {
 
   const router = useRouter();
 
-  const create = trpc.studioPost.create.useMutation();
+  const create = trpc.posts.studio.create.useMutation();
 
   const onDrop = async ([file]: File[]) => {
-    const { name } = file;
+    const { name, size, type } = file;
 
     const { postId, uploadId } = await create.mutateAsync({
       type: 'video',
-      title: name
+      title: file.name,
+      file: { name, size, type }
     });
 
     // TODO upload file to uploadId
@@ -76,7 +77,6 @@ export default function VideoUploader() {
 // import { toast } from 'sonner';
 // import { PromisePool } from '@/lib/utils/promise-pool';
 // import { chunkFile, blob2ArrayBuffer } from '@/lib/utils/chunk-file';
-// import { useDraft } from '@/modules/studio/hooks/use-draft';
 // import type { OutputMessage } from './worker';
 
 // type UploadQueue = {
@@ -87,7 +87,6 @@ export default function VideoUploader() {
 // };
 
 // const router = useRouter();
-// // const { setDraft } = useDraft();
 
 // const validateChunks = trpc.upload.validateChunks.useMutation();
 // const uploadChunk = trpc.upload.uploadChunk.useMutation();

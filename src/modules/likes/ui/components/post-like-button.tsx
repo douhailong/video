@@ -4,7 +4,7 @@ import { ThumbsUp, ThumbsDown } from 'lucide-react';
 
 import { trpc } from '@/trpc/client';
 import { cn } from '@/lib/utils';
-import { LIKE_VALUES } from '@/lib/constants';
+import { LikeStatus } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
@@ -13,7 +13,7 @@ import { usePostLike } from '@/modules/likes/hooks/use-post-like';
 type PostLikeButtonProps = {
   postId: string;
   count: number;
-  status: (typeof LIKE_VALUES)[number] | null;
+  status: LikeStatus | null;
 };
 
 const PostLikeButton = ({ postId, count, status }: PostLikeButtonProps) => {
@@ -22,8 +22,8 @@ const PostLikeButton = ({ postId, count, status }: PostLikeButtonProps) => {
   const { isPending, onClick } = usePostLike({
     postId,
     onSuccess: () => {
-      utils.posts.getOne.invalidate({ id: postId });
-      utils.posts.getMany.invalidate();
+      utils.posts.home.getOne.invalidate({ id: postId });
+      utils.posts.home.getMany.invalidate();
     }
   });
 

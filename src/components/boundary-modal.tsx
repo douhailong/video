@@ -9,7 +9,13 @@ import {
   DialogTrigger,
   DialogFooter
 } from './ui/dialog';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from './ui/drawer';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger
+} from './ui/drawer';
 
 type BoundaryModalProps = {
   open: boolean;
@@ -35,6 +41,7 @@ const BoundaryModal = ({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerTrigger asChild>{trigger}</DrawerTrigger>
         <DrawerContent className={className}>
           <DrawerHeader>
             <DrawerTitle>{title}</DrawerTitle>

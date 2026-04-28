@@ -6,7 +6,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 
 import AuthButton from '@/modules/auth/ui/components/auth-button';
 import MessageButton from '@/modules/message/ui/components/message-button';
-import CreateDropdown from '@/modules/posts/ui/components/create-dropdown';
+import CreateDropdown from '@/components/create-dropdown';
 
 const StudioNavbar = () => (
   <header className='bg-background fixed inset-x-0 top-0 z-50 flex h-16 items-center px-2 shadow-sm sm:px-4'>

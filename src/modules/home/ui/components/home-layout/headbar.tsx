@@ -5,7 +5,8 @@ import { HomeLogo } from '@/components/logo';
 
 import MessageButton from '@/modules/message/ui/components/message-button';
 import AuthButton from '@/modules/auth/ui/components/auth-button';
-import CreateDropdown from '@/modules/posts/ui/components/create-dropdown';
+import CreateDropdown from '@/components/create-dropdown';
+
 import { DrawerNavbar } from './navbar';
 import SearchInput from './search-input';
 

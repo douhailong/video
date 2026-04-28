@@ -23,11 +23,11 @@ type PlaylistCardProps = {
 };
 
 const PlaylistCard = ({ data }: PlaylistCardProps) => {
-  const { name, visible, updatedAt, id } = data;
+  const { name, visibility, updatedAt, id } = data;
 
   const utils = trpc.useUtils();
 
-  const { mutate, isPending } = trpc.playlists.deleteOne.useMutation({
+  const { mutate, isPending } = trpc.playlists.delete.useMutation({
     onSuccess: () => utils.playlists.getMany.invalidate()
   });
 
@@ -38,7 +38,7 @@ const PlaylistCard = ({ data }: PlaylistCardProps) => {
         <div className='ml-3 w-full sm:ml-0'>
           <h4 className='text-md font-medium'>{name}</h4>
           <p className='text-muted-foreground text-xs sm:text-sm'>
-            {visible === 'public' ? '公开' : '私密'} &nbsp;·&nbsp;{' '}
+            {visibility === 'public' ? '公开' : '私密'} &nbsp;·&nbsp;{' '}
             {formatTimeDistance(updatedAt)}
           </p>
         </div>
@@ -73,11 +73,11 @@ type ActionButtonProps = {
 const ActionButton = ({ onDelete, isPending, id }: ActionButtonProps) => (
   <DropdownMenu>
     <DropdownMenuTrigger asChild>
-      <Button size='icon' variant='ghost'>
+      <Button size='icon' variant='ghost' onClick={(e) => e.preventDefault()}>
         <MoreVertical />
       </Button>
     </DropdownMenuTrigger>
-    <DropdownMenuContent align='end' side='bottom'>
+    <DropdownMenuContent align='end' side='bottom' onClick={(e) => e.preventDefault()}>
       <DropdownMenuItem disabled={isPending} onClick={onDelete}>
         <Trash2 />
         删除

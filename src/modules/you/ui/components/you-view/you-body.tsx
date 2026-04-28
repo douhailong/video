@@ -10,7 +10,7 @@ import { ActionBar, ActionBarContent } from './action-bar';
 const YouBody = async () => {
   const data = await trpc.you.getYou();
 
-  console.log(data, '/????????????-----');
+  // console.log(data, '/????????????-----');
 
   return (
     <div className='pt-6'>

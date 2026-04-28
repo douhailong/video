@@ -1,17 +1,15 @@
 import DestopComments from './components/destop-comments';
 import MobileComments from './components/mobile-comments';
 
-type CommentsBarProps = {
+type CommentsProps = {
   postId: string;
 };
 
-const CommentsBar = ({ postId }: CommentsBarProps) => {
+export default function Comments({ postId }: CommentsProps) {
   return (
     <>
       <MobileComments postId={postId} />
-      <DestopComments />
+      <DestopComments postId={postId} />
     </>
   );
-};
-
-export default CommentsBar;
+}

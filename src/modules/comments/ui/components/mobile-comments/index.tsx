@@ -19,7 +19,10 @@ import Comments from './comments';
 
 type MobileCommentsProps = { commentCount?: number; postId: string };
 
-const MobileComments = ({ commentCount = 1001, postId }: MobileCommentsProps) => {
+export default function MobileComments({
+  commentCount = 1001,
+  postId
+}: MobileCommentsProps) {
   const [isOpenForm, setIsOpenForm] = useState(false);
   const [parentId, setParentId] = useState<string | null>(null);
   const [repliedId, setRepliedId] = useState<string | null>(null);
@@ -86,6 +89,4 @@ const MobileComments = ({ commentCount = 1001, postId }: MobileCommentsProps) =>
       </Drawer>
     </div>
   );
-};
-
-export default MobileComments;
+}

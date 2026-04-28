@@ -7,14 +7,14 @@ type PageProps = {
   searchParams: Promise<{ v: string; t: string }>;
 };
 
-const Page = async ({ searchParams }: PageProps) => {
+export default async function Page({ searchParams }: PageProps) {
   const { v, t } = await searchParams;
 
   const watchTime = t ? Number(t) : 0;
 
   void trpc.history.create({ postId: v, watchTime });
-  void trpc.posts.getOne.prefetch({ id: v });
-  void trpc.watch.getMany.prefetchInfinite({ limit: DEFAULT_LIMIT });
+  void trpc.posts.home.getOne.prefetch({ id: v });
+  void trpc.posts.recommend.getMany.prefetchInfinite({ limit: DEFAULT_LIMIT });
   void trpc.comments.getMany.prefetchInfinite({ postId: v, limit: DEFAULT_LIMIT });
 
   return (
@@ -22,6 +22,4 @@ const Page = async ({ searchParams }: PageProps) => {
       <WatchView postId={v} watchTime={watchTime} />
     </HydrateClient>
   );
-};
-
-export default Page;
+}

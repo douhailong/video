@@ -33,12 +33,12 @@ type VideoPostProps = { postId: string };
 const VideoPost = ({ postId }: VideoPostProps) => {
   const router = useRouter();
 
-  const [post] = trpc.studioPost.getOne.useSuspenseQuery({ id: postId });
+  const [post] = trpc.posts.studio.getOne.useSuspenseQuery({ id: postId });
 
-  const { mutate } = trpc.studioPost.update.useMutation({
+  const { mutate } = trpc.posts.studio.update.useMutation({
     onSuccess: () => {
       toast.success('保存成功');
-      router.push('/studio/posts');
+      router.push('/studio/overview');
     }
   });
 

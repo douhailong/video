@@ -4,9 +4,7 @@ import SizeConstraint from '@/components/size-constraint';
 import { YouHead } from '../components/you-view/you-head';
 import { YouBody } from '../components/you-view/you-body';
 
-type YouViewProps = {};
-
-const YouView = ({}: YouViewProps) => {
+export default function YouView() {
   return (
     <SizeConstraint>
       <Boundary fallback={<YouHead.Loading />}>
@@ -17,6 +15,4 @@ const YouView = ({}: YouViewProps) => {
       </Boundary>
     </SizeConstraint>
   );
-};
-
-export default YouView;
+}

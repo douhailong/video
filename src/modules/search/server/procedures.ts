@@ -29,7 +29,7 @@ export const searchRouter = createTRPCRouter({
           and(
             ilike(posts.title, `%${query}%`),
             // categoryId ? eq(posts.categoryId, categoryId) : undefined,
-            eq(posts.visible, 'public'),
+            eq(posts.visibility, 'public'),
             cursor
               ? or(
                   lt(posts.updatedAt, cursor.updateAt),

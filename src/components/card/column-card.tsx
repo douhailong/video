@@ -3,16 +3,15 @@ import { MoreVertical } from 'lucide-react';
 import { cn, formatCount, formatTimeDistance } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Player } from '@/components/player';
 import UserAvatar from '@/components/user-avatar';
 
-import Thumbnail from './thumbnail';
+import { Thumbnail } from './thumbnail';
 
 type ColumnCardProps = {
   user: { id: string; name: string; image: string };
   data: {
     title: string;
-    thumbUrl: string;
+    thumbUrl: string | null;
     playbackUrl: string;
     duration: number;
     viewCount: number;
@@ -39,7 +38,7 @@ const ColumnCard = ({ onFocusColor, user, data }: ColumnCardProps) => {
           thumbUrl={data.thumbUrl}
           duration={data.duration}
         />
-        <Player className='relative hidden group-hover:block' />
+        {/* <Player className='relative hidden group-hover:block' /> */}
       </div>
       <div className='relative mt-2.5 flex'>
         <UserAvatar
