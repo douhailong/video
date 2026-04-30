@@ -1,16 +1,19 @@
+'use client';
+
 import { Plus } from 'lucide-react';
 
-import { trpc } from '@/trpc/server';
+// import { trpc } from '@/trpc/server';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import PlaylistModal from '@/modules/playlists/ui/components/playlist-modal';
+
+import { usePlaylistModal } from '@/store/use-playlist-modal';
 
 import { ActionBar, ActionBarContent } from './action-bar';
 
-const YouBody = async () => {
-  const data = await trpc.you.getYou();
+const YouBody = () => {
+  // const data = await trpc.you.getYou();
 
-  // console.log(data, '/????????????-----');
+  const { open, isOpen } = usePlaylistModal();
 
   return (
     <div className='pt-6'>
@@ -21,11 +24,9 @@ const YouBody = async () => {
         title='播放列表'
         href='/feed/playlists'
         actionButton={
-          <PlaylistModal>
-            <Button size='icon' variant='ghost'>
-              <Plus />
-            </Button>
-          </PlaylistModal>
+          <Button size='icon' variant='ghost' onClick={() => open()}>
+            <Plus />
+          </Button>
         }
       />
       <ActionBar title='稍后观看' description='4 个视频' href='/feed/playlists' />

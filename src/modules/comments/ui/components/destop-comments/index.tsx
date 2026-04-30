@@ -1,4 +1,7 @@
+'use client';
+
 import CommentForm from './comment-form';
+import Comments from './comments';
 
 type DestopCommentsProps = {
   postId: string;
@@ -6,8 +9,12 @@ type DestopCommentsProps = {
 
 const DestopComments = ({ postId }: DestopCommentsProps) => {
   return (
-    <div className='hidden pb-4 sm:block'>
-      <CommentForm postId={postId} />
+    <div className='hidden sm:block'>
+      <h1 className='mb-6 text-xl font-bold'>100 条评论</h1>
+      <div className='mb-8'>
+        <CommentForm postId={postId} />
+      </div>
+      <Comments postId={postId} />
     </div>
   );
 };

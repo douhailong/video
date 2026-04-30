@@ -1,22 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, HeartCrack, Heart, ChevronUp } from 'lucide-react';
+import { ChevronDown, HeartCrack, Heart, ChevronUp, MoreVertical } from 'lucide-react';
 
 import { cn, formatTimeDistance } from '@/lib/utils';
 import { trpc } from '@/trpc/client';
 import { DEFAULT_LIMIT } from '@/lib/constants';
+import { Button } from '@/components/ui/button';
 import { ManyCommentTypes } from '@/modules/comments/types';
 import InfiniteScroll from '@/components/infinite-scroll';
 import Boundary from '@/components/boundary';
 import UserAvatar from '@/components/user-avatar';
+import CommentForm from './comment-form';
 
 type CommentsProps = {
   postId: string;
-  onClick: ({ pid, rid }: { pid: string | null; rid: string }) => void;
 };
 
-const Comments = ({ postId, onClick }: CommentsProps) => {
+const Comments = ({ postId }: CommentsProps) => {
   const [data, query] = trpc.comments.getMany.useSuspenseInfiniteQuery(
     {
       limit: DEFAULT_LIMIT,
@@ -28,21 +29,18 @@ const Comments = ({ postId, onClick }: CommentsProps) => {
   const comments = data?.pages.flatMap((page) => page.items) || [];
 
   return (
-    <div>
-      {comments.map((comment) => (
-        <CommentItem
-          key={comment.id}
-          postId={postId}
-          comment={comment}
-          onClick={onClick}
-        />
-      ))}
+    <>
+      <div className='flex flex-col gap-2.5'>
+        {comments.map((comment) => (
+          <CommentItem key={comment.id} postId={postId} comment={comment} />
+        ))}
+      </div>
       <InfiniteScroll
         hasNextPage={query.hasNextPage}
         isFetchingNextPage={query.isFetchingNextPage}
         fetchNextPage={query.fetchNextPage}
       />
-    </div>
+    </>
   );
 };
 
@@ -51,10 +49,11 @@ export default Comments;
 type CommentItemProps = {
   postId: string;
   comment: ManyCommentTypes['items'][number];
-  onClick: CommentsProps['onClick'];
 };
 
-const CommentItem = ({ postId, comment, onClick }: CommentItemProps) => {
+const CommentItem = ({ postId, comment }: CommentItemProps) => {
+  const [isReplying, setIsReplying] = useState(false);
+
   const utils = trpc.useUtils();
 
   const { user, parentId, repliedCount } = comment;
@@ -74,28 +73,22 @@ const CommentItem = ({ postId, comment, onClick }: CommentItemProps) => {
   });
 
   return (
-    <div className={cn('py-2.5', !parentId && 'px-4')}>
-      <div
-        className='flex gap-3'
-        onClick={() =>
-          onClick({
-            pid: parentId || comment.id,
-            rid: comment.id
-          })
-        }
-      >
+    <div>
+      <div className='flex gap-3 bg-purple-200'>
         <UserAvatar
           imageUrl={user.image}
           name={user.name}
-          className={cn('size-12', parentId && 'size-6.5')}
+          className={cn('size-9', parentId && 'size-6.5')}
         />
         <div className='flex w-full flex-col'>
-          <span className='text-muted-foreground text-xs'>{user.name}</span>
-          <p className='line-clamp-3 py-1 text-sm'>{comment.text}</p>
           <div className='flex items-center justify-between'>
+            <span className='text-sm font-medium'>{user.name}</span>
             <span className='text-muted-foreground text-xs'>
               {formatTimeDistance(comment.createdAt)} · 江苏
             </span>
+          </div>
+          <p className='line-clamp-3 py-1 text-sm'>{comment.text}</p>
+          <div className='flex items-center justify-between'>
             <div className='flex items-center gap-6'>
               <button
                 className='flex h-6 items-center gap-1.5'
@@ -106,7 +99,7 @@ const CommentItem = ({ postId, comment, onClick }: CommentItemProps) => {
               >
                 <Heart
                   className={cn(
-                    'size-5',
+                    'size-4.5',
                     comment.likeStatus === 'like' && 'text-destructive fill-destructive'
                   )}
                 />
@@ -123,13 +116,25 @@ const CommentItem = ({ postId, comment, onClick }: CommentItemProps) => {
               >
                 <HeartCrack
                   className={cn(
-                    'size-5',
+                    'size-4.5',
                     comment.likeStatus === 'dislike' &&
                       'text-background fill-muted-foreground -ml-0.5 size-6'
                   )}
                 />
               </button>
+              <button
+                className='cursor-pointer text-xs font-medium'
+                onClick={() => setIsReplying(true)}
+              >
+                回复
+              </button>
             </div>
+            <Button size='icon' variant='ghost'>
+              <MoreVertical />
+            </Button>
+          </div>
+          <div className={cn('hidden', isReplying && 'block')}>
+            <CommentForm postId={postId} />
           </div>
         </div>
       </div>
@@ -139,7 +144,6 @@ const CommentItem = ({ postId, comment, onClick }: CommentItemProps) => {
             postId={postId}
             parentId={comment.id}
             repliedCount={repliedCount}
-            onClick={onClick}
           />
         </Boundary>
       )}

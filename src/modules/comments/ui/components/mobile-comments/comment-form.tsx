@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Smile, Image } from 'lucide-react';
+import { Smile } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { trpc } from '@/trpc/client';
@@ -23,7 +23,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-type ActionFormProps = {
+type CommentFormProps = {
   isOpen: boolean;
   postId: string;
   parentId: string | null;
@@ -32,14 +32,14 @@ type ActionFormProps = {
   onOpenChange: (isOpen: boolean) => void;
 };
 
-const ActionForm = ({
+const CommentForm = ({
   isOpen,
   onOpenChange,
   postId,
   parentId,
   repliedId,
   onSuccess
-}: ActionFormProps) => {
+}: CommentFormProps) => {
   const create = trpc.comments.create.useMutation({
     onSuccess() {
       onOpenChange(false);
@@ -107,19 +107,15 @@ const ActionForm = ({
           onClick={() => onOpenChange(true)}
         >
           <p className='text-sm'>添加评论...</p>
-          <div className='flex items-center gap-4'>
-            <Image className='opacity-60' />
-            <Smile className='opacity-60' />
-          </div>
+          <Smile className='opacity-60' />
         </button>
         <div
           className={cn('mt-2 hidden items-center justify-between', isOpen && 'flex')}
           onMouseDown={(e) => e.preventDefault()}
         >
-          <div className='flex items-center gap-4'>
-            <Image className='text-muted-foreground size-5.5 cursor-pointer active:opacity-70' />
-            <Smile className='text-muted-foreground size-5.5 cursor-pointer active:opacity-70' />
-          </div>
+          <button>
+            <Smile className='text-muted-foreground size-5.5 active:opacity-70' />
+          </button>
           <div className='flex items-center gap-2'>
             <Button
               type='button'
@@ -144,4 +140,4 @@ const ActionForm = ({
   );
 };
 
-export default ActionForm;
+export default CommentForm;

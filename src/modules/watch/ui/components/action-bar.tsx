@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import UserAvatar from '@/components/user-avatar';
 import FollowButton from '@/modules/follows/ui/components/follow-button';
 import PostLikeButton from '@/modules/likes/ui/components/post-like-button';
+import Profile from './profile';
 
 type ActionBarProps = { postId: string };
 
@@ -39,9 +40,9 @@ type ActionProps = {
 
 function DestopBar({ data: { user, ...data }, onSuccess }: ActionProps) {
   return (
-    <div className='hidden pb-6 pt-4 sm:block'>
-      <h1 className='line-clamp-2 text-2xl font-bold'>{data.title}</h1>
-      <div className='flex items-center justify-between pt-3'>
+    <div className='hidden px-4 pb-6 pt-3 sm:block lg:px-0'>
+      <h1 className='line-clamp-2 text-xl font-bold'>{data.title}</h1>
+      <div className='flex items-center justify-between py-3'>
         <div className='flex items-center'>
           <div className='flex items-center gap-3'>
             <Link href=''>
@@ -71,6 +72,7 @@ function DestopBar({ data: { user, ...data }, onSuccess }: ActionProps) {
           <ActionButton />
         </div>
       </div>
+      <Profile />
     </div>
   );
 }
@@ -121,6 +123,7 @@ function MobileBar({ data: { user, ...data }, onSuccess }: ActionProps) {
           举报
         </Button>
       </div>
+      <Profile />
     </div>
   );
 }

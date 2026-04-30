@@ -91,7 +91,11 @@ export function MobileRecommend() {
   const posts = data?.pages.flatMap((page) => page.items) || [];
 
   return (
-    <Tabs value={currentTab} onValueChange={(val) => setCurrentTab(val as TabKey)}>
+    <Tabs
+      value={currentTab}
+      onValueChange={(val) => setCurrentTab(val as TabKey)}
+      className='sm:px-4'
+    >
       <TabsList variant='button' className='px-4 sm:px-0'>
         {tabs.map((tab) => (
           <TabsTrigger key={tab.key} value={tab.key}>

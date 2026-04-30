@@ -1,10 +1,13 @@
 'use client';
 
-import { useState, useRef, ChangeEvent } from 'react';
-import { SmileIcon, ImageIcon } from 'lucide-react';
+import { useState } from 'react';
+import { Smile } from 'lucide-react';
 
+import { cn } from '@/lib/utils';
 import { trpc } from '@/trpc/client';
 import { Button } from '@/components/ui/button';
+import UserAvatar from '@/components/user-avatar';
+import { WritableDiv } from '@/components/writable-div';
 
 type CommentFormProps = {
   postId: string;
@@ -14,16 +17,16 @@ type CommentFormProps = {
 };
 
 const CommentForm = ({ postId, parentId, repliedId, onSuccess }: CommentFormProps) => {
-  const [content, setContnet] = useState('');
-  const inputRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [text, setText] = useState('');
+
   const utils = trpc.useUtils();
 
   const create = trpc.comments.create.useMutation({
     onSuccess: () => {
+      // TODO 刷新请求导致关闭动画卡顿
+      setIsOpen(false);
       utils.comments.getMany.invalidate({ postId });
-      inputRef.current!.innerHTML = '';
-      setContnet('');
-      onSuccess?.();
     },
     onError: (err) => {
       if (err.data?.code === 'UNAUTHORIZED') {
@@ -31,44 +34,53 @@ const CommentForm = ({ postId, parentId, repliedId, onSuccess }: CommentFormProp
     }
   });
 
+  const onSubmit = () => {
+    create.mutate({ text, parentId, repliedId, postId });
+  };
+
   return (
-    <div className='focus-within:min-h-30 focus-within:ring-primary flex max-h-60 min-h-0 w-full flex-col overflow-hidden rounded-md bg-gray-100 transition-all focus-within:bg-transparent focus-within:ring'>
-      <div
-        ref={inputRef}
-        className='empty:before:text-muted-foreground flex-1 overflow-auto break-all px-3 py-2.5 outline-none empty:before:text-sm empty:before:content-[attr(data-placeholder)]'
-        contentEditable
-        spellCheck={false}
-        data-placeholder='留下你的精彩评论吧'
-        onInput={(e: ChangeEvent<HTMLDivElement>) =>
-          setContnet(e.target.innerText.trim())
-        }
-      />
-      <div
-        className='flex items-center justify-between px-3 pb-2'
-        tabIndex={1}
-        onFocus={() => inputRef.current?.focus()}
-      >
-        <div className='flex items-center gap-5'>
-          <SmileIcon className='size-5.5 cursor-pointer text-gray-500' />
-          <ImageIcon className='size-5.5 cursor-pointer text-gray-500' />
+    <div className='flex gap-3'>
+      <UserAvatar className={cn('size-6 duration-150', isOpen && 'size-10')} />
+      <div className='flex w-full flex-col gap-2'>
+        <div>
+          <WritableDiv
+            className={cn(
+              'focus:border-primary border-b border-transparent duration-300',
+              !isOpen && 'border-border'
+            )}
+            value={text}
+            onClick={() => setIsOpen(true)}
+            onChange={(val) => setText(val as string)}
+          />
+          <div
+            className={cn(
+              'bg-primary mx-auto h-[1px] w-0 border-none duration-300',
+              isOpen && 'w-full'
+            )}
+          />
         </div>
-        <div className='flex items-center gap-5'>
-          <span className='text-muted-foreground text-xs'>
-            <span>{content.length}</span> / 1000
-          </span>
-          <Button
-            disabled={!content || create.isPending}
-            onClick={() =>
-              create.mutate({
-                text: content,
-                parentId,
-                repliedId,
-                postId
-              })
-            }
-          >
-            发送
-          </Button>
+        <div className={cn('hidden items-center justify-between', isOpen && 'flex')}>
+          <button>
+            <Smile />
+          </button>
+          <div className='flex gap-2'>
+            <Button
+              variant='ghost'
+              onClick={() => {
+                setText('');
+                setIsOpen(false);
+              }}
+            >
+              取消
+            </Button>
+            <Button
+              className='bg-blue-600 hover:bg-blue-600/90'
+              disabled={!text.length || create.isPending}
+              onClick={onSubmit}
+            >
+              评论
+            </Button>
+          </div>
         </div>
       </div>
     </div>

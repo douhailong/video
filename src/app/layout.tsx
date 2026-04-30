@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import TRPCProvider from '@/components/provider/trpc-provider';
 import AuthProvider from '@/components/provider/auth-provider';
 import ThemeProvider from '@/components/provider/theme-provider';
+import ModalProvider from '@/components/provider/modal-provider';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -15,6 +16,7 @@ export default function RootLayout({ children }: ChildrenProps) {
         <ThemeProvider>
           <TRPCProvider>
             <AuthProvider>{children}</AuthProvider>
+            <ModalProvider />
           </TRPCProvider>
           <Toaster position='bottom-center' invert />
         </ThemeProvider>

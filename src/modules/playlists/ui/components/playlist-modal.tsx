@@ -40,19 +40,11 @@ const formSchema = z.object({
 
 type FormValues = z.input<typeof formSchema>;
 
-type PlaylistModalProps = {
-  children: ReactNode;
-  id?: string;
-  onSuccess?: () => void;
-};
-
-const PlaylistModal = ({ children, id, onSuccess }: PlaylistModalProps) => {
-  const { isOpen, onClose, onOpen, initialValues } = usePlaylistModal();
-
-  const [isOpen, setIsOpen] = useState(false);
-
-  const router = useRouter();
-  const utils = trpc.useUtils();
+const PlaylistModal = () => {
+  const { isOpen, close } = usePlaylistModal(() => {
+    console.log(',,,,,,,,,,');
+  });
+  // const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -63,29 +55,16 @@ const PlaylistModal = ({ children, id, onSuccess }: PlaylistModalProps) => {
   });
 
   const { data, isLoading } = trpc.playlists.getOne.useQuery(
-    { id: id! },
-    { enabled: !!id }
+    { id: 'id'! },
+    { enabled: !!false }
   );
 
   const create = trpc.playlists.create.useMutation({
-    onSuccess(data) {
-      setIsOpen(false);
-      if (onSuccess) {
-        return onSuccess();
-      }
-      router.push(`/feed/playlists/${data.id}`);
-    }
+    onSuccess(data) {}
   });
 
   const update = trpc.playlists.update.useMutation({
-    onSuccess(data) {
-      setIsOpen(false);
-      if (onSuccess) {
-        return onSuccess();
-      }
-      utils.playlists.getMany.invalidate();
-      router.push(`/feed/playlists/${data.id}`);
-    }
+    onSuccess(data) {}
   });
 
   useEffect(() => {
@@ -94,24 +73,29 @@ const PlaylistModal = ({ children, id, onSuccess }: PlaylistModalProps) => {
     }
   }, [data]);
 
+  // usePlaylistModal.subscribe((s) => {
+  //   console.log(s, 'ssss');
+  // });
+
   const onSubmit = (values: FormValues) => {
-    id ? update.mutate({ ...values, id }) : create.mutate(values);
+    // id ? update.mutate({ ...values, id }) : create.mutate(values);
   };
 
   return (
     <BoundaryModal
       title='新建播放列表'
       open={isOpen}
-      onOpenChange={setIsOpen}
+      onOpenChange={close}
       showCloseButton={false}
-      trigger={children}
-      className='w-80'
     >
-      <ModalSkeleton isLoading={isLoading} />
+      {/* <ModalSkeleton isLoading={isLoading} /> */}
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className={cn('flex flex-col gap-3', isLoading && 'hidden')}
+          className={cn(
+            'flex flex-col gap-3'
+            //  isLoading && 'hidden'
+          )}
         >
           <FormField
             control={form.control}
@@ -153,14 +137,6 @@ const PlaylistModal = ({ children, id, onSuccess }: PlaylistModalProps) => {
             )}
           />
           <BoundaryModal.Fotter>
-            <Button
-              type='button'
-              variant='secondary'
-              disabled={create.isPending || update.isPending}
-              onClick={() => setIsOpen(false)}
-            >
-              取消
-            </Button>
             <Button type='submit' disabled={create.isPending || update.isPending}>
               创建
             </Button>

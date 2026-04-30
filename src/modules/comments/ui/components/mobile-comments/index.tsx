@@ -14,7 +14,7 @@ import {
 import Boundary from '@/components/boundary';
 import UserAvatar from '@/components/user-avatar';
 
-import ActionForm from './action-form';
+import CommentForm from './comment-form';
 import Comments from './comments';
 
 type MobileCommentsProps = { commentCount?: number; postId: string };
@@ -36,7 +36,7 @@ export default function MobileComments({
   }
 
   return (
-    <div className='m-4 mt-2 block sm:hidden'>
+    <div className='m-4 mt-0 block sm:hidden'>
       <Drawer>
         <DrawerTrigger asChild>
           <div className='bg-secondary rounded-2xl px-3 py-2'>
@@ -72,7 +72,7 @@ export default function MobileComments({
             </Boundary>
           </div>
           <DrawerFooter className='p-0'>
-            <ActionForm
+            <CommentForm
               postId={postId}
               parentId={parentId}
               repliedId={repliedId}

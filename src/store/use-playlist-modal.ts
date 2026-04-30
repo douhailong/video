@@ -1,17 +1,30 @@
+import { useEffect } from 'react';
 import { create } from 'zustand';
 
-const initialValues = { id: '', title: '' };
+const initialValues = {};
 
-type UsePlaylistModal = {
+type UseInternalStore = {
   isOpen: boolean;
-  initialValues: typeof initialValues;
-  onOpen: (id: string, title: string) => void;
-  onClose: () => void;
+  values: { id?: string };
+  open: (id?: string) => void;
+  close: () => void;
+  status: 'pending' | 'successful' | 'failed';
 };
 
-export const usePlaylistModal = create<UsePlaylistModal>((set) => ({
+const useInternalStore = create<UseInternalStore>((set) => ({
   isOpen: false,
-  onOpen: (id, title) => set({ isOpen: true, initialValues: { id, title } }),
-  onClose: () => set({ isOpen: false, initialValues }),
-  initialValues
+  open: (id) => set({ isOpen: true, values: { id } }),
+  close: () => set({ isOpen: false, values: initialValues, status: 'pending' }),
+  values: initialValues,
+  status: 'pending'
 }));
+
+export function usePlaylistModal(callback: () => void) {
+  const { status, ...rest } = useInternalStore();
+
+  useEffect(() => {
+    status === 'successful' && callback();
+  }, [status]);
+
+  return { ...rest };
+}

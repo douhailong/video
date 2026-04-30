@@ -55,7 +55,7 @@ const ColumnCard = ({ onFocusColor, user, data }: ColumnCardProps) => {
             {formatCount(data.viewCount)}次观看 · {formatTimeDistance(data.createdAt)}
           </p>
         </div>
-        <Button size='icon' variant='ghost' className='-mr-1 -mt-1'>
+        <Button size='icon' variant='ghost' className='-mt-1 sm:-mr-1'>
           <MoreVertical />
         </Button>
       </div>

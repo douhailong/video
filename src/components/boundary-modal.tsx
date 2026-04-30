@@ -22,7 +22,7 @@ type BoundaryModalProps = {
   title: string;
   className?: string;
   children: ReactNode;
-  trigger: ReactNode;
+  trigger?: ReactNode;
   onOpenChange: (open: boolean) => void;
   showCloseButton?: boolean;
 };
