@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react';
 
+import { CreatePostDialog } from '@/modules/studio/ui/components/create-post';
 import PlaylistFormModal from '@/modules/playlists/ui/components/playlist-modal';
 
-export default function ModalProvider() {
+export default function DialogProvider() {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -17,6 +18,7 @@ export default function ModalProvider() {
 
   return (
     <>
+      <CreatePostDialog />
       <PlaylistFormModal />
     </>
   );

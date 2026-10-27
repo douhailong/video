@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowUpFromLine, Radio, ListPlus } from 'lucide-react';
+import { ArrowUpFromLine, Radio } from 'lucide-react';
 
 import { type ButtonProps, Button } from '@/components/ui/button';
 import {
@@ -10,8 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-
-import PlaylistModal from '@/modules/playlists/ui/components/playlist-modal';
+import { useDialog } from '@/modules/studio/ui/components/create-post';
 
 type CreateDropdownProps = {
   icon: ReactNode;
@@ -22,6 +21,8 @@ export default function CreateDropdown({
   icon,
   variant = 'outline'
 }: CreateDropdownProps) {
+  const onOpen = useDialog();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -31,11 +32,9 @@ export default function CreateDropdown({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className='w-44' align='end' side='bottom'>
-        <DropdownMenuItem asChild>
-          <Link href='/studio/create'>
-            <ArrowUpFromLine />
-            上传作品
-          </Link>
+        <DropdownMenuItem onClick={onOpen}>
+          <ArrowUpFromLine />
+          上传作品
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href='/studio/live-stream'>
@@ -43,12 +42,6 @@ export default function CreateDropdown({
             开始直播
           </Link>
         </DropdownMenuItem>
-        <PlaylistModal>
-          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-            <ListPlus />
-            新建播放列表
-          </DropdownMenuItem>
-        </PlaylistModal>
       </DropdownMenuContent>
     </DropdownMenu>
   );

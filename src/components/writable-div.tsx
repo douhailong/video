@@ -12,7 +12,7 @@ type WritableDivProps = React.ComponentPropsWithoutRef<'div'> & {
 export function WritableDiv({
   value,
   onChange,
-  placeholder = '请输入内容...',
+  placeholder = '添加评论',
   className,
   ...props
 }: WritableDivProps) {
@@ -94,6 +94,9 @@ export function WritableDiv({
         'empty:before:text-muted-foreground outline-none empty:before:text-sm empty:before:content-[attr(data-placeholder)]',
         className
       )}
+      onChange={(e) => {
+        console.log(e, 'eeee');
+      }}
       contentEditable
       suppressContentEditableWarning
       spellCheck={false}

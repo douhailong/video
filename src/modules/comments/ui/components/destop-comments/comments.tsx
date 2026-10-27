@@ -74,7 +74,7 @@ const CommentItem = ({ postId, comment }: CommentItemProps) => {
 
   return (
     <div>
-      <div className='flex gap-3 bg-purple-200'>
+      <div className='flex gap-3'>
         <UserAvatar
           imageUrl={user.image}
           name={user.name}
@@ -171,14 +171,14 @@ const SubComments = ({ repliedCount, ...props }: SubCommentsProps) => {
   const comments = data?.pages.flatMap((page) => page.items) || [];
 
   return (
-    <div className='pl-15'>
+    <div className='pl-12'>
       <div className={cn(!isOpen && 'hidden')}>
         {comments.map((comment) => (
           <CommentItem key={comment.id} comment={comment} {...props} />
         ))}
       </div>
       {!!repliedCount && (
-        <OpenButton
+        <OpenCommentButton
           isOpen={isOpen}
           repliedCount={repliedCount}
           currentCount={comments.length}
@@ -195,14 +195,19 @@ const SubComments = ({ repliedCount, ...props }: SubCommentsProps) => {
   );
 };
 
-type OpenButtonProps = {
+type OpenCommentButtonProps = {
   isOpen: boolean;
   repliedCount: number;
   currentCount: number;
   onClick: () => void;
 };
 
-const OpenButton = ({ isOpen, repliedCount, currentCount, onClick }: OpenButtonProps) => {
+const OpenCommentButton = ({
+  isOpen,
+  repliedCount,
+  currentCount,
+  onClick
+}: OpenCommentButtonProps) => {
   const child =
     isOpen && currentCount === repliedCount ? (
       <>
@@ -229,3 +234,5 @@ const OpenButton = ({ isOpen, repliedCount, currentCount, onClick }: OpenButtonP
     </button>
   );
 };
+
+const MoreActionButton = () => {};

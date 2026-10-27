@@ -34,7 +34,6 @@ const StudioSidebar = () => {
       <SidebarContent className='bg-background'>
         <SidebarGroup>
           <SidebarMenu>
-            <StudioSidebarHeader />
             {menus.map(({ href, text, icon: Icon }) => (
               <SidebarMenuItem key={href}>
                 <SidebarMenuButton
@@ -59,49 +58,3 @@ const StudioSidebar = () => {
 };
 
 export default StudioSidebar;
-
-const StudioSidebarHeader = () => {
-  const { state } = useSidebar();
-  const { data } = useSession();
-  const user = data?.user;
-
-  if (!user) {
-    return (
-      <SidebarHeader className='flex items-center justify-center pt-4'>
-        <Skeleton className='size-[112px] rounded-full' />
-        <div className='mt-2 flex flex-col items-center justify-center gap-y-2'>
-          <Skeleton className='h-4 w-[80px]' />
-          <Skeleton className='h-4 w-[100px]' />
-        </div>
-      </SidebarHeader>
-    );
-  }
-
-  if (state === 'collapsed') {
-    return (
-      <SidebarMenuItem>
-        <SidebarMenuButton tooltip='个人信息' asChild>
-          <Link href='/user/current'>
-            <UserAvatar imageUrl={user.image} name={user.name} />
-          </Link>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-    );
-  }
-
-  return (
-    <SidebarHeader className='flex items-center justify-center pt-4'>
-      <Link href='/user/current'>
-        <UserAvatar
-          imageUrl={user.image}
-          name={user.name}
-          className='size-[112px] transition-opacity hover:opacity-80'
-        />
-      </Link>
-      <div className='mt-2 flex flex-col items-center justify-center gap-y-1'>
-        <p className='text-sm font-medium'>个人信息</p>
-        <p className='text-muted-foreground text-xs'>{user.name}</p>
-      </div>
-    </SidebarHeader>
-  );
-};

@@ -9,13 +9,6 @@ import { cn } from '@/lib/utils';
 import { trpc } from '@/trpc/client';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage
-} from '@/components/ui/form';
 
 const formSchema = z.object({
   comment: z.string().trim().min(1)
@@ -43,19 +36,22 @@ const CommentForm = ({
   const create = trpc.comments.create.useMutation({
     onSuccess() {
       onOpenChange(false);
-      form.reset();
+      reset();
       onSuccess();
     }
   });
 
-  const form = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isValid }
+  } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       comment: ''
     }
   });
-
-  const commentValue = form.watch('comment').trim();
 
   const onSubmit = (values: FormValues) => {
     create.mutate({
@@ -67,37 +63,24 @@ const CommentForm = ({
   };
 
   return (
-    <Form {...form}>
+    <>
       {/*  Drawer打开后遮挡Form后的节点，阻止重新触发item点击事件  */}
       <div className={cn('fixed inset-x-0 top-0 h-0', isOpen && 'h-full')} />
       <form
         className='bg-background group z-10 w-full border-t px-3 py-2 transition-[padding-bottom] duration-150'
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit)}
       >
         {isOpen && (
-          <FormField
-            control={form.control}
-            name='comment'
-            render={({ field }) => (
-              <FormItem className='gap-0'>
-                <FormControl>
-                  <Textarea
-                    {...field}
-                    autoFocus
-                    onBlur={() => {
-                      field.onBlur();
-                      onOpenChange(false);
-                    }}
-                    className='focus-visible:border-input bg-secondary/80 block min-h-[80px] w-full resize-none rounded-2xl border-none px-3 shadow-none placeholder:text-sm focus-visible:ring-0'
-                    placeholder='添加评论...'
-                  />
-                </FormControl>
-                <FormMessage className='text-[10px]' />
-              </FormItem>
-            )}
+          <Textarea
+            autoFocus
+            className='focus-visible:border-input bg-secondary/80 block min-h-[80px] w-full resize-none rounded-2xl border-none px-3 shadow-none placeholder:text-sm focus-visible:ring-0'
+            placeholder='添加评论...'
+            {...register('comment', {
+              validate: (value) => value.trim().length > 0,
+              onBlur: () => onOpenChange(false)
+            })}
           />
         )}
-
         <button
           type='button'
           className={cn(
@@ -129,14 +112,14 @@ const CommentForm = ({
               type='submit'
               size='sm'
               className='bg-blue-600 active:bg-blue-700 disabled:opacity-50'
-              disabled={!commentValue || create.isPending}
+              disabled={!isValid || create.isPending}
             >
               {create.isPending ? '发送中...' : '评论'}
             </Button>
           </div>
         </div>
       </form>
-    </Form>
+    </>
   );
 };
 
