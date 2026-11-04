@@ -12,6 +12,9 @@ import { categoriesRouter } from '@/modules/categories/server/procedures';
 import { commentsRouter } from '@/modules/comments/server/procedures';
 import { youRouter } from '@/modules/you/server/procedures';
 
+//
+import { studioPost } from '@/modules/studio/server/studio-post';
+
 export const appRouter = createTRPCRouter({
   search: searchRouter,
   likes: likesRouter,
@@ -23,8 +26,10 @@ export const appRouter = createTRPCRouter({
   upload: uploadRouter,
   posts: postsRouter,
   comments: commentsRouter,
-  categories: categoriesRouter
-  //  nvxhf[utewqw89=08542ds]
+  categories: categoriesRouter,
+
+  //
+  studioPost
 });
 
 export type AppRouter = typeof appRouter;

@@ -20,22 +20,22 @@ import {
   TableRow
 } from '@/components/ui/table';
 
-import { ManyStudioPostTypes } from '../../types';
+import { ManyStudioPostTypes } from './types';
 import QueryForm from './query-form';
-import BulkActions from './bulk-actions';
+import TableActionBar from './table-action-bar';
 
-function PostsTable() {
+function VideoTable() {
   const [queryText, setQueryText] = useState('');
   const [pageIndex, setPageIndex] = useState(1);
   const [rowSelection, setRowSelection] = useState<RowSelectionState | null>(null);
 
-  const [data, query] = trpc.posts.studio.getMany.useSuspenseQuery({
+  const [data, query] = trpc.studioPost.getMany.useSuspenseQuery({
     page: pageIndex,
     pageSize: DEFAULT_LIMIT,
     query: queryText || undefined
   });
 
-  const { mutate } = trpc.posts.studio.deleteMany.useMutation({
+  const { mutate } = trpc.studioPost.deleteMany.useMutation({
     onSuccess() {
       query.refetch();
       setRowSelection(null);
@@ -47,21 +47,22 @@ function PostsTable() {
   return (
     <div>
       <QueryForm
-        onSubmitForm={(queryValue) => {
-          setQueryText(queryValue);
+        onQuery={(val) => {
+          setQueryText(val);
           setPageIndex(1);
           setRowSelection(null);
         }}
       />
-      <BulkActions
+      <TableActionBar
         selectedIds={selectedIds}
         onClose={() => setRowSelection(null)}
-        onBatchDelete={() => mutate({ ids: selectedIds })}
+        onDelete={() => mutate({ ids: selectedIds })}
       />
       <DataTable
         columns={columns}
         dataSource={data.items}
         enableRowSelection
+        rowSelection={rowSelection}
         getRowId={(row) => row.id}
         onSelectionChange={({ rowSelection }) => setRowSelection(rowSelection)}
         pagination={{
@@ -70,81 +71,10 @@ function PostsTable() {
           pageSize: DEFAULT_LIMIT,
           onChange: (nextIndex) => setPageIndex(nextIndex)
         }}
-        rowSelection={rowSelection}
       />
     </div>
   );
 }
-
-function Loading() {
-  return (
-    <div>
-      <div className='flex h-12 items-center px-6'>
-        <Skeleton className='h-5 w-40 rounded-none' />
-      </div>
-      <div className='border-y'>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className='w-12 pl-6'>
-                <Skeleton className='size-4 rounded-[4px]' />
-              </TableHead>
-              <TableHead className='w-[420px] pl-4'>Title</TableHead>
-              <TableHead>Visibility</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>Views</TableHead>
-              <TableHead>Likes</TableHead>
-              <TableHead>Comments</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {Array.from({ length: 5 }).map((_, index) => (
-              <TableRow key={index}>
-                <TableCell className='pl-6'>
-                  <Skeleton className='size-4 rounded-[4px]' />
-                </TableCell>
-                <TableCell className='pl-4'>
-                  <div className='flex items-center gap-4'>
-                    <Skeleton className='h-20 w-36 rounded-none' />
-                    <div className='flex flex-col gap-2'>
-                      <Skeleton className='h-4 w-[120px] rounded-none' />
-                      <Skeleton className='h-3 w-[180px] rounded-none' />
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Skeleton className='h-4 w-20 rounded-none' />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className='h-4 w-16 rounded-none' />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className='h-4 w-24 rounded-none' />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className='h-4 w-12 rounded-none' />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className='h-4 w-12 rounded-none' />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className='h-4 w-12 rounded-none' />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      <div className='flex items-center justify-between px-6 py-4'>
-        <Skeleton className='h-4 w-28 rounded-none' />
-        <Skeleton className='h-9 w-56 rounded-none' />
-      </div>
-    </div>
-  );
-}
-
-export { PostsTable, Loading };
 
 const columns: ColumnDef<ManyStudioPostTypes['items'][number]>[] = [
   {
@@ -161,7 +91,6 @@ const columns: ColumnDef<ManyStudioPostTypes['items'][number]>[] = [
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
-        aria-label='Select all rows'
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         onClick={(event) => event.stopPropagation()}
       />
@@ -169,7 +98,6 @@ const columns: ColumnDef<ManyStudioPostTypes['items'][number]>[] = [
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        aria-label={`Select ${row.original.title}`}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         onClick={(event) => event.stopPropagation()}
       />
@@ -240,3 +168,73 @@ const columns: ColumnDef<ManyStudioPostTypes['items'][number]>[] = [
     cell: () => '-'
   }
 ];
+
+function Loading() {
+  return (
+    <div>
+      <div className='flex h-12 items-center px-6'>
+        <Skeleton className='h-5 w-40 rounded-none' />
+      </div>
+      <div className='border-y'>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className='w-12 pl-6'>
+                <Skeleton className='size-4 rounded-[4px]' />
+              </TableHead>
+              <TableHead className='w-[420px] pl-4'>Title</TableHead>
+              <TableHead>Visibility</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Created</TableHead>
+              <TableHead>Views</TableHead>
+              <TableHead>Likes</TableHead>
+              <TableHead>Comments</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <TableRow key={index}>
+                <TableCell className='pl-6'>
+                  <Skeleton className='size-4 rounded-[4px]' />
+                </TableCell>
+                <TableCell className='pl-4'>
+                  <div className='flex items-center gap-4'>
+                    <Skeleton className='h-20 w-36 rounded-none' />
+                    <div className='flex flex-col gap-2'>
+                      <Skeleton className='h-4 w-[120px] rounded-none' />
+                      <Skeleton className='h-3 w-[180px] rounded-none' />
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Skeleton className='h-4 w-20 rounded-none' />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className='h-4 w-16 rounded-none' />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className='h-4 w-24 rounded-none' />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className='h-4 w-12 rounded-none' />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className='h-4 w-12 rounded-none' />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className='h-4 w-12 rounded-none' />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      <div className='flex items-center justify-between px-6 py-4'>
+        <Skeleton className='h-4 w-28 rounded-none' />
+        <Skeleton className='h-9 w-56 rounded-none' />
+      </div>
+    </div>
+  );
+}
+
+export { VideoTable, Loading };

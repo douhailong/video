@@ -1,36 +1,16 @@
-import {
-  and,
-  count,
-  desc,
-  eq,
-  getTableColumns,
-  ilike,
-  inArray,
-  isNotNull,
-  lt,
-  or,
-  sql
-} from 'drizzle-orm';
+import { and, desc, eq, getTableColumns, ilike, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 
 import { db } from '@/db';
-import {
-  users,
-  posts,
-  postViews,
-  postLikes,
-  follows,
-  videos,
-  playlistPosts
-} from '@/db/schema';
-import { createTRPCRouter, suspenseProcedure, procedure } from '@/trpc/init';
+import { posts, postViews, videos, playlistPosts } from '@/db/schema';
+import { createTRPCRouter, procedure } from '@/trpc/init';
 import { mediaType, WEBSITE_ASSETS_BUCKET } from '@/lib/constants';
 import { updatePostSchema } from '@/lib/zod';
 import { buildSourceObjectId } from '@/lib/utils/s3';
 import { minio } from '@/lib/minio';
 
-export const studioPostRouter = createTRPCRouter({
+export const studioPost = createTRPCRouter({
   create: procedure
     .input(
       z.object({

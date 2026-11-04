@@ -205,6 +205,8 @@ function TablePagination({ pagination }: TablePaginationProps) {
     : 1;
 
   const paginationItems = pagination ? getPageItems(pagination.page, pageCount) : [];
+  const canPreviousPage = pagination.page > 1;
+  const canNextPage = pagination.page < pageCount;
 
   return (
     <div className='flex flex-col items-end gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between'>
@@ -216,10 +218,14 @@ function TablePagination({ pagination }: TablePaginationProps) {
           <PaginationItem>
             <PaginationPrevious
               href='#'
-              className={cn(pagination.page === 1 && 'pointer-events-none opacity-50')}
+              aria-disabled={!canPreviousPage}
+              tabIndex={canPreviousPage ? undefined : -1}
+              className={cn(!canPreviousPage && 'pointer-events-none opacity-50')}
               onClick={(event) => {
                 event.preventDefault();
-                void pagination.onChange(pagination.page - 1);
+                if (canPreviousPage) {
+                  void pagination.onChange(pagination.page - 1);
+                }
               }}
             />
           </PaginationItem>
@@ -244,12 +250,14 @@ function TablePagination({ pagination }: TablePaginationProps) {
           <PaginationItem>
             <PaginationNext
               href='#'
-              // className={cn(
-              //   pagination.page >= pageCount && 'pointer-events-none opacity-50'
-              // )}
+              aria-disabled={!canNextPage}
+              tabIndex={canNextPage ? undefined : -1}
+              className={cn(!canNextPage && 'pointer-events-none opacity-50')}
               onClick={(event) => {
                 event.preventDefault();
-                void pagination.onChange(pagination.page + 1);
+                if (canNextPage) {
+                  void pagination.onChange(pagination.page + 1);
+                }
               }}
             />
           </PaginationItem>

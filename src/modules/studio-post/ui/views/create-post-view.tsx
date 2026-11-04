@@ -8,6 +8,7 @@ const videoSpec = [
 ];
 
 export default function CreatePostView() {
+  return <div>上传视频</div>;
   return (
     <SizeConstraint size='md'>
       <SizeConstraint.Title size='md' title='上传视频' />

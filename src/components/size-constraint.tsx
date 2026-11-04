@@ -41,8 +41,8 @@ type TitleProps = {
 
 const titleSize = { lg: 'text-3xl', md: 'text-2xl' };
 
-SizeConstraint.Title = ({ title, size = 'lg' }: TitleProps) => (
-  <h1 className={cn('px-4 pb-3 font-bold sm:px-0', titleSize[size])}>{title}</h1>
+SizeConstraint.Title = ({ title, size = 'md' }: TitleProps) => (
+  <h1 className={cn('px-4 py-3 font-bold sm:px-6 sm:pt-0', titleSize[size])}>{title}</h1>
 );
 
 export default SizeConstraint;

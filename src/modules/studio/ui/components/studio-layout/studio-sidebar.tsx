@@ -20,8 +20,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import UserAvatar from '@/components/user-avatar';
 
 const menus = [
-  { href: '/studio', text: '信息中心', icon: LayoutDashboard },
-  { href: '/studio/overview', text: '内容', icon: FolderCog },
+  { href: '/studio/dashboard', text: '数据中心', icon: LayoutDashboard },
+  { href: '/studio', text: '内容', icon: FolderCog },
   { href: '/studio/analytics', text: '数据分析', icon: ChartColumn },
   { href: '/studio/translations', text: '字幕', icon: Captions }
 ];

@@ -31,11 +31,13 @@ import PlaylistPicker from './playlist-picker';
 type VideoPostProps = { postId: string };
 
 const VideoPost = ({ postId }: VideoPostProps) => {
+  return <div>详细信息</div>;
+
   const router = useRouter();
 
-  const [post] = trpc.posts.studio.getOne.useSuspenseQuery({ id: postId });
+  const [post] = trpc.studioPost.getOne.useSuspenseQuery({ id: postId });
 
-  const { mutate } = trpc.posts.studio.update.useMutation({
+  const { mutate } = trpc.studioPost.update.useMutation({
     onSuccess: () => {
       toast.success('保存成功');
       router.push('/studio/overview');

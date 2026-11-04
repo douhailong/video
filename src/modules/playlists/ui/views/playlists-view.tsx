@@ -16,6 +16,8 @@ export const tabs = [
 type TabKey = (typeof tabs)[number]['key'];
 
 const PlaylistsView = () => {
+  return <div>播放列表</div>;
+
   const [currentTab, setCurrentTab] = useState<TabKey>('total');
 
   return (

@@ -5,6 +5,7 @@ import { HistoryBody, Loading } from '../components/history-body';
 import ActionBar from '../components/action-bar';
 
 const HistoryView = () => {
+  return <div>观看历史</div>;
   return (
     <SizeConstraint>
       <SizeConstraint.Title title='观看历史' />

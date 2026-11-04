@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-import { CreatePostDialog } from '@/modules/studio/ui/components/create-post';
+import { PostFormDialog } from '@/modules/studio/ui/components/post-form-dialog';
 import PlaylistFormModal from '@/modules/playlists/ui/components/playlist-modal';
 
 export default function DialogProvider() {
@@ -18,7 +18,7 @@ export default function DialogProvider() {
 
   return (
     <>
-      <CreatePostDialog />
+      <PostFormDialog />
       <PlaylistFormModal />
     </>
   );

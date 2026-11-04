@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { useDialog } from '@/modules/studio/ui/components/create-post';
+import { useDialog } from '@/modules/studio/ui/components/post-form-dialog';
 
 type CreateDropdownProps = {
   icon: ReactNode;
