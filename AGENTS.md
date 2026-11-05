@@ -28,6 +28,7 @@
 - Use `publicProcedure` for public operations and `procedure` for authenticated operations. Validate procedure inputs with Zod.
 - Client calls use the typed tRPC React client in `src/trpc/client.ts`, backed by TanStack Query. Server components can prefetch through `src/trpc/server.ts` and render with `HydrateClient`.
 - Drizzle schema definitions are in `src/db/schema.ts`. Database access is provided by `src/db/index.ts`.
+- Do not add database migration SQL files, migration runner scripts, or migration commands unless the user explicitly requests these artifacts. Update the relevant schema and application code directly, and explain any required database changes. Execute database changes only when authorized by the user.
 - Zustand is used for shared dialog state; keep component-only interaction state local with React state. Check existing stores before introducing another store for the same feature.
 - Upload flows use MinIO helpers and tRPC procedures; inspect the owning feature module before changing upload behavior.
 
@@ -36,7 +37,13 @@
 - Keep business-specific UI and server logic in its domain module; put reusable primitives and cross-domain components in `src/components`.
 - Preserve the server/client boundary: add `'use client'` only to client entry points that need hooks, browser APIs, or client interactions.
 - Follow nearby file naming and export patterns; some modules use barrel `index.ts` files while others import concrete files directly.
-- Do not read or copy `.env*`, credentials, or secret values into documentation or source comments.
+- When modifying `package.json`, do not separately update, regenerate, or synchronize lockfiles such as `pnpm-lock.yaml`, or run dependency commands solely for lockfile maintenance, unless the user explicitly requests it. Lockfile changes generated automatically by otherwise required dependency operations are acceptable.
+- You may read `.env*` files and environment variables when needed for the current task. Limit inspection to relevant configuration.
+- Treat environment configuration as read-only: do not create, edit, delete, or overwrite `.env*` files, or set, unset, or change environment variable values.
+- Do not reproduce credentials or secret values in responses, logs, documentation, source code, or source comments.
+- Do not create test files such as `*.test.ts`, `*.test.tsx`, `*.spec.ts`, `*.spec.tsx`, or `__tests__` directories unless the user explicitly requests tests.
+- Do not add one-off setup, configuration, diagnostic, or verification scripts, or corresponding `package.json` commands, unless the user explicitly requests them. General authorization to implement a feature does not authorize adding these auxiliary artifacts.
+- Prefer existing project commands and direct tool invocations for setup and verification. If a temporary helper is needed for authorized work, remove it and its command/documentation references before finishing.
 
 ## Commands and Validation
 
